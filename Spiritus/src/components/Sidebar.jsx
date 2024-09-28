@@ -1,54 +1,100 @@
-import React from 'react'
+import React,{ useState } from 'react'
 import Dashboard from '../images/dashboard.svg'
 import icon from '../images/icon.svg'
 import support from '../images/support.svg'
-import performance from '../images/performance.svg'
+import profile2 from '../images/profile.svg'
 import profile from '../images/profile.png'
 import settings from '../images/settings.svg'
+import appointments from '../images/appointment.svg'
+import calender from '../images/calender.svg'
+import prescriptions from '../images/prescription.svg'
 import transactions from '../images/transactions.svg'
-
+import { useLocation,Link } from 'react-router-dom'
 
 const Sidebar = () => {
+  const location = useLocation();
+
+  const [closeMenu, setCloseMenu] = useState(false);
+
+  const handleCloseMenu = () => {
+    setCloseMenu(!closeMenu);
+  };
+
   return (
-    <div className='sidebar'>
-        <div className="logoContainer">
+    <div className={closeMenu === false? "sidebar":"sidebar active"}>
+        <div className={closeMenu === false? "logoContainer":"logoContainer active"}>
           <img src={icon} alt="icon" className="logo" />
           <h2 className="title">Spiritus</h2>
         </div>
-
-        <div className="burgerContainer">
-          <div className="burgerTrigger"></div>
+        <div className={closeMenu === false? "burgerContainer":"burgerContainer active"}>
+          <div className="burgerTrigger" onClick={() => {
+            handleCloseMenu();
+          }}></div>
           <div className="burgerMenu"></div>
         </div>
-
-        <div className="profileContainer">
+        <div className={closeMenu === false? "profileContainer":"profileContainer active"}>
           <img src={profile} alt="profile" className="profile" />
           <div className="profileContents">
             <p className="name">Hello, Albert!</p>
             <p className="email">albert@email.com</p>
           </div>
-
-          <div className="contentsContainer">
-            <ul>
-              <li>
-                <img src={Dashboard} alt="dashboard" /><a href="/">dashboard</a>
+          </div>
+          <div className={closeMenu === false? "contentsContainer":"contentsContainer active"}>
+           <ul>
+           <li className={location.pathname === "/profile"?"active":""}>
+                <Link to="/profile">
+                  <img src={profile2} alt="profile" />
+                  <span>profile</span>
+              </Link>
               </li>
-              <li>
-                <img src={performance} alt="profile" /><a href="/profile">profile</a>
-              </li>
-              <li>
-                <img src={support} alt="patients" /><a href="/patients">patients</a>
-              </li>
-              <li>
-                <img src={transactions} alt="transactions" /><a href="/transactions">transactions</a>
-              </li>
-              <li>
-                <img src={settings} alt="settings" /><a href="/settings">settings</a>
+              <li className={location.pathname === "/"?"active":""}>
+              <Link to="/">
+                  <img src={Dashboard} alt="dashboard" />
+                  <span>dashboard</span>
+              </Link>
               </li>
               
-            </ul>
+              <li className={location.pathname === "/patients"?"active":""}>
+              <Link to="/patients">
+                  <img src={support} alt="patients" />
+                  <span>patients</span>
+              </Link>
+              </li>
+              
+              
+              
+              <li className={location.pathname === "/appointments"?"active":""}>
+              <Link to="/appointments">
+                  <img src={appointments} alt="appointments" />
+                  <span>appointments</span>
+              </Link></li>
+                  <li className={location.pathname === "/prescriptions"?"active":""}>
+                  <Link to="/prescriptions">
+                  <img src={prescriptions} alt="prescriptions" />
+                  <span>prescriptions</span>
+              </Link>
+              </li>
+              <li className={location.pathname === "/transactions"?"active":""}>
+              <Link to="/transactions">
+                  <img src={transactions} alt="transactions" />
+                  <span>transactions</span>
+              </Link>
+              </li>
+              <li className={location.pathname === "/calender"?"active":""}>
+              <Link to="/calender">
+                  <img src={calender} alt="calender" />
+                  <span>calender</span>
+              </Link>
+              </li>
+              <li className={location.pathname === "/settings"?"active":""}>
+              <Link to="/settings">
+                  <img src={settings} alt="settings" />
+                  <span>settings</span>
+              </Link>
+              </li>
+            </ul> 
           </div>
-        </div>
+        
     </div>
   )
 }

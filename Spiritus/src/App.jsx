@@ -8,7 +8,9 @@ import Patients from './pages/Patients';
 import Settings from './pages/Settings';
 import Transactions from './pages/Transactions';
 import Sidebar from './components/Sidebar';
-
+import Appointments from './pages/Appointments';
+import Calender from './pages/Calender';
+import Prescriptions from './pages/Prescriptions';
 function App() {
   const [count, setCount] = useState(0)
 
@@ -22,6 +24,9 @@ function App() {
             <Route path='/transactions' element={<Transactions/>}/>
             <Route path='/settings' element={<Settings/>}/>
             <Route path='/patients' element={<Patients/>}/>
+            <Route path='/appointments' element={<Appointments/>}/>
+            <Route path='/calender' element={<Calender/>}/>
+            <Route path='/prescriptions' element={<Prescriptions/>}/>
           </Routes>
         </div>
     </Router>
