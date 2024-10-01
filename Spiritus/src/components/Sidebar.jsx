@@ -11,10 +11,6 @@ import prescriptions from '../assets/images/prescription.svg'
 import transactions from '../assets/images/transactions.svg'
 import { useLocation,Link } from 'react-router-dom'
 
-import { CssBaseline, ThemeProvider } from '@mui/material';
-import { createTheme } from '@mui/material';
-import { themeSettings } from '../theme';
-import { useSelector } from 'react-redux';
 
 const Sidebar = () => {
   const location = useLocation();
