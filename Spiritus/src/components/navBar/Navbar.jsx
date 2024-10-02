@@ -1,7 +1,7 @@
-// Navbar.js
-import React, { useState, useEffect } from 'react';
-import { Sun, Moon, LogIn, LogOut, UserPlus, User } from 'lucide-react';
+import React, { useState, useContext } from 'react';
+import { Sun, Moon } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
+import { DarkModeContext } from '../../contexts/DarkModeContext';
 
 // Define NavLink first
 const NavLink = ({ to, text, mobile }) => (
@@ -16,28 +16,18 @@ const NavLink = ({ to, text, mobile }) => (
 );
 
 const Navbar = () => {
-  const [darkMode, setDarkMode] = useState(false);
+  const { darkMode, toggleDarkMode } = useContext(DarkModeContext);
   const [isOpen, setIsOpen] = useState(false);
   const [showAuthPopup, setShowAuthPopup] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [darkMode]);
-
-  const toggleDarkMode = () => setDarkMode(!darkMode);
   const toggleMenu = () => setIsOpen(!isOpen);
   const toggleAuthPopup = () => setShowAuthPopup(!showAuthPopup);
 
   const handleLogout = () => {
     setIsLoggedIn(false);
     setShowAuthPopup(false);
-    // Optionally navigate to home or login page after logout
     navigate('/');
   };
 
@@ -53,7 +43,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className={`transition-all duration-300 ${darkMode ? 'bg-gray-900' : 'bg-white shadow-lg'}`}>
+    <nav className={`transition-all duration-300 ${darkMode ? 'bg-gray-900 shadow-md' : 'bg-white shadow-lg'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Left Side */}
@@ -97,21 +87,23 @@ const Navbar = () => {
                 aria-label="User menu"
                 aria-haspopup="true"
               >
-                <img className="h-8 w-8 rounded-full" src="/api/placeholder/32/32" alt="User Avatar" />
+                <span className="h-8 w-8 rounded-full flex items-center justify-center text-gray-700 dark:text-gray-300">
+                  👤
+                </span>
               </button>
               {showAuthPopup && (
                 <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none transition-all duration-300">
                   {isLoggedIn ? (
                     <>
                       <div className="flex items-center px-4 py-2">
-                        <User className="mr-2" size={16} />
+                        <span className="mr-2">👤</span>
                         <span className="text-gray-700 dark:text-gray-300">User</span>
                       </div>
                       <button
                         onClick={handleLogout}
                         className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300"
                       >
-                        <LogOut className="inline mr-2" size={16} />
+                        <span className="inline mr-2">👤</span>
                         Sign out
                       </button>
                     </>
@@ -121,14 +113,14 @@ const Navbar = () => {
                         onClick={handleLogin}
                         className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300"
                       >
-                        <LogIn className="inline mr-2" size={16} />
+                        <span className="inline mr-2">👤</span>
                         Login
                       </button>
                       <button
                         onClick={handleSignUp}
                         className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300"
                       >
-                        <UserPlus className="inline mr-2" size={16} />
+                        <span className="inline mr-2">👤</span>
                         Sign up
                       </button>
                     </>
@@ -178,7 +170,7 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden">
+        <div className="md:hidden shadow-lg">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             <NavLink to="/" text="Home" mobile />
             <NavLink to="/about" text="About" mobile />
@@ -193,9 +185,9 @@ const Navbar = () => {
           </div>
           <div className="pt-4 pb-3 border-t border-gray-300 dark:border-gray-700">
             <div className="flex items-center px-5">
-              <div className="flex-shrink-0">
-                <img className="h-10 w-10 rounded-full" src="/api/placeholder/40/40" alt="User Avatar" />
-              </div>
+              <span className="h-10 w-10 flex items-center justify-center rounded-full text-gray-700 dark:text-gray-300">
+                👤
+              </span>
               <div className="ml-3">
                 <div className="text-base font-medium text-gray-800 dark:text-white">User Name</div>
                 <div className="text-sm font-medium text-gray-500 dark:text-gray-400">user@example.com</div>
@@ -212,22 +204,25 @@ const Navbar = () => {
               {isLoggedIn ? (
                 <button
                   onClick={handleLogout}
-                  className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-300"
+                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300"
                 >
+                  <span className="inline mr-2">👤</span>
                   Sign out
                 </button>
               ) : (
                 <>
                   <button
                     onClick={handleLogin}
-                    className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-300"
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300"
                   >
+                    <span className="inline mr-2">👤</span>
                     Login
                   </button>
                   <button
                     onClick={handleSignUp}
-                    className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-300"
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300"
                   >
+                    <span className="inline mr-2">👤</span>
                     Sign up
                   </button>
                 </>
