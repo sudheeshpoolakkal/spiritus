@@ -1,11 +1,11 @@
 // src/components/Home/Home.js
 import React from 'react';
-import Navbar from '../navBar/Navbar';
-import Footer from '../footer/Footer';
-import './Home.css'; 
-import img1 from '../../assets/individual.jpeg';
-import img2 from '../../assets/couples.jpeg';
-import img3 from '../../assets/teen.jpeg';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
+
+import img1 from '../assets/individual.jpeg';
+import img2 from '../assets/couples.jpeg';
+import img3 from '../assets/teen.jpeg';
 
 function Home() {
   return (

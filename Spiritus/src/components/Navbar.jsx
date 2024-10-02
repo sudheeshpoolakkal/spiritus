@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { Sun, Moon } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
-import { DarkModeContext } from '../../contexts/DarkModeContext';
+import { DarkModeContext } from '../contexts/DarkModeContext';
 
 // Define NavLink first
 const NavLink = ({ to, text, mobile }) => (

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { User, Mail, Lock, Eye, EyeOff } from 'lucide-react'; // Import Eye and EyeOff icons
-import '../../index.css';
+import '../styles/Main.scss';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
