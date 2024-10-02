@@ -1,21 +1,25 @@
+// src/App.js
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import Login from './components/login/Login';
-import Register from './components/register/Register';
-import Home from './components/home/Home'
+import { DarkModeProvider } from './contexts/DarkModeContext';
+import Home from './pages/Home';
+import Login from './pages/Login';
+import Register from './pages/Register';
+// Import other necessary components
 
 
 function App() {
   return (
-    <Router>
-      <div>
+    <DarkModeProvider>
+      <Router>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          {/* Add other routes as needed */}
         </Routes>
-      </div>
-    </Router>
+      </Router>
+    </DarkModeProvider>
   );
 }
 
