@@ -31,7 +31,7 @@ h1{
 
         h2.title{
             font-size:31.42px;
-            color: $green;
+            color: $blue;
             padding: 0 0 0 1rem;
         }
     }
@@ -70,7 +70,7 @@ h1{
     .burgerContainer{
         
         content: "";
-        background-color: $green;
+        background-color: $lightGreen;
         position: absolute;
         right: calc(-35px / 2);
         top: 5rem;//calc(9rem / 1.15);
@@ -105,7 +105,7 @@ h1{
 
         .burgerMenu{
             content: "";
-            background-color: $green;
+            background-color: $lightGreen;
             position: relative;
             z-index: 1;
             width: 20px;
@@ -183,7 +183,7 @@ h1{
                 background-color: $veryLightGreen;
 
             a{
-                color: $green;
+                color: $blue;
             }
             }
             li:hover{
