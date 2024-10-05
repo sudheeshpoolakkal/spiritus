@@ -1,5 +1,7 @@
+// src/components/Register/Register.js
 import React, { useState } from 'react';
 import { User, Mail, Lock, Phone, Calendar, Eye, EyeOff } from 'lucide-react';
+import '../styles/Main.scss'; // Ensure this path is correct and the file exists
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -37,6 +39,7 @@ const Register = () => {
       <div className="bg-white bg-opacity-10 p-8 rounded-lg backdrop-blur-sm w-full max-w-md">
         <div className="flex justify-center mb-6">
           <div className="bg-blue-800 rounded-full p-3">
+            {/* Use a valid image path. For example, place your icon in the public folder and reference it as '/user-icon.png' */}
             <User className="text-white" size={32} />
           </div>
         </div>
@@ -106,7 +109,7 @@ const Register = () => {
           </button>
         </form>
         <p className="mt-4 text-center text-blue-100">
-          Already have an account? <a href="/login" className="text-white hover:underline">Login here</a>
+          Already have an account? <Link to="/login" className="text-white hover:underline">Login here</Link>
         </p>
       </div>
     </div>
@@ -142,7 +145,7 @@ const InputFieldWithToggle = ({ icon, type, name, placeholder, value, onChange, 
     />
     <button
       type="button"
-      className="absolute right-3 top-2 text-blue-200 focus:outline-none"
+      className="absolute right-3 top-2 text-blue-200 hover:text-white focus:outline-none"
       onClick={toggleVisibility}
       aria-label={isVisible ? 'Hide password' : 'Show password'}
     >

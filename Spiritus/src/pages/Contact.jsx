@@ -2,16 +2,16 @@
 import React from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import './About.scss'; // Import the Sass file
+import './Contact.scss'; // Import the Sass file
 
-const AboutUs = () => {
+const Contact = () => {
   return (
     <>
     <Navbar/>
     <div className="about-us-container">
       {/* Header Section */}
       <section className="header-section">
-        <h1>About Us</h1>
+        <h1>Contact Us</h1>
       </section>
 
       {/* Navigation Section */}
@@ -39,4 +39,4 @@ const AboutUs = () => {
   );
 };
 
-export default AboutUs;
+export default Contact;

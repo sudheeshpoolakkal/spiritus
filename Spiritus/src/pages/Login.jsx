@@ -1,6 +1,7 @@
+// src/components/Login/LoginPage.js
 import React, { useState } from 'react';
 import { User, Mail, Lock, Eye, EyeOff } from 'lucide-react'; // Import Eye and EyeOff icons
-import '../styles/Main.scss';
+import '../styles/Main.scss'; // Ensure this path is correct and the file exists
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -11,6 +12,7 @@ const LoginPage = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log('Login attempted with:', { email, password, rememberMe });
+    // Implement your authentication logic here
   };
 
   const togglePasswordVisibility = () => {
@@ -22,6 +24,7 @@ const LoginPage = () => {
       <div className="bg-white bg-opacity-10 p-8 rounded-lg backdrop-blur-sm w-full max-w-md">
         <div className="flex justify-center mb-6">
           <div className="bg-blue-800 rounded-full p-3">
+            {/* Use a valid image path. For example, place your icon in the public folder and reference it as '/user-icon.png' */}
             <User className="text-white" size={32} />
           </div>
         </div>
