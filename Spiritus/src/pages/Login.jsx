@@ -1,18 +1,25 @@
 // src/components/Login/LoginPage.js
-import React, { useState } from 'react';
-import { User, Mail, Lock, Eye, EyeOff } from 'lucide-react'; // Import Eye and EyeOff icons
-import '../styles/Main.scss'; // Ensure this path is correct and the file exists
+import React, { useState, useContext } from 'react';
+import { User, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { AuthContext } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import '../styles/Main.scss'; // Ensure the SCSS path is correct
 
 const LoginPage = () => {
+  const { login } = useContext(AuthContext); // Access the login function from AuthContext
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
-  const [showPassword, setShowPassword] = useState(false); // New state for password visibility
+  const [showPassword, setShowPassword] = useState(false); // State for password visibility
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Login attempted with:', { email, password, rememberMe });
-    // Implement your authentication logic here
+    // Implement your authentication logic here.
+    // For demonstration, we'll assume login is successful.
+    const userData = { name: 'John Doe', email };
+    login(userData); // Update global authentication state
+    navigate('/'); // Redirect to home page after login
   };
 
   const togglePasswordVisibility = () => {
@@ -24,7 +31,6 @@ const LoginPage = () => {
       <div className="bg-white bg-opacity-10 p-8 rounded-lg backdrop-blur-sm w-full max-w-md">
         <div className="flex justify-center mb-6">
           <div className="bg-blue-800 rounded-full p-3">
-            {/* Use a valid image path. For example, place your icon in the public folder and reference it as '/user-icon.png' */}
             <User className="text-white" size={32} />
           </div>
         </div>
@@ -56,8 +62,9 @@ const LoginPage = () => {
               type="button"
               className="absolute top-3 right-3 text-blue-200 hover:text-white focus:outline-none"
               onClick={togglePasswordVisibility}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
-              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />} {/* Switch between Eye and EyeOff */}
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             </button>
           </div>
           <div className="flex justify-between items-center mb-6">

@@ -1,9 +1,13 @@
 // src/components/Register/Register.js
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { User, Mail, Lock, Phone, Calendar, Eye, EyeOff } from 'lucide-react';
-import '../styles/Main.scss'; // Ensure this path is correct and the file exists
+import { AuthContext } from '../contexts/AuthContext';
+import { Link, useNavigate } from 'react-router-dom';
+import '../styles/Main.scss'; // Ensure the SCSS path is correct
 
 const Register = () => {
+  const { login } = useContext(AuthContext); // Access the login function from AuthContext
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -22,8 +26,12 @@ const Register = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Registration attempted with:', formData);
-    // Here you would typically send the data to your backend
+    // Implement your registration logic here.
+    // For demonstration, we'll assume registration is successful.
+    const { fullName, email } = formData;
+    const userData = { name: fullName, email };
+    login(userData); // Update global authentication state
+    navigate('/'); // Redirect to home page after registration
   };
 
   const togglePasswordVisibility = () => {
@@ -39,7 +47,6 @@ const Register = () => {
       <div className="bg-white bg-opacity-10 p-8 rounded-lg backdrop-blur-sm w-full max-w-md">
         <div className="flex justify-center mb-6">
           <div className="bg-blue-800 rounded-full p-3">
-            {/* Use a valid image path. For example, place your icon in the public folder and reference it as '/user-icon.png' */}
             <User className="text-white" size={32} />
           </div>
         </div>
@@ -116,6 +123,7 @@ const Register = () => {
   );
 };
 
+// InputField Component
 const InputField = ({ icon, type, name, placeholder, value, onChange, required }) => (
   <div className="mb-4 relative">
     <div className="absolute top-3 left-3 text-blue-200">{icon}</div>
@@ -131,6 +139,7 @@ const InputField = ({ icon, type, name, placeholder, value, onChange, required }
   </div>
 );
 
+// InputFieldWithToggle Component
 const InputFieldWithToggle = ({ icon, type, name, placeholder, value, onChange, required, toggleVisibility, isVisible }) => (
   <div className="mb-4 relative">
     <div className="absolute top-3 left-3 text-blue-200">{icon}</div>

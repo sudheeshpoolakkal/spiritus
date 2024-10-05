@@ -7,12 +7,14 @@ import About from './pages/About';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Contact from './pages/Contact';
+import { AuthProvider } from './contexts/AuthContext';
 // Import other necessary components
 
 
 function App() {
   return (
     <DarkModeProvider>
+      <AuthProvider>
       <Router>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -23,6 +25,7 @@ function App() {
           {/* Add other routes as needed */}
         </Routes>
       </Router>
+      </AuthProvider>
     </DarkModeProvider>
   );
 }

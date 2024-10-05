@@ -1,10 +1,10 @@
 // src/components/Navbar/Navbar.js
 import React, { useState, useContext } from 'react';
 import { Sun, Moon } from 'lucide-react';
-import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { DarkModeContext } from '../contexts/DarkModeContext';
+import { AuthContext } from '../contexts/AuthContext';
 
-// Define NavLink with active state
 const NavLink = ({ to, text, mobile }) => {
   const location = useLocation();
   const isActive = location.pathname === to;
@@ -30,29 +30,18 @@ const NavLink = ({ to, text, mobile }) => {
 
 const Navbar = () => {
   const { darkMode, toggleDarkMode } = useContext(DarkModeContext);
+  const { isLoggedIn, user, logout } = useContext(AuthContext);
   const [isOpen, setIsOpen] = useState(false);
   const [showAuthPopup, setShowAuthPopup] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
 
   const toggleMenu = () => setIsOpen(!isOpen);
   const toggleAuthPopup = () => setShowAuthPopup(!showAuthPopup);
 
   const handleLogout = () => {
-    setIsLoggedIn(false);
+    logout();
     setShowAuthPopup(false);
     navigate('/');
-  };
-
-  const handleLogin = () => {
-    setIsLoggedIn(true);
-    setShowAuthPopup(false);
-    navigate('/login');
-  };
-
-  const handleSignUp = () => {
-    setShowAuthPopup(false);
-    navigate('/register');
   };
 
   return (
@@ -62,7 +51,6 @@ const Navbar = () => {
           {/* Left Side */}
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              {/* Use a valid image path. For example, place your logo in the public folder and reference it as '/logo.png' */}
               <Link to="/">
                 <img className="h-8 w-auto" src="/logo.png" alt="Logo" />
               </Link>
@@ -113,7 +101,7 @@ const Navbar = () => {
                     <>
                       <div className="flex items-center px-4 py-2">
                         <span className="mr-2">👤</span>
-                        <span className="text-gray-700 dark:text-gray-300">User</span>
+                        <span className="text-gray-700 dark:text-gray-300">{user?.name || 'User'}</span>
                       </div>
                       <button
                         onClick={handleLogout}
@@ -125,20 +113,22 @@ const Navbar = () => {
                     </>
                   ) : (
                     <>
-                      <button
-                        onClick={handleLogin}
+                      <Link
+                        to="/login"
+                        onClick={() => setShowAuthPopup(false)}
                         className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 shadow-sm hover:shadow-md"
                       >
                         <span className="inline mr-2">🔑</span>
                         Login
-                      </button>
-                      <button
-                        onClick={handleSignUp}
+                      </Link>
+                      <Link
+                        to="/register"
+                        onClick={() => setShowAuthPopup(false)}
                         className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 shadow-sm hover:shadow-md"
                       >
                         <span className="inline mr-2">📝</span>
                         Sign up
-                      </button>
+                      </Link>
                     </>
                   )}
                 </div>
@@ -207,8 +197,8 @@ const Navbar = () => {
                     👤
                   </span>
                   <div className="ml-3">
-                    <div className="text-base font-medium text-gray-800 dark:text-white">User Name</div>
-                    <div className="text-sm font-medium text-gray-500 dark:text-gray-400">user@example.com</div>
+                    <div className="text-base font-medium text-gray-800 dark:text-white">{user?.name || 'User'}</div>
+                    <div className="text-sm font-medium text-gray-500 dark:text-gray-400">{user?.email || 'user@example.com'}</div>
                   </div>
                   <button
                     onClick={toggleDarkMode}
@@ -248,20 +238,22 @@ const Navbar = () => {
                 </button>
               ) : (
                 <>
-                  <button
-                    onClick={handleLogin}
+                  <Link
+                    to="/login"
+                    onClick={() => setIsOpen(false)}
                     className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 shadow-sm hover:shadow-md"
                   >
                     <span className="inline mr-2">🔑</span>
                     Login
-                  </button>
-                  <button
-                    onClick={handleSignUp}
+                  </Link>
+                  <Link
+                    to="/register"
+                    onClick={() => setIsOpen(false)}
                     className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 shadow-sm hover:shadow-md"
                   >
                     <span className="inline mr-2">📝</span>
                     Sign up
-                  </button>
+                  </Link>
                 </>
               )}
             </div>

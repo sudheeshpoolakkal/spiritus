@@ -109,6 +109,8 @@ function Home() {
             </motion.div>
           ))}
         </div>
+        {/* Add the More Details */}
+        
       </motion.div>
       <Footer />
     </>
