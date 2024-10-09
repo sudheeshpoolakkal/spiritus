@@ -1,0 +1,91 @@
+// src/AboutUs.scss
+
+// Define common colors
+$light-gray: #f7fafc;
+$dark-green: #064e3b;
+$light-green: #4ade80;
+$white: #ffffff;
+
+// Global transition for smooth hover effects
+$transition: all 0.3s ease-in-out;
+
+.about-us-container {
+  font-family: Arial, sans-serif;
+
+  .header-section {
+    background-color: $light-gray;
+    text-align: center;
+    padding: 3rem 0;
+
+    h1 {
+      font-size: 2.5rem;
+      color: $dark-green;
+      font-weight: bold;
+      opacity: 0;
+      transform: translateY(-20px);
+      animation: fadeIn 0.8s ease-in-out forwards;
+    }
+  }
+
+  .nav-section {
+    background-color: $dark-green;
+    padding: 1rem 0;
+    
+    ul {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+
+      li {
+        a {
+          color: $light-green;
+          font-size: 1rem;
+          text-decoration: none;
+          transition: $transition;
+
+          &:hover {
+            color: lighten($light-green, 10%);
+            font-size: 1.1rem;
+          }
+        }
+      }
+    }
+  }
+
+  .content-section {
+    background-color: $dark-green;
+    color: $white;
+    text-align: center;
+    padding: 4rem 2rem;
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeIn 1.2s ease-in-out forwards;
+    
+    h2 {
+      font-size: 2rem;
+      font-weight: semi-bold;
+      margin-bottom: 1.5rem;
+      color: $light-green;
+      transition: $transition;
+
+      &:hover {
+        color: lighten($light-green, 10%);
+      }
+    }
+
+    p {
+      font-size: 1.125rem;
+      max-width: 40rem;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+  }
+}
+
+// Keyframes for fade-in effect
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
