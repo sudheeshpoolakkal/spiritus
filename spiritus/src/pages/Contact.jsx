@@ -1,13 +1,13 @@
 // src/AboutUs.js
 import React from 'react';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 import './Contact.scss'; // Import the Sass file
 
 const Contact = () => {
   return (
     <>
-    <Navbar/>
+   
     <div className="about-us-container">
       {/* Header Section */}
       <section className="header-section">

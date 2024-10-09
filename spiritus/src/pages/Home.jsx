@@ -38,7 +38,7 @@ const therapyOptions = [
 function Home() {
   return (
     <>
-      <Navbar />
+      
       <motion.div
         className="bg-white dark:bg-gray-800 min-h-screen py-16 pt-24 text-center text-black dark:text-gray-200 transition-colors duration-500"
         initial={{ opacity: 0 }}

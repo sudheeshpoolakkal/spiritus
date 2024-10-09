@@ -7,7 +7,7 @@ import './About.scss'; // Import the Sass file
 const AboutUs = () => {
   return (
     <>
-    <Navbar/>
+    
     <div className="about-us-container">
       {/* Header Section */}
       <section className="header-section">
