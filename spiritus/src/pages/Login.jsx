@@ -1,9 +1,9 @@
 // src/components/Login/LoginPage.js
 import React, { useState, useContext } from 'react';
 import { User, Mail, Lock, Eye, EyeOff } from 'lucide-react';
-import { AuthContext } from '../contexts/AuthContext';
+import { AuthContext } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import '../styles/Main.scss'; // Ensure the SCSS path is correct
+import '@/styles/Main.scss'; // Ensure the SCSS path is correct
 
 const LoginPage = () => {
   const { login } = useContext(AuthContext); // Access the login function from AuthContext
