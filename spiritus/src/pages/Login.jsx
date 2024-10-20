@@ -1,14 +1,31 @@
 import React, { useState } from 'react';
+import axios from 'axios'; // Add axios to handle API requests
 
 const Login = () => {
   const [state, setState] = useState('Sign Up');
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
+  const [message, setMessage] = useState('');
 
   const onSubmitHandler = async (event) => {
     event.preventDefault();
-    // Submit logic here
+
+    try {
+      if (state === 'Sign Up') {
+        // Registration request
+        const res = await axios.post('http://localhost:5000/register', { name, email, password });
+        setMessage(res.data.message);
+      } else {
+        // Login request
+        const res = await axios.post('http://localhost:5000/login', { email, password });
+        setMessage('Login successful!');
+        // Store token in localStorage or context for further use
+        localStorage.setItem('token', res.data.token);
+      }
+    } catch (error) {
+      setMessage(error.response.data.message);
+    }
   };
 
   return (
@@ -16,6 +33,7 @@ const Login = () => {
       <div className='flex flex-col gap-3 m-auto items-start p-8 min-w-[340px] sm:min-w-96 border rounded-xl text-zinc-600 text-sm shadow-lg '>
         <p className='text-2xl font-semibold'>{state === 'Sign Up' ? 'Create Account' : 'Login'}</p>
         <p>Please {state === 'Sign Up' ? 'Sign up' : 'log In'} to book an appointment</p>
+        {message && <p className='text-red-500'>{message}</p>}
         
         {state === 'Sign Up' && (
           <div className='w-full'>
