@@ -1,19 +1,25 @@
-// src/components/Home/Home.js
+
+
 import React from 'react';
 import { motion } from 'framer-motion';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+import Img1 from "../assets/individual.jpeg"
+import Img2 from "../assets/couples.jpeg"
+import Img3 from "../assets/teen.jpeg"
+import Header from '@/components/Header';
+import SpecialityMenu from '@/components/SpecialityMenu';
+import TopDoctors from '@/components/TopDoctors';
+import Banner from '@/components/Banner';
 
-import img1 from '../assets/individual.jpeg';
-import img2 from '../assets/couples.jpeg';
-import img3 from '../assets/teen.jpeg';
+
+
+
 
 const therapyOptions = [
   {
     id: 1,
     title: 'Individual',
     description: 'For myself',
-    image: img1,
+    image:Img1,
     delay: 0.2,
     link: '/individual',
   },
@@ -21,7 +27,7 @@ const therapyOptions = [
     id: 2,
     title: 'Couples',
     description: 'For me and my partner',
-    image: img2,
+    image:Img2,
     delay: 0.4,
     link: '/couples',
   },
@@ -29,7 +35,7 @@ const therapyOptions = [
     id: 3,
     title: 'Teen',
     description: 'For my child',
-    image: img3,
+    image:Img3,
     delay: 0.6,
     link: '/teen',
   },
@@ -38,6 +44,10 @@ const therapyOptions = [
 function Home() {
   return (
     <>
+      <Header/>
+      <SpecialityMenu/>
+      <TopDoctors/>
+      <Banner/>
       
       <motion.div
         className="bg-white dark:bg-gray-800 min-h-screen py-16 pt-24 text-center text-black dark:text-gray-200 transition-colors duration-500"
@@ -46,6 +56,7 @@ function Home() {
         exit={{ opacity: 0 }}
         transition={{ duration: 0.5 }}
       >
+        
         {/* Main Heading with Fade-In Animation */}
         <motion.h1
           className="text-5xl font-extrabold mb-6"
@@ -112,7 +123,6 @@ function Home() {
         {/* Add the More Details */}
         
       </motion.div>
-      <Footer />
     </>
   );
 }

@@ -1,14 +1,15 @@
 import React from 'react'
 import { Route,Routes } from 'react-router-dom'
-import Home from '@/pages/home'
-import Doctors from '@/pages/Doctors'
-import Login from '@/pages/login'
-import About from '@/pages/About'
-import Contact from '@/pages/Contact'
-import MyProfile from '@/pages/MyProfile'
-import MyAppoinments from '@/pages/MyAppoinments'
-import Navbar from '@/components/navbar'
-import Appointment from '@/pages/Appointment'
+import Home from './pages/Home'
+import Doctors from './pages/Doctors'
+import Login from './pages/login'
+import About from './pages/About'
+import Contact from './pages/Contact'
+import MyProfile from './pages/MyProfile'
+import MyAppoinments from './pages/MyAppoinments'
+import Navbar from './components/navbar'
+import Appointment from './pages/Appointment'
+import Footer from './components/Footer'
 const App = () => {
   return (
     <div className='mx-4 sm:mx-[10%]'>
@@ -21,12 +22,13 @@ const App = () => {
       <Route path='/about' element={<About/>}/>
       <Route path='/contact' element={<Contact/>}/>
       <Route path='/my-profile' element={<MyProfile/>}/>
-      <Route path='/my-appoinments' element={<MyAppoinments/>}/>
+      <Route path='/my-appointments' element={<MyAppoinments/>}/>
       <Route path='/appoinment/:docID' element={<MyAppoinments/>}/>
       <Route path="/appointment/:docId" element={<Appointment />} />
 
 
     </Routes>
+    <Footer/>
     </div>
   )
 }
