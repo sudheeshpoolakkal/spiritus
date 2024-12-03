@@ -1,97 +1,84 @@
 import React, { useState } from 'react';
-import axios from 'axios'; // Add axios to handle API requests
+import { User, Mail, Lock, Eye, EyeOff } from 'lucide-react'; // Import Eye and EyeOff icons
+import '../styles/Main.scss';
 
-const Login = () => {
-  const [state, setState] = useState('Sign Up');
-  const [password, setPassword] = useState('');
+const LoginPage = () => {
   const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
-  const [message, setMessage] = useState('');
+  const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // New state for password visibility
 
-  const onSubmitHandler = async (event) => {
-    event.preventDefault();
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log('Login attempted with:', { email, password, rememberMe });
+  };
 
-    try {
-      if (state === 'Sign Up') {
-        // Registration request
-        const res = await axios.post('http://localhost:5000/register', { name, email, password });
-        setMessage(res.data.message);
-      } else {
-        // Login request
-        const res = await axios.post('http://localhost:5000/login', { email, password });
-        setMessage('Login successful!');
-        // Store token in localStorage or context for further use
-        localStorage.setItem('token', res.data.token);
-      }
-    } catch (error) {
-      setMessage(error.response.data.message);
-    }
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword); // Toggle password visibility
   };
 
   return (
-    <form className='min-h-[80vh] flex items-center' onSubmit={onSubmitHandler}>
-      <div className='flex flex-col gap-3 m-auto items-start p-8 min-w-[340px] sm:min-w-96 border rounded-xl text-zinc-600 text-sm shadow-lg '>
-        <p className='text-2xl font-semibold'>{state === 'Sign Up' ? 'Create Account' : 'Login'}</p>
-        <p>Please {state === 'Sign Up' ? 'Sign up' : 'log In'} to book an appointment</p>
-        {message && <p className='text-red-500'>{message}</p>}
-        
-        {state === 'Sign Up' && (
-          <div className='w-full'>
-            <p>Full Name</p>
-            <input 
-              className='border border-zinc-300 rounded w-full p-2 mt-1' 
-              type='text' 
-              onChange={(e) => setName(e.target.value)} 
-              value={name} 
-              required 
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-300 via-blue-500 to-blue-700">
+      <div className="bg-white bg-opacity-10 p-8 rounded-lg backdrop-blur-sm w-full max-w-md">
+        <div className="flex justify-center mb-6">
+          <div className="bg-blue-800 rounded-full p-3">
+            <User className="text-white" size={32} />
+          </div>
+        </div>
+        <h2 className="text-2xl font-bold text-center text-white mb-6">WELCOME</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4 relative">
+            <Mail className="absolute top-3 left-3 text-blue-200" size={20} />
+            <input
+              type="email"
+              className="w-full bg-transparent border-b border-blue-200 py-2 pl-10 pr-4 text-white placeholder-blue-200 focus:outline-none focus:border-white"
+              placeholder="Email ID"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
             />
           </div>
-        )}
-
-        <div className='w-full'>
-          <p>Email</p>
-          <input 
-            className='border border-zinc-300 rounded w-full p-2 mt-1' 
-            type='email' 
-            onChange={(e) => setEmail(e.target.value)} 
-            value={email} 
-            required 
-          />
-        </div>
-
-        <div className='w-full'>
-          <p>Password</p>
-          <input 
-            className='border border-zinc-300 rounded w-full p-2 mt-1' 
-            type='password' 
-            onChange={(e) => setPassword(e.target.value)} 
-            value={password} 
-            required 
-          />
-        </div>
-
-        <button className='bg-primary text-white w-full py-2 rounded-md text-base'>
-          {state === 'Sign Up' ? 'Create Account' : 'Login'}
-        </button>
-
-        {state === 'Sign Up' ? (
-          <p>
-            Already have an account?{' '}
-            <span onClick={() => setState('Login')} className='text-primary underline cursor-pointer'>
-              Login Here
-            </span>
-          </p>
-        ) : (
-          <p>
-            Create a new account?{' '}
-            <span onClick={() => setState('Sign Up')} className='text-primary underline cursor-pointer'>
-              Click Here
-            </span>
-          </p>
-        )}
+          <div className="mb-6 relative">
+            <Lock className="absolute top-3 left-3 text-blue-200" size={20} />
+            <input
+              type={showPassword ? 'text' : 'password'}  // Toggle between 'text' and 'password'
+              className="w-full bg-transparent border-b border-blue-200 py-2 pl-10 pr-10 text-white placeholder-blue-200 focus:outline-none focus:border-white"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            {/* Toggle button for showing/hiding password */}
+            <button
+              type="button"
+              className="absolute top-3 right-3 text-blue-200 hover:text-white focus:outline-none"
+              onClick={togglePasswordVisibility}
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />} {/* Switch between Eye and EyeOff */}
+            </button>
+          </div>
+          <div className="flex justify-between items-center mb-6">
+            <label className="flex items-center text-blue-100">
+              <input
+                type="checkbox"
+                className="mr-2"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+              />
+              Remember me
+            </label>
+            <a href="#" className="text-blue-100 hover:text-white">Forgot Password?</a>
+          </div>
+          <button
+            type="submit"
+            className="w-full bg-blue-700 text-white py-2 rounded-md hover:bg-blue-600 transition duration-300"
+          >
+            LOGIN
+          </button>
+        </form>
       </div>
-    </form>
+    </div>
   );
 };
 
-export default Login;
+export default LoginPage;
