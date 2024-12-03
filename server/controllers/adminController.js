@@ -2,11 +2,14 @@
 
 
 // API for adding doctor
-const addDoctor = async () => {
+const addDoctor = async (req,res) => {
     try{
         const { name, email, password, speciality, degree, experience, about, fees, address } = req.body
         const imageFile = req.file
-        console.log({ name, email, password, speciality, degree, experience, about, fees, address },imageFile)
+        
+        //checking for all data to add doctor
+
+        
     }catch(error){
 
     }
