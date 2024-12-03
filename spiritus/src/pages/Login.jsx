@@ -1,25 +1,16 @@
-// src/components/Login/LoginPage.js
-import React, { useState, useContext } from 'react';
-import { User, Mail, Lock, Eye, EyeOff } from 'lucide-react';
-import { AuthContext } from '@/context/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import '@/styles/Main.scss'; // Ensure the SCSS path is correct
+import React, { useState } from 'react';
+import { User, Mail, Lock, Eye, EyeOff } from 'lucide-react'; // Import Eye and EyeOff icons
+import '../styles/Main.scss';
 
 const LoginPage = () => {
-  const { login } = useContext(AuthContext); // Access the login function from AuthContext
-  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
-  const [showPassword, setShowPassword] = useState(false); // State for password visibility
+  const [showPassword, setShowPassword] = useState(false); // New state for password visibility
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Implement your authentication logic here.
-    // For demonstration, we'll assume login is successful.
-    const userData = { name: 'John Doe', email };
-    login(userData); // Update global authentication state
-    navigate('/'); // Redirect to home page after login
+    console.log('Login attempted with:', { email, password, rememberMe });
   };
 
   const togglePasswordVisibility = () => {
@@ -62,9 +53,8 @@ const LoginPage = () => {
               type="button"
               className="absolute top-3 right-3 text-blue-200 hover:text-white focus:outline-none"
               onClick={togglePasswordVisibility}
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
-              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />} {/* Switch between Eye and EyeOff */}
             </button>
           </div>
           <div className="flex justify-between items-center mb-6">

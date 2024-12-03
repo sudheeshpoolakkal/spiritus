@@ -1,13 +1,7 @@
-// src/components/Register/Register.js
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { User, Mail, Lock, Phone, Calendar, Eye, EyeOff } from 'lucide-react';
-import { AuthContext } from '../contexts/AuthContext';
-import { Link, useNavigate } from 'react-router-dom';
-import '../styles/Main.scss'; // Ensure the SCSS path is correct
 
 const Register = () => {
-  const { login } = useContext(AuthContext); // Access the login function from AuthContext
-  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -26,12 +20,8 @@ const Register = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Implement your registration logic here.
-    // For demonstration, we'll assume registration is successful.
-    const { fullName, email } = formData;
-    const userData = { name: fullName, email };
-    login(userData); // Update global authentication state
-    navigate('/'); // Redirect to home page after registration
+    console.log('Registration attempted with:', formData);
+    // Here you would typically send the data to your backend
   };
 
   const togglePasswordVisibility = () => {
@@ -116,14 +106,13 @@ const Register = () => {
           </button>
         </form>
         <p className="mt-4 text-center text-blue-100">
-          Already have an account? <Link to="/login" className="text-white hover:underline">Login here</Link>
+          Already have an account? <a href="/login" className="text-white hover:underline">Login here</a>
         </p>
       </div>
     </div>
   );
 };
 
-// InputField Component
 const InputField = ({ icon, type, name, placeholder, value, onChange, required }) => (
   <div className="mb-4 relative">
     <div className="absolute top-3 left-3 text-blue-200">{icon}</div>
@@ -139,7 +128,6 @@ const InputField = ({ icon, type, name, placeholder, value, onChange, required }
   </div>
 );
 
-// InputFieldWithToggle Component
 const InputFieldWithToggle = ({ icon, type, name, placeholder, value, onChange, required, toggleVisibility, isVisible }) => (
   <div className="mb-4 relative">
     <div className="absolute top-3 left-3 text-blue-200">{icon}</div>
@@ -154,7 +142,7 @@ const InputFieldWithToggle = ({ icon, type, name, placeholder, value, onChange, 
     />
     <button
       type="button"
-      className="absolute right-3 top-2 text-blue-200 hover:text-white focus:outline-none"
+      className="absolute right-3 top-2 text-blue-200 focus:outline-none"
       onClick={toggleVisibility}
       aria-label={isVisible ? 'Hide password' : 'Show password'}
     >
