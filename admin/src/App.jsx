@@ -23,7 +23,7 @@ function App() {
       <ToastContainer/>
       <Navbar/>
 
-      <div className='flex items-strat'>
+      <div className='flex items-start'>
         <Sidebar/>
         <Routes>
           <Route path="/" element={<></>} />
