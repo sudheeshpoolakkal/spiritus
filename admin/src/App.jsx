@@ -14,7 +14,7 @@ import DoctorsList from './pages/Admin/DoctorsList';
 
 
 
-function App() {
+const App = () => {
 
   const {aToken} = useContext(AdminContext)
 
