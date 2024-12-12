@@ -1,4 +1,6 @@
 import React from 'react'
+import {AdminContext} from '../../context/AdminContext'
+import { useContext, useEffect } from 'react'
 
 const DoctorsList = () => {
 
@@ -14,8 +16,16 @@ const DoctorsList = () => {
 
   return (
     <div>
-      
-
+      <h1>All Doctors</h1>
+      <div>
+        {
+          doctors.map((item,index)=>(
+            <div key={index}>
+              <img src={item.image} alt="" />
+              </div> 
+          ))
+        }
+      </div>
     </div>
   )
 }

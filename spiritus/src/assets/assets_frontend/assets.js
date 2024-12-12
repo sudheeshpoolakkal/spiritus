@@ -90,7 +90,7 @@ export const doctors = [
         _id: 'doc1',
         name: 'Dr. Richard James',
         image: doc1,
-        speciality: ' Neuro Pychologist',
+        speciality: 'Neuro Pychologist',
         degree: 'MD in Phychiatry',
         experience: '4 Years',
         about: 'Dr. Davis has a strong commitment to delivering comprehensive medical care, focusing on preventive medicine, early diagnosis, and effective treatment strategies. Dr. Davis has a strong commitment to delivering comprehensive medical care, focusing on preventive medicine, early diagnosis, and effective treatment strategies.',
