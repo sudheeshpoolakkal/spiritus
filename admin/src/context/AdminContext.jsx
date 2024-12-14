@@ -36,7 +36,7 @@ const AdminContextProvider = (props) => {
        l
     try{
           
-      const {data}= await axios.post (backendUrl + '/api/admin/change-availability' , {docId} ,{headers:{aToken}})
+      const { data }= await axios.post(backendUrl + '/api/admin/change-availability' , {docId} ,{headers:{aToken}})
         if(data.success){
           toast.success(data.message)
           getAllDoctors()
@@ -59,7 +59,7 @@ const AdminContextProvider = (props) => {
     backendUrl,
     doctors,
     getAllDoctors,
-    changeAvailability
+    changeAvailability,
   };
 
   return <AdminContext.Provider value={value}>{props.children}</AdminContext.Provider>;

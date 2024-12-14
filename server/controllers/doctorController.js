@@ -11,7 +11,7 @@ const changeAvailablity = async(req,res)=>{
         res.json({success:true, message:'Availability Changed'})
          
     }catch(error){
-        console.error(error); // Log the error for better debugging
+        console.log(error); // Log the error for better debugging
         res.json({ success: false, message:error.message});
     }
 
