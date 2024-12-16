@@ -97,7 +97,7 @@ const Doctors = () => {
                 key={index}
               >
                 <img
-                  className="w-full h-48 object-cover"
+                  className="w-full h-50 object-cover"
                   src={item.image}
                   alt={item.name}
                 />
