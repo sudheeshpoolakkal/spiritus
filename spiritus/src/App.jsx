@@ -7,7 +7,7 @@ import About from './pages/About'
 import Contact from './pages/Contact'
 import MyProfile from './pages/MyProfile'
 import MyAppoinments from './pages/MyAppoinments'
-import Navbar from './components/navbar'
+import Navbar from './components/Navbar'
 import Appointment from './pages/Appointment'
 import Footer from './components/Footer'
 const App = () => {
