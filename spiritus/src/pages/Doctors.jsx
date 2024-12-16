@@ -47,7 +47,7 @@ const Doctors = () => {
                 className="border border-gray-200 rounded-lg overflow-hidden cursor-pointer hover:shadow-lg transition duration-300"
                 key={index}
               >
-                <img className="w-full h-48 object-cover" src={item.image} alt={item.name} />
+                <img className="w-full h-50 object-cover" src={item.image} alt={item.name} />
                 <div className="p-4">
                   <div className="flex items-center gap-2 text-sm text-green-500">
                     <p className="w-2 h-2 bg-green-500 rounded-full"></p>
