@@ -1,7 +1,14 @@
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import axios from 'axios'; // Add axios to handle API requests
+import { AppContext } from '@/context/AppContext.jsx';
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
+
+  const {backendUrl,token,setToken} = useContext(AppContext)
+  const navigate = useNavigate();
+
   const [state, setState] = useState('Sign Up');
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
@@ -14,22 +21,44 @@ const Login = () => {
     try {
       if (state === 'Sign Up') {
         // Registration request
-        const res = await axios.post('http://localhost:5000/register', { name, email, password });
-        setMessage(res.data.message);
-      } else {
+        const {data} = await axios.post(backendUrl + '/api/user/register',{name,email,password})
+        if (data.success)
+        {
+          localStorage.setItem('token',data.token)
+          setToken(data.token)
+        }
+        else {
+          toast.error(data.message)
+        }
+
+
+    } else {
         // Login request
-        const res = await axios.post('http://localhost:5000/login', { email, password });
-        setMessage('Login successful!');
-        // Store token in localStorage or context for further use
-        localStorage.setItem('token', res.data.token);
+        const {data} = await axios.post(backendUrl + '/api/user/login',{email,password})
+        if (data.success)
+        {
+          localStorage.setItem('token',data.token)
+          setToken(data.token)
+        }
+        else {
+          toast.error(data.message)
+        }
       }
     } catch (error) {
-      setMessage(error.response.data.message);
+      toast.error(error.message)
     }
   };
 
+
+  useEffect(()=>{
+    if (token){
+      navigate('/')
+    }
+
+  },[token])
+
   return (
-    <form className='min-h-[80vh] flex items-center' onSubmit={onSubmitHandler}>
+    <form onSubmit={onSubmitHandler} className='min-h-[80vh] flex items-center'>
       <div className='flex flex-col gap-3 m-auto items-start p-8 min-w-[340px] sm:min-w-96 border rounded-xl text-zinc-600 text-sm shadow-lg '>
         <p className='text-2xl font-semibold'>{state === 'Sign Up' ? 'Create Account' : 'Login'}</p>
         <p>Please {state === 'Sign Up' ? 'Sign up' : 'log In'} to book an appointment</p>
@@ -70,7 +99,7 @@ const Login = () => {
           />
         </div>
 
-        <button className='bg-primary text-white w-full py-2 rounded-md text-base'>
+        <button type='submit' className='bg-primary text-white w-full py-2 rounded-md text-base'>
           {state === 'Sign Up' ? 'Create Account' : 'Login'}
         </button>
 
