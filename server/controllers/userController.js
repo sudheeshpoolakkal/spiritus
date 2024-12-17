@@ -2,6 +2,8 @@ import validator from 'validator'
 import bcrypt from 'bcrypt'
 import userModel from '../models/userModel.js'
 import jwt from 'jsonwebtoken'
+import doctorModel from '../models/doctorModel.js'
+import appointmentModel from '../models/appointmentModel.js'
 
 
 // API to register user
@@ -79,4 +81,63 @@ const loginUser = async (req,res) => {
     }
 }
 
-export { registerUser, loginUser }
+// API to Book Appointment
+const bookAppointment = async (req,res) =>{
+    
+    try{
+
+        const { userId, docId, slotDate, slotTime } = req.body
+
+        const docData = await doctorModel.findById(docId).select('-password')
+
+        if (!docData.available){
+            return res.json({success:false,message:'Doctor not Available'})
+        }
+
+        let slots_booked = docData.slots_booked
+
+        // checking for slot availability
+        if (slots_booked[slotDate]){
+            if (slots_booked[slotDate].includes(slotTime)){
+                return res.json({success:false,message:'Slot not Available'})
+            }else{
+                slots_booked[slotDate].push(slotTime)
+            }
+        } else{
+            slots_booked[slotDate] = []
+            slots_booked[slotDate].push(slotTime)
+        }
+
+
+        const userData = await userModel.findById(userId).select('-password')
+
+        delete docData.slots_booked
+
+        const appointmentData = {
+            userId,
+            docId,
+            userData,
+            docData,
+            amount:docData.fees,
+            slotTime,
+            slotDate,
+            date: Date.now(),
+        }
+
+        const newAppointment = new appointmentModel(appointmentData)
+        await newAppointment.save()
+
+        // save new slots Data in docData
+        await doctorModel.findByIdAndUpdate(docId,{slots_booked})
+
+        res.json({success:true,message:'Appointment Booked'})
+
+    }
+    catch(error){
+        console.log(error)
+        res.json({success:false,message:error.message})
+    }
+
+}
+
+export { registerUser, loginUser, bookAppointment }
