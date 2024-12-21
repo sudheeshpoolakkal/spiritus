@@ -33,7 +33,7 @@ const getDoctorsData = async ()=>{
 }
 
 const value={
-    doctors,
+    doctors,getDoctorsData,
     currencySymbol,
     token,
     setToken,
