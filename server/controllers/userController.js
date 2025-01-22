@@ -4,6 +4,7 @@ import userModel from '../models/userModel.js'
 import jwt from 'jsonwebtoken'
 import doctorModel from '../models/doctorModel.js'
 import appointmentModel from '../models/appointmentModel.js'
+import razorpay from 'razorpay'
 
 
 // API to register user
@@ -191,5 +192,18 @@ const bookAppointment = async (req,res) =>{
         res.json({success:false,message:error.message})
     }
  }
+
+// // api to make payment for appointment using razorpay
+// const razorpayInstance = new razorpay({
+//     key_id:'',
+//     key_secret:''
+// })
+
+// const paymentRazorpay = async (req,res) =>{
+
+
+
+// }
+
 
 export { registerUser, loginUser, getProfile, updateProfile, bookAppointment, listAppointment };
