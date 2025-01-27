@@ -4,6 +4,7 @@ import userModel from '../models/userModel.js'
 import jwt from 'jsonwebtoken'
 import doctorModel from '../models/doctorModel.js'
 import appointmentModel from '../models/appointmentModel.js'
+import razorpay from 'razorpay'
 import { v2 as cloudinary } from 'cloudinary';
 
 
@@ -177,4 +178,68 @@ const bookAppointment = async (req,res) =>{
 
 }
 
-export { registerUser, loginUser, getProfile, updateProfile, bookAppointment };
+// API to get user appointments for frontend my-appointments page
+ const listAppointment = async (req,res) =>{
+    try{
+
+        const {userId} = req.body
+        const appointments = await appointmentModel.find({userId})
+
+        res.json({success:true,appointments})
+
+    }
+    catch(error){
+        console.log(error)
+        res.json({success:false,message:error.message})
+    }
+ }
+
+ // api to make payment for appointment using razorpay
+//  const razorpayInstance = new razorpay({
+//      key_id:'',
+//      key_secret:''
+//  })
+
+//  const paymentRazorpay = async (req,res) =>{
+
+
+
+//  }
+
+
+//  API to cancel appointment
+const cancelAppointment = async (req,res) =>{
+    try {
+        
+        const {userId, appointmentId} = req.body
+
+        const appointmentData = await appointmentModel.findById(appointmentId)
+
+        // verify appointment user
+        if(appointmentData.userId !== userId){
+            return res.json({success:false,message:"Unauthorized action.."})
+        }
+
+        await appointmentModel.findByIdAndUpdate(appointmentId, {cancelled:true})
+
+        // Releasing doctor slot
+
+        const {docId,slotDate,slotTime} = appointmentData
+
+        const doctorData = await doctorModel.findById(docId)
+
+        let slots_booked = doctorData.slots_booked
+
+        slots_booked[slotDate] = slots_booked[slotDate].filter(e => e !== slotDate);
+
+        await doctorModel.findByIdAndUpdate(docId, {slots_booked})
+
+        res.json({success:true,message:"Appointment Cancelled.."})
+
+    } catch (error) {
+        console.log(error)
+        res.json({success:false,message:error.message})
+    }
+}
+
+export { registerUser, loginUser, getProfile, updateProfile, bookAppointment, listAppointment, cancelAppointment };
