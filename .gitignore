@@ -13,6 +13,16 @@ dist-ssr
 *.local
 node_modules
 /node_modules
+server/.env
+spiritus/.env
+spiritus/.env.local
+spiritus/.env.*.local
+server/.env.local
+server/.env.*.local
+.env
+admin/.env
+admin/.env.local
+admin/.env.*.local
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
