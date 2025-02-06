@@ -5,7 +5,7 @@ import { assets } from '../assets/assets_frontend/assets';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 //import RelatedDoctors from '../components/RelatedDoctors'; 
-import RelatedDoctors from '@/components/RelatedDoctors';
+import RelatedDoctor from '@/components/RelatedDoctor';
 
 const Appointment = () => {
     const { docId } = useParams(); 
@@ -195,7 +195,7 @@ const Appointment = () => {
                 </button>
             </div>
             {/* LISTING RElATED DOCTORS */}
-            <RelatedDoctors docId={docId} speciality={docInfo.speciality}/>
+            <RelatedDoctor docId={docId} speciality={docInfo.speciality}/>
         </div>
     );
 };
