@@ -4,8 +4,8 @@ import { AppContext } from '../context/AppContext';
 import { assets } from '../assets/assets_frontend/assets';
 import { toast } from 'react-toastify';
 import axios from 'axios';
-import RelatedDoctors from '../components/RelatedDoctors'; 
-//import RelatedDoctors from '@/components/RelatedDoctors';
+//import RelatedDoctors from '../components/RelatedDoctors'; 
+import RelatedDoctors from '@/components/RelatedDoctors';
 
 const Appointment = () => {
     const { docId } = useParams(); 
