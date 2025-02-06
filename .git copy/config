@@ -6,7 +6,7 @@
 	symlinks = false
 	ignorecase = true
 [remote "origin"]
-	url = https://github.com/sudheesh5/Spiritus.git
+	url = https://github.com/sudheeshpoolakkal/Spiritus.git
 	fetch = +refs/heads/*:refs/remotes/origin/*
 [branch "doctor_view"]
 	remote = origin
