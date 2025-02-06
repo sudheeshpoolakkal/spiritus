@@ -12,7 +12,6 @@ const DoctorContextProvider = (props) => {
   );
 
   const [appointments, setAppointments] = useState([]);
-
   const [dashData, setDashData] = useState(false);
 
   const getAppointments = async () => {
@@ -88,7 +87,83 @@ const DoctorContextProvider = (props) => {
     } catch (error) {
         console.log(error);
         toast.error(error.message);
+      }
+
+
+  const [profileData, setProfileData] = useState(false);
+
+  const getAppointments = async () => {
+    try {
+      const { data } = await axios.get(
+        backendUrl + "/api/doctor/appointments",
+        { headers: { dToken } }
+      );
+      if (data.success) {
+        setAppointments(data.appointments);
+        console.log(data.appointments);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
     }
+  };
+
+  const completeAppointment = async (appointmentId) => {
+    try {
+      const { data } = await axios.post(
+        backendUrl + "/api/doctor/complete-appointment/",
+        { appointmentId },
+        { headers: { dToken } }
+      );
+
+      if (data.success) {
+        toast.success(data.message);
+        getAppointments();
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  };
+
+  const cancelAppointment = async (appointmentId) => {
+    try {
+      const { data } = await axios.post(
+        backendUrl + "/api/doctor/cancel-appointment/",
+        { appointmentId },
+        { headers: { dToken } }
+      );
+
+      if (data.success) {
+        toast.success(data.message);
+        getAppointments();
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  };
+
+  const getProfileData = async() => {
+
+    try {
+        const {data} = await axios.get(backendUrl + '/api/doctor/profile', {headers:{dToken}})
+        if(data.success)
+        {
+            setProfileData(data.profileData)
+            console.log(data.profileData)
+        }
+    } catch (error) {
+        console.log(error);
+      toast.error(error.message);
+
+    
 
   }
 
@@ -103,7 +178,11 @@ const DoctorContextProvider = (props) => {
     completeAppointment,
     cancelAppointment,
     dashData,setDashData,
-    getDashData
+    getDashData,
+    profileData,
+    setProfileData,
+    getProfileData,
+
   };
 
   return (
