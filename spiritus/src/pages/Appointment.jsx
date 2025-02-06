@@ -4,6 +4,7 @@ import { AppContext } from '../context/AppContext';
 import { assets } from '../assets/assets_frontend/assets';
 import { toast } from 'react-toastify';
 import axios from 'axios';
+import RelatedDoctors from '@/components/RelatedDoctors';
 
 const Appointment = () => {
     const { docId } = useParams(); 
@@ -192,6 +193,8 @@ const Appointment = () => {
                     Book an Appointment
                 </button>
             </div>
+            {/* LISTING RElATED DOCTORS */}
+            <RelatedDoctors docId={docId} speciality={docInfo.speciality}/>
         </div>
     );
 };
