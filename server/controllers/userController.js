@@ -92,33 +92,46 @@ const getProfile = async (req, res) => {
 const updateProfile = async (req, res) => {
     try {
         const { userId, name, phone, address, dob, gender } = req.body;
-        //const imageFile = req.imageFile;
-        const imageFile = req.file;
+        const imageFile = req.file; // Use req.file since multer.memoryStorage() processes single file
+
         if (!name || !phone || !dob || !gender) {
             return res.json({ success: false, message: "Data Missing" });
         }
-        await userModel.findByIdAndUpdate(userId, {
+
+        const updateData = {
             name,
             phone,
             address: JSON.parse(address),
             dob,
             gender,
-        });
+        };
+
+        
         if (imageFile) {
-            //upload image to cloudinary
-            //const imageUpload = await cloudinary.uploader(imageFile.path, {
-              //  resource_type: "image",
-           // });
-           const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
-            resource_type: "image",
-        });
-            const imageURL = imageUpload.secure_url;
-            await userModel.findByIdAndUpdate(userId, { image: imageURL });
-            
+            try {
+                const imageUpload = await cloudinary.v2.uploader.upload_stream(
+                    { resource_type: "image" },
+                    (error, result) => {
+                        if (error) {
+                            console.error("Cloudinary Upload Error:", error);
+                            return res.json({ success: false, message: "Image upload failed." });
+                        }
+                        updateData.image = result.secure_url; // Save the Cloudinary URL
+                    }
+                );
+
+                imageUpload.end(imageFile.buffer); // Send the file buffer to Cloudinary
+            } catch (cloudinaryError) {
+                console.error("Cloudinary Error:", cloudinaryError);
+                return res.json({ success: false, message: "Image upload failed." });
+            }
         }
+
+        await userModel.findByIdAndUpdate(userId, updateData); // Update the user's profile with Cloudinary URL
+
         res.json({ success: true, message: "Profile Updated!" });
     } catch (error) {
-        console.log(error);
+        console.error("Update Profile Error:", error);
         res.json({ success: false, message: error.message });
     }
 };
