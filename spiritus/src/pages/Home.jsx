@@ -16,18 +16,7 @@ function Home() {
       <Header/>
       <SpecialityMenu/>
       <TopDoctors/>
-      <Banner/>
-      
-      
-        
-        
-        
-        
-        
-        
-        {/* Add the More Details */}
-        
-      
+      <Banner/>  
     </>
   );
 }
