@@ -106,21 +106,23 @@ const updateProfile = async (req, res) => {
             gender,
         };
 
-        
         if (imageFile) {
             try {
-                const imageUpload = await cloudinary.v2.uploader.upload_stream(
-                    { resource_type: "image" },
-                    (error, result) => {
-                        if (error) {
-                            console.error("Cloudinary Upload Error:", error);
-                            return res.json({ success: false, message: "Image upload failed." });
+                const result = await new Promise((resolve, reject) => {
+                    const uploadStream = cloudinary.uploader.upload_stream(
+                        { resource_type: "image" },
+                        (error, result) => {
+                            if (error) {
+                                reject(error);
+                            } else {
+                                resolve(result);
+                            }
                         }
-                        updateData.image = result.secure_url; // Save the Cloudinary URL
-                    }
-                );
+                    );
+                    uploadStream.end(imageFile.buffer); // Send the file buffer to Cloudinary
+                });
 
-                imageUpload.end(imageFile.buffer); // Send the file buffer to Cloudinary
+                updateData.image = result.secure_url; // Save the Cloudinary URL
             } catch (cloudinaryError) {
                 console.error("Cloudinary Error:", cloudinaryError);
                 return res.json({ success: false, message: "Image upload failed." });
