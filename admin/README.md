@@ -1,8 +1,40 @@
-# React + Vite
+# Spiritus Admin Interface Documentation
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Table of Contents
+1. [Overview](#overview)
+2. [Features](#features)
+3. [Installation](#installation)
+4. [Usage](#usage)
+5. [API Integration](#api-integration)
 
-Currently, two official plugins are available:
+## 1. Overview
+The Admin Interface provides comprehensive management tools for administrators to oversee the entire Spiritus system.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 2. Features
+- User management
+- Appointment tracking
+- Doctor management
+- Analytics and reporting
+- System configuration
+
+## 3. Installation
+```bash
+cd admin
+npm install
+```
+
+## 4. Usage
+Start the development server:
+```bash
+npm run dev
+```
+
+Access the admin interface at `http://localhost:5173`
+
+## 5. API Integration
+The admin interface communicates with the backend API for all data operations. Key API endpoints include:
+
+- GET /api/admin/users - Get all users
+- POST /api/admin/users - Create new user
+- GET /api/admin/appointments - Get all appointments
+- PUT /api/admin/appointments/:id - Update appointment status

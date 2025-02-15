@@ -18,8 +18,8 @@ const Contact = () => {
           <div className="contact-card text-center p-6 bg-white shadow-lg rounded-lg">
             <h3 className="text-xl font-semibold">Email Us</h3>
             <p className="mt-2">For general inquiries, reach us at:</p>
-            <a href="mailto:support@spiritus.com" className="text-blue-600 hover:underline">
-              support@spiritus.com
+            <a href="mailto:support@angelus.com" className="text-blue-600 hover:underline">
+              support@angelus.com
             </a>
           </div>
           <div className="contact-card text-center p-6 bg-white shadow-lg rounded-lg">
@@ -92,7 +92,7 @@ const Contact = () => {
             style={{ border: 0 }}
             allowFullScreen=""
             loading="lazy"
-            title="Spiritus Location"
+            title="Angelus Location"
             className="rounded-md shadow-lg"
           ></iframe>
         </section>

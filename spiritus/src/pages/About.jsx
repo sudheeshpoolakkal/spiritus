@@ -12,7 +12,7 @@ const AboutUs = () => {
           <div className="text-center animate-fadeInDown">
             <h1 className="text-4xl font-bold">About Us</h1>
             <p className="mt-4 text-lg max-w-2xl mx-auto">
-              Learn more about Spiritus and how we're transforming access to mental health care globally.
+              Learn more about Angelus and how we're transforming access to mental health care globally.
             </p>
           </div>
         </section>
@@ -31,16 +31,16 @@ const AboutUs = () => {
           <div className="max-w-4xl text-center">
             <h2 className="text-3xl font-bold text-gray-800 mb-6">Find Yourself in Therapy</h2>
             <p className="text-lg text-gray-600 leading-relaxed mb-4">
-              Spiritus was founded in 2024 to remove the traditional barriers to therapy and make mental health care more accessible to everyone.
+              Angelus was founded in 2024 to remove the traditional barriers to therapy and make mental health care more accessible to everyone.
             </p>
             <p className="text-lg text-gray-600 leading-relaxed mb-4">
-              Today, Spiritus is the world’s largest therapy service — providing professional, affordable, and personalized therapy in a convenient online format.
+              Today, Angelus is the world’s largest therapy service — providing professional, affordable, and personalized therapy in a convenient online format.
             </p>
             <p className="text-lg text-gray-600 leading-relaxed mb-4">
               Our network of over 30,000 licensed therapists has helped millions of people take ownership of their mental health and work towards their personal goals.
             </p>
             <p className="text-lg text-gray-600 leading-relaxed">
-              As the unmet need for mental health services continues to grow, Spiritus is committed to expanding access to therapy globally.
+              As the unmet need for mental health services continues to grow, Angelus is committed to expanding access to therapy globally.
             </p>
           </div>
         </section>

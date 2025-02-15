@@ -1,25 +1,41 @@
-import { assets } from '@/assets/assets_frontend/assets'
-import React from 'react'
-import { useNavigate } from 'react-router-dom'
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
-function Banner() {
-    const navigate=useNavigate()
+const Banner = () => {
   return (
-    <div className='flex bg-primary rounded-lg px-6 sm:px-10 md:px-14 lg:px-12 my-20 md:mx-10'>
-        {/* ----- Left side ----- */}
-        <div className='flex-1 py-8 sm:py-10 md:py-16 lg:py-24 lg:pl-5'>
-            <div className='text-xl sm:text-2xl md:text-3xl lg:text-5xl font-semibold text-white'>
-                <p>Book Appointment</p>
-                <p className='mt-4'>With 100+ Trusted Doctors</p>
-            </div>
-            <button onClick={()=>{navigate('/login'); scrollTo(0,0)}} className='bg-white text-sm sm:text-base text-gray-600 px-8 py-3 rounded-full mt-6 hover:scale-105 transition-all'>Create Account</button>
-        </div>
-        {/* ----- Right side ----- */}
-        <div className='hidden md:block md:w-1/2 lg:w-[370px] relative'>
-            <img className='w-full absolute bottom-0 right-0 max-w-md' src={assets.appointment_img} alt="" />
-        </div>
-    </div>
-  )
-}
+    <section className="py-32 bg-black text-white">
+      <div className="max-w-[980px] mx-auto px-4 text-center">
+        <motion.h2 
+          className="text-4xl md:text-5xl font-semibold mb-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          Take the first step towards better mental health
+        </motion.h2>
+        <motion.p 
+          className="text-xl text-gray-400 mb-8 max-w-2xl mx-auto"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          Start your journey to wellness with our expert therapists
+        </motion.p>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <Link 
+            to="/book-appointment"
+            className="inline-flex items-center justify-center text-lg font-medium bg-white text-black rounded-full px-8 py-4 hover:bg-gray-100 transition-colors"
+          >
+            Book Your First Session
+          </Link>
+        </motion.div>
+      </div>
+    </section>
+  );
+};
 
-export default Banner
+export default Banner;

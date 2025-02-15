@@ -16,10 +16,6 @@ const MyAppoinments = () => {
     return dateArray[0] + " " + months[Number(dateArray[1])] + " " + dateArray[2];
   };
 
-
-
-
-
   const getUserAppointments = async () =>{
     try {
       

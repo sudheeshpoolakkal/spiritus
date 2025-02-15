@@ -1,5 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: #0066CC;
+  --primary-hover: #0077ED;
+  --background: #fbfbfd;
+  --text: #1d1d1f;
+  --text-secondary: #86868b;
+  --border: #d2d2d7;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--background);
+  color: var(--text);
+}
+
 #root {
-  max-width: 1280px;
+  max-width: auto;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
@@ -7,7 +28,7 @@
 
 .logo {
   height: 6em;
-  padding: 1.5em;
+  padding: 0;
   will-change: filter;
   transition: filter 300ms;
 }
@@ -39,4 +60,22 @@
 
 .read-the-docs {
   color: #888;
+}
+
+@layer components {
+  .button-primary {
+    @apply bg-[#0066CC] text-white px-4 py-1 rounded-full hover:bg-[#0077ED] transition-colors text-xs font-normal;
+  }
+  
+  .nav-link {
+    @apply text-xs font-normal text-gray-900 hover:text-[#0066CC] transition-colors;
+  }
+}
+
+/* Reset any default margins that might affect the navbar */
+nav, 
+.nav-container,
+.nav-logo {
+  margin-left: 0;
+  padding-left: 0;
 }
