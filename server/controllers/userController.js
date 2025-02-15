@@ -259,4 +259,20 @@ const cancelAppointment = async (req,res) =>{
     }
 }
 
-export { registerUser, loginUser, getProfile, updateProfile, bookAppointment, listAppointment, cancelAppointment };
+
+const getVideoCallLink = async (req, res) => {
+    try {
+      const { appointmentId } = req.params;
+  
+      const appointment = await appointmentModel.findById(appointmentId);
+      if (!appointment) {
+        return res.status(404).json({ error: "Appointment not found" });
+      }
+  
+      res.json({ videoCallLink: appointment.videoCallLink || "" }); // Return only the link
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  };
+
+export { registerUser, loginUser, getProfile, updateProfile, bookAppointment, listAppointment, cancelAppointment,getVideoCallLink };
