@@ -6,6 +6,8 @@ import doctorModel from '../models/doctorModel.js'
 import appointmentModel from '../models/appointmentModel.js'
 //import razorpay from 'razorpay'
 import { v2 as cloudinary } from 'cloudinary';
+import stripe from 'stripe';
+import CurrencyConverter from 'currency-converter-lt';
 
 
 // API to register user
@@ -139,19 +141,19 @@ const updateProfile = async (req, res) => {
 };
 
 // API to Book Appointment
-const bookAppointment = async (req,res) =>{
-    
+const bookAppointment = async (req, res) => {
+
     try {
         const { userId, docId, slotDate, slotTime } = req.body;
-    
+
         const docData = await doctorModel.findById(docId).select('-password');
-    
+
         if (!docData || !docData.available) {
             return res.json({ success: false, message: 'Doctor not Available' });
         }
-    
+
         let slots_booked = docData.slots_booked || {}; // Ensure slots_booked is initialized
-    
+
         // Checking for slot availability
         if (slots_booked[slotDate]) {
             if (slots_booked[slotDate].includes(slotTime)) {
@@ -161,12 +163,12 @@ const bookAppointment = async (req,res) =>{
         } else {
             slots_booked[slotDate] = [slotTime];
         }
-    
+
         const userData = await userModel.findById(userId).select('-password');
-    
+
         // Remove sensitive data before adding to appointment data
         delete docData.slots_booked;
-    
+
         const appointmentData = {
             userId,
             docId,
@@ -177,102 +179,157 @@ const bookAppointment = async (req,res) =>{
             slotDate,
             date: Date.now(),
         };
-    
+
         const newAppointment = new appointmentModel(appointmentData);
         await newAppointment.save();
-    
+
         // Save updated slots data in docData
         await doctorModel.findByIdAndUpdate(docId, { slots_booked });
-    
+
         res.json({ success: true, message: 'Appointment Booked' });
-    } 
-    catch(error){
+    }
+    catch (error) {
         console.log(error)
-        res.json({success:false,message:error.message})
+        res.json({ success: false, message: error.message })
     }
 
 }
 
 // API to get user appointments for frontend my-appointments page
- const listAppointment = async (req,res) =>{
-    try{
-
-        const {userId} = req.body
-        const appointments = await appointmentModel.find({userId})
-
-        res.json({success:true,appointments})
-
-    }
-    catch(error){
-        console.log(error)
-        res.json({success:false,message:error.message})
-    }
- }
-
-// API to make payment for appointment using razorpay
-//     const razorpayInstance = new razorpay({
-
-// key_id:'',
-
-//       key_secret:''
-
-//     })
- 
-//   const paymentRazorpay = async (req,res) =>{
-
- 
-//  }
-
-
-//  API to cancel appointment
-const cancelAppointment = async (req,res) =>{
+const listAppointment = async (req, res) => {
     try {
-        
-        const {userId, appointmentId} = req.body
 
-        const appointmentData = await appointmentModel.findById(appointmentId)
+        const { userId } = req.body
+        const appointments = await appointmentModel.find({ userId })
 
-        // verify appointment user
-        if(appointmentData.userId !== userId){
-            return res.json({success:false,message:"Unauthorized action.."})
-        }
+        res.json({ success: true, appointments })
 
-        await appointmentModel.findByIdAndUpdate(appointmentId, {cancelled:true})
-
-        // Releasing doctor slot
-
-        const {docId,slotDate,slotTime} = appointmentData
-
-        const doctorData = await doctorModel.findById(docId)
-
-        let slots_booked = doctorData.slots_booked
-
-        slots_booked[slotDate] = slots_booked[slotDate].filter(e => e !== slotDate);
-
-        await doctorModel.findByIdAndUpdate(docId, {slots_booked})
-
-        res.json({success:true,message:"Appointment Cancelled.."})
-
-    } catch (error) {
+    }
+    catch (error) {
         console.log(error)
-        res.json({success:false,message:error.message})
+        res.json({ success: false, message: error.message })
     }
 }
 
 
+// const stripeInstance = new stripe({
+//     key_id: process.env.STRIPE_PUBLISHABLE_KEY,
+//     key_secret: process.env.STRIPE_SECRET_KEY,
+// });
+const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY); // Initialize Stripe with secret key
+
+//API to make payment for appointment using stripe
+
+const paymentStripe = async (req, res) => {
+    try {
+        const { appointmentId } = req.body;
+        const appointmentData = await appointmentModel.findById(appointmentId);
+
+        if (!appointmentData || appointmentData.cancelled || appointmentData.paid) {
+            return res.json({ success: false, message: "Invalid appointment" });
+        }
+
+        const converter = new CurrencyConverter();
+
+        // Ensure currency is set properly
+        let currency = process.env.CURRENCY && process.env.CURRENCY.trim(); // Trim to remove spaces
+
+        if (!currency) {
+            currency = 'CHF'; // Default to Swiss Franc (or change to preferred default)
+            console.warn("CURRENCY environment variable is not set. Using default: CHF");
+        }
+
+        // Convert INR to target currency
+        const exchangeRate = 0.011; // Example rate: 1 INR = 0.011 CHF
+        const chfAmount = appointmentData.amount * exchangeRate;
+
+        // Ensure minimum amount in CHF before processing payment
+        const minAmountCHF = 0.50; // CHF 0.50 minimum
+        const minAmountInINR = minAmountCHF / exchangeRate; // Convert back to INR
+
+        if (appointmentData.amount < minAmountInINR) {
+            return res.json({
+                success: false,
+                message: `Minimum appointment fee should be at least ${minAmountInINR.toFixed(2)} INR (CHF 0.50)`,
+            });
+        }
+
+
+        const amountInCents = Math.round(chfAmount * 100);
+        if (amountInCents < 50) {
+            return res.json({ success: false, message: "Minimum amount is CHF 0.50" });
+        }
+
+        const paymentIntent = await stripeInstance.paymentIntents.create({
+            amount: amountInCents,
+            currency: currency.toLowerCase(),
+            metadata: { appointment_id: appointmentId },
+        });
+
+        await appointmentModel.findByIdAndUpdate(appointmentId, { paymentIntentId: paymentIntent.id });
+
+        res.json({ success: true, clientSecret: paymentIntent.client_secret });
+    } catch (error) {
+        console.error("Stripe payment error:", error);
+        res.json({ success: false, message: error.message });
+    }
+};
+
+
+
+//  API to cancel appointment
+const cancelAppointment = async (req, res) => {
+    try {
+        const { userId, appointmentId } = req.body;
+
+        const appointmentData = await appointmentModel.findById(appointmentId);
+
+        if (!appointmentData) {
+            return res.json({ success: false, message: "Appointment not found" });
+        }
+
+
+
+        if (appointmentData.userId.toString() !== userId) {
+            return res.json({ success: false, message: "Unauthorized action.." });
+        }
+
+        await appointmentModel.findByIdAndUpdate(appointmentId, { cancelled: true });
+
+        const { docId, slotDate, slotTime } = appointmentData;
+
+        const doctorData = await doctorModel.findById(docId);
+
+        let slots_booked = doctorData.slots_booked;
+
+        if (slots_booked && slots_booked[slotDate]) {
+            slots_booked[slotDate] = slots_booked[slotDate].filter(e => e !== slotTime);
+
+            await doctorModel.findByIdAndUpdate(docId, { slots_booked });
+        }
+
+        res.json({ success: true, message: "Appointment Cancelled.." });
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: error.message });
+    }
+};
+
+
 const getVideoCallLink = async (req, res) => {
     try {
-      const { appointmentId } = req.params;
-  
-      const appointment = await appointmentModel.findById(appointmentId);
-      if (!appointment) {
-        return res.status(404).json({ error: "Appointment not found" });
-      }
-  
-      res.json({ videoCallLink: appointment.videoCallLink || "" }); // Return only the link
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  };
+        const { appointmentId } = req.params;
 
-export { registerUser, loginUser, getProfile, updateProfile, bookAppointment, listAppointment, cancelAppointment,getVideoCallLink };
+        const appointment = await appointmentModel.findById(appointmentId);
+        if (!appointment) {
+            return res.status(404).json({ error: "Appointment not found" });
+        }
+
+        res.json({ videoCallLink: appointment.videoCallLink || "" }); // Return only the link
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+
+export { registerUser, loginUser, getProfile, updateProfile, bookAppointment, listAppointment, cancelAppointment, getVideoCallLink, paymentStripe };

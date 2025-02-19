@@ -6,7 +6,7 @@ import cors from 'cors';
 
 // App configuration
 const app = express();
-const PORT = 5000;
+const PORT = 4000;
 const JWT_SECRET = 'your_secret_key'; // Replace with a secure secret key
 
 // Middleware
