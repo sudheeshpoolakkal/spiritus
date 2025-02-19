@@ -15,6 +15,7 @@ const DoctorContextProvider = (props) => {
   const [appointments, setAppointments] = useState([]);
   const [dashData, setDashData] = useState(false);
   const [profileData, setProfileData] = useState(false);
+  
 
   const getAppointments = async () => {
     try {
@@ -105,6 +106,26 @@ const DoctorContextProvider = (props) => {
     }
   };
 
+  const setVideoCallLink = async (appointmentId, videoCallLink) => {
+    try {
+        const { data } = await axios.post(
+            backendUrl + "/api/doctor/set-video-call",
+            { appointmentId, videoCallLink },
+            { headers: { dToken } }
+        );
+
+        if (data.success) {
+            toast.success("Video call link saved successfully!");
+            getAppointments();
+        } else {
+            toast.error(data.message);
+        }
+    } catch (error) {
+        console.log(error);
+        toast.error(error.message);
+    }
+};
+
   const value = {
     // Define your context values here
     dToken,
@@ -121,6 +142,7 @@ const DoctorContextProvider = (props) => {
     profileData,
     setProfileData,
     getProfileData,
+    setVideoCallLink,
   };
 
   return (

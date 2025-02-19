@@ -196,6 +196,23 @@ const doctorDashboard = async (req, res) => {
 
         }
 
+// API to set video call link
+const setVideoCallLink = async (req, res) => {
+    try {
+      const { appointmentId, videoCallLink } = req.body;
+  
+      const appointment = await appointmentModel.findByIdAndUpdate(
+        appointmentId,
+        { videoCallLink },
+        { new: true }
+      );
+  
+      res.json({ success: true, message: "Link saved successfully!", appointment });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  };        
+
    
 
         export {
@@ -208,5 +225,6 @@ const doctorDashboard = async (req, res) => {
             doctorDashboard,
             doctorProfile,
             updateDoctorProfile,
+            setVideoCallLink,
         }
     
