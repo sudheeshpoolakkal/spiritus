@@ -1,6 +1,6 @@
 import multer from 'multer';
 import path from 'path';
-const storage = multer.diskStorage({
+const storage = multer.memoryStorage({
     destination: function (req, file, callback) {
         callback(null, 'uploads');  // Ensure this directory exists
     },

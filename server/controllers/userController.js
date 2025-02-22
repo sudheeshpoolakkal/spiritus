@@ -4,7 +4,7 @@ import userModel from '../models/userModel.js'
 import jwt from 'jsonwebtoken'
 import doctorModel from '../models/doctorModel.js'
 import appointmentModel from '../models/appointmentModel.js'
-import razorpay from 'razorpay'
+//import razorpay from 'razorpay'
 import { v2 as cloudinary } from 'cloudinary';
 
 
@@ -92,33 +92,48 @@ const getProfile = async (req, res) => {
 const updateProfile = async (req, res) => {
     try {
         const { userId, name, phone, address, dob, gender } = req.body;
-        //const imageFile = req.imageFile;
-        const imageFile = req.file;
+        const imageFile = req.file; // Use req.file since multer.memoryStorage() processes single file
+
         if (!name || !phone || !dob || !gender) {
             return res.json({ success: false, message: "Data Missing" });
         }
-        await userModel.findByIdAndUpdate(userId, {
+
+        const updateData = {
             name,
             phone,
             address: JSON.parse(address),
             dob,
             gender,
-        });
+        };
+
         if (imageFile) {
-            //upload image to cloudinary
-            //const imageUpload = await cloudinary.uploader(imageFile.path, {
-              //  resource_type: "image",
-           // });
-           const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
-            resource_type: "image",
-        });
-            const imageURL = imageUpload.secure_url;
-            await userModel.findByIdAndUpdate(userId, { image: imageURL });
-            
+            try {
+                const result = await new Promise((resolve, reject) => {
+                    const uploadStream = cloudinary.uploader.upload_stream(
+                        { resource_type: "image" },
+                        (error, result) => {
+                            if (error) {
+                                reject(error);
+                            } else {
+                                resolve(result);
+                            }
+                        }
+                    );
+                    uploadStream.end(imageFile.buffer); // Send the file buffer to Cloudinary
+                });
+
+                updateData.image = result.secure_url; // Save the Cloudinary URL
+            } catch (cloudinaryError) {
+                console.error("Cloudinary Error:", cloudinaryError);
+                return res.json({ success: false, message: "Image upload failed." });
+            }
         }
+
+        await userModel.findByIdAndUpdate(userId, updateData); // Update the user's profile with Cloudinary URL
+
         res.json({ success: true, message: "Profile Updated!" });
     } catch (error) {
-        console.log(error);
+        console.error("Update Profile Error:", error);
         res.json({ success: false, message: error.message });
     }
 };
@@ -194,16 +209,18 @@ const bookAppointment = async (req,res) =>{
     }
  }
 
- // api to make payment for appointment using razorpay
-//  const razorpayInstance = new razorpay({
-//      key_id:'',
-//      key_secret:''
-//  })
+// API to make payment for appointment using razorpay
+//     const razorpayInstance = new razorpay({
 
-//  const paymentRazorpay = async (req,res) =>{
+// key_id:'',
 
+//       key_secret:''
 
+//     })
+ 
+//   const paymentRazorpay = async (req,res) =>{
 
+ 
 //  }
 
 
@@ -242,4 +259,20 @@ const cancelAppointment = async (req,res) =>{
     }
 }
 
-export { registerUser, loginUser, getProfile, updateProfile, bookAppointment, listAppointment, cancelAppointment };
+
+const getVideoCallLink = async (req, res) => {
+    try {
+      const { appointmentId } = req.params;
+  
+      const appointment = await appointmentModel.findById(appointmentId);
+      if (!appointment) {
+        return res.status(404).json({ error: "Appointment not found" });
+      }
+  
+      res.json({ videoCallLink: appointment.videoCallLink || "" }); // Return only the link
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  };
+
+export { registerUser, loginUser, getProfile, updateProfile, bookAppointment, listAppointment, cancelAppointment,getVideoCallLink };

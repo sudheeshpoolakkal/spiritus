@@ -6,8 +6,13 @@ import { BrowserRouter } from 'react-router-dom'
 import AppContextProvider from './context/AppContext.jsx'
 
 createRoot(document.getElementById('root')).render(
-<BrowserRouter>
-<AppContextProvider><App/></AppContextProvider>
-
-</BrowserRouter>,
+  <StrictMode>
+    <BrowserRouter>
+      <AppContextProvider>
+        <div className="min-h-screen">
+          <App />
+        </div>
+      </AppContextProvider>
+    </BrowserRouter>
+  </StrictMode>
 )
