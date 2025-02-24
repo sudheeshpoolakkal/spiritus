@@ -76,9 +76,17 @@ const DoctorContextProvider = (props) => {
 
   const getDashData = async () => {
     try {
-      const { data } = await axios.get(backendUrl + "/api/doctor/dashboard", {
-        headers: { dToken },
-      });
+      // Retrieve the doctor's id (ensure you store this during login)
+      const docId = localStorage.getItem("docId");
+      if (!docId) {
+        toast.error("Doctor id not found");
+        return;
+      }
+      const { data } = await axios.post(
+        backendUrl + "/api/doctor/dashboard",
+        { docId },
+        { headers: { dToken } }
+      );
       if (data.success) {
         setDashData(data.dashData);
         console.log(data.dashData);

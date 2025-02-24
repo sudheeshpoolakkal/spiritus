@@ -6,7 +6,8 @@ import doctorModel from '../models/doctorModel.js'
 import appointmentModel from '../models/appointmentModel.js'
 //import razorpay from 'razorpay'
 import { v2 as cloudinary } from 'cloudinary';
-import stripe from 'stripe';
+import Stripe from 'stripe';
+const stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY); // Initialize Stripe with secret key
 import CurrencyConverter from 'currency-converter-lt';
 
 
@@ -54,7 +55,6 @@ const registerUser = async (req, res) => {
     }
 };
 
-// API for user Login
 const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -211,15 +211,9 @@ const listAppointment = async (req, res) => {
     }
 }
 
-
-// const stripeInstance = new stripe({
-//     key_id: process.env.STRIPE_PUBLISHABLE_KEY,
-//     key_secret: process.env.STRIPE_SECRET_KEY,
-// });
-const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY); // Initialize Stripe with secret key
-
 //API to make payment for appointment using stripe
 
+/*
 const paymentStripe = async (req, res) => {
     try {
         const { appointmentId } = req.body;
@@ -240,42 +234,66 @@ const paymentStripe = async (req, res) => {
         }
 
         // Convert INR to target currency
-        const exchangeRate = 0.011; // Example rate: 1 INR = 0.011 CHF
-        const chfAmount = appointmentData.amount * exchangeRate;
-
-        // Ensure minimum amount in CHF before processing payment
-        const minAmountCHF = 0.50; // CHF 0.50 minimum
-        const minAmountInINR = minAmountCHF / exchangeRate; // Convert back to INR
-
-        if (appointmentData.amount < minAmountInINR) {
-            return res.json({
-                success: false,
-                message: `Minimum appointment fee should be at least ${minAmountInINR.toFixed(2)} INR (CHF 0.50)`,
-            });
-        }
-
-
-        const amountInCents = Math.round(chfAmount * 100);
-        if (amountInCents < 50) {
-            return res.json({ success: false, message: "Minimum amount is CHF 0.50" });
-        }
-
-        const paymentIntent = await stripeInstance.paymentIntents.create({
-            amount: amountInCents,
-            currency: currency.toLowerCase(),
-            metadata: { appointment_id: appointmentId },
-        });
-
-        await appointmentModel.findByIdAndUpdate(appointmentId, { paymentIntentId: paymentIntent.id });
-
+        // ... (rest of the commented code)
+*/
+/*...*/
+/*
         res.json({ success: true, clientSecret: paymentIntent.client_secret });
     } catch (error) {
         console.error("Stripe payment error:", error);
         res.json({ success: false, message: error.message });
     }
 };
+*/
+/*...*/
+/*
+const createCheckoutSession = async (req, res) => {
+    try {
+        const { appointmentId } = req.body;
+        const appointmentData = await appointmentModel.findById(appointmentId);
 
+        if (!appointmentData || appointmentData.cancelled || appointmentData.paid) {
+            return res.json({ success: false, message: "Invalid appointment" });
+        }
 
+        // Using your conversion factor, convert the appointment amount from INR to CHF.
+        const exchangeRate = 0.011;
+        const chfAmount = appointmentData.amount * exchangeRate;
+        const amountInCents = Math.round(chfAmount * 100);
+
+        if (amountInCents < 50) {
+            return res.json({ success: false, message: "Minimum amount is CHF 0.50" });
+        }
+
+        const session = await stripeInstance.checkout.sessions.create({
+            payment_method_types: ['card'],
+            line_items: [{
+                price_data: {
+                    currency: (process.env.CURRENCY && process.env.CURRENCY.trim().toLowerCase()) || 'chf',
+                    product_data: {
+                        name: `Appointment fee`,
+                        description: `Payment for appointment ${appointmentId}`
+                    },
+                    unit_amount: amountInCents,
+                },
+                quantity: 1,
+            }],
+            mode: 'payment',
+            success_url: `${process.env.FRONTEND_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${process.env.FRONTEND_URL}/cancel`,
+            metadata: { appointment_id: appointmentId },
+        });
+
+        // Optionally save the session ID for later reference.
+        await appointmentModel.findByIdAndUpdate(appointmentId, { paymentSessionId: session.id });
+
+        res.json({ success: true, sessionId: session.id });
+    } catch (error) {
+        console.error("Stripe session error:", error);
+        res.json({ success: false, message: error.message });
+    }
+};
+*/
 
 //  API to cancel appointment
 const cancelAppointment = async (req, res) => {
@@ -331,5 +349,28 @@ const getVideoCallLink = async (req, res) => {
     }
 };
 
+//API TO PROCESS DEMO PAYMENT
+const processPayment = async (req, res) => {
+    try {
+      const { appointmentId } = req.body;
+      const appointmentData = await appointmentModel.findById(appointmentId);
+      
+      console.log("Processing payment for appointment:", appointmentData);
 
-export { registerUser, loginUser, getProfile, updateProfile, bookAppointment, listAppointment, cancelAppointment, getVideoCallLink, paymentStripe };
+      if (!appointmentData || appointmentData.cancelled || appointmentData.payment) {
+        return res.status(400).json({ success: false, message: "Invalid appointment" });
+      }
+      
+      // Simulate payment: mark the appointment as paid.
+      appointmentData.payment = true;
+      await appointmentData.save();
+      
+      res.json({ success: true, message: "Payment processed successfully" });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+
+export { registerUser, loginUser, getProfile, updateProfile, bookAppointment, listAppointment, cancelAppointment, getVideoCallLink, processPayment  };

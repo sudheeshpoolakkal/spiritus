@@ -6,7 +6,10 @@ import connectCloudinary from './config/cloudinary.js'
 import adminRouter from './routes/adminRoute.js'
 import userRouter from './routes/userRoute.js'
 import doctorRouter from './routes/doctorRoute.js'
-//require('dotenv').config();
+import Stripe from 'stripe';
+
+// This is your test secret API key.
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 //app config
 const app = express()
