@@ -363,12 +363,6 @@ const processPayment = async (req, res) => {
       
       console.log("Processing payment for appointment:", appointmentData);
 
-      if (!appointmentData || appointmentData.cancelled || appointmentData.payment) {
-        return res.status(400).json({ success: false, message: "Invalid appointment" });
-      }
-      
-      // Simulate payment: mark the appointment as paid.
-      appointmentData.payment = true;
       await appointmentData.save();
       
       res.json({ success: true, message: "Payment processed successfully" });
