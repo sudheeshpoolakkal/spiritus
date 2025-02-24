@@ -100,6 +100,9 @@ const updateProfile = async (req, res) => {
             return res.json({ success: false, message: "Data Missing" });
         }
 
+        // Log the incoming request for debugging
+        console.log("Update Profile Request:", req.body);
+
         const updateData = {
             name,
             phone,
@@ -123,6 +126,9 @@ const updateProfile = async (req, res) => {
                     );
                     uploadStream.end(imageFile.buffer); // Send the file buffer to Cloudinary
                 });
+
+                // Log the result from Cloudinary for debugging
+                console.log("Cloudinary Upload Result:", result);
 
                 updateData.image = result.secure_url; // Save the Cloudinary URL
             } catch (cloudinaryError) {

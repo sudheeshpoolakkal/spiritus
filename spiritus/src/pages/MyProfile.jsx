@@ -1,116 +1,61 @@
-// src/pages/MyProfile.jsx
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { assets } from "@/assets/assets_frontend/assets";
+import { useContext } from "react";
 import { AppContext } from "@/context/AppContext";
 import { toast } from "react-toastify";
 import axios from "axios";
-import ImageCropper from "@/components/ImageCropper"; // Import your cropping component
 
 const MyProfile = () => {
-  const { userData, setUserData, token, backendUrl, loadUserProfileData } = useContext(AppContext);
-  const [isEdit, setIsEdit] = useState(false);
-  
-  // New state variables for cropping
-  const [selectedImage, setSelectedImage] = useState(null); // original image URL for cropping
-  const [croppedImage, setCroppedImage] = useState(null);   // base64 of cropped image
-  const [showCropper, setShowCropper] = useState(false);
+  const {userData,setUserData,token,backendUrl,loadUserProfileData} = useContext(AppContext)
 
-  // Update user profile function
+  const [isEdit, setIsEdit] = useState(false);
+  const [image,setImage] = useState(false)
   const updateUserProfileData = async () => {
     try {
-        const formData = new FormData();
-        formData.append("name", userData.name);
-        formData.append("phone", userData.phone);
-        formData.append("address", JSON.stringify(userData.address));
-        formData.append("gender", userData.gender);
-        formData.append("dob", userData.dob);
+      const formData = new FormData()
+      formData.append('name', userData.name)
+      formData.append('phone', userData.phone)
+      formData.append('address', JSON.stringify(userData.address))
+      formData.append('gender', userData.gender)
+      formData.append('dob', userData.dob)
 
-        if (croppedImage) {
-            const blob = await fetch(croppedImage).then((r) => r.blob());
-            formData.append("image", blob, "cropped.jpg");
-        }
+      image && formData.append('image',image)
 
-        const { data } = await axios.post(
-            backendUrl + "/api/user/update-profile",
-            formData,
-            { headers: { token } }
-        );
+      const {data} = await axios.post(backendUrl + '/api/user/update-profile',formData,{headers:{token}})
 
-        if (data.success) {
-            toast.success(data.message);
-            // Update userData with the returned data from the backend
-            setUserData(data.userData); // Assuming the backend returns the updated userData
-            await loadUserProfileData(); //reload the data.
-            setIsEdit(false);
-            setSelectedImage(null);
-            setCroppedImage(null);
-            setShowCropper(false);
-        } else {
-            toast.error(data.message);
-        }
+      if(data.success)
+      {
+        
+        toast.success(data.message)
+        await loadUserProfileData()
+        setIsEdit(false)
+        setImage(false)
+      }else{
+        toast.error(data.message)
+      }
     } catch (error) {
-        console.log(error);
-        toast.error(error.message);
+      console.log(error)
+      toast.error(error.message)
     }
-};
-  
-
+  }
   return userData && (
     <div className="flex justify-center items-center min-h-screen bg-gray-50">
       <div className="max-w-lg w-full bg-white p-6 rounded-lg shadow-lg flex flex-col gap-6 text-sm">
-        {isEdit ? (
-          <>
-            <label htmlFor="image">
-              <div className="inline-block relative cursor-pointer">
-                <img
-                  className="w-36 rounded opacity-75"
-                  src={
-                    croppedImage
-                      ? croppedImage
-                      : selectedImage
-                      ? selectedImage
-                      : userData.image
-                  }
-                  alt="Profile"
-                />
-                {!selectedImage && (
-                  <img
-                    className="w-10 absolute bottom-12 right-12"
-                    src={assets.upload_icon}
-                    alt="Upload"
-                  />
-                )}
-              </div>
-            </label>
-            <input
-              onChange={(e) => {
-                if (e.target.files && e.target.files.length > 0) {
-                  const file = e.target.files[0];
-                  // Set the preview URL for cropping
-                  setSelectedImage(URL.createObjectURL(file));
-                  setShowCropper(true);
-                }
-              }}
-              type="file"
-              id="image"
-              hidden
-            />
-            {showCropper && selectedImage && (
-              <div className="mb-4">
-                <ImageCropper
-                  src={selectedImage}
-                  onCropComplete={(cropped) => {
-                    setCroppedImage(cropped);
-                    setShowCropper(false);
-                  }}
-                />
-              </div>
-            )}
-          </>
-        ) : (
-          <img className="w-36 rounded-full mx-auto" src={userData.image} alt="Profile" />
-        )}
 
+      {
+        isEdit
+        ? <label htmlFor="image">
+            <div className="inline-block relative cursor-pointer">
+
+              <img className="w-36 rounded opacity-75" src={image ? URL.createObjectURL(image):userData.image} alt="" />
+              <img className="w-10 absolute bottom-12 right-12" src={image ? '': assets.upload_icon} alt="" />
+            </div>
+            <input onChange={(e)=>setImage(e.target.files[0])} type="file" id="image" hidden/>
+        </label>
+        :<img className="w-36 rounded-full mx-auto" src={userData.image} alt="Profile" />
+      }
+        
+        
         {isEdit ? (
           <input
             className="bg-gray-100 text-3xl font-medium text-center mt-4 w-full p-2 rounded"
@@ -119,17 +64,13 @@ const MyProfile = () => {
             onChange={(e) => setUserData((prev) => ({ ...prev, name: e.target.value }))}
           />
         ) : (
-          <p className="font-medium text-3xl text-neutral-800 mt-4 text-center">
-            {userData.name}
-          </p>
+          <p className="font-medium text-3xl text-neutral-800 mt-4 text-center">{userData.name}</p>
         )}
 
         <hr className="border-t border-gray-300" />
-
+        
         <div>
-          <p className="text-neutral-500 underline text-center">
-            CONTACT INFORMATION
-          </p>
+          <p className="text-neutral-500 underline text-center">CONTACT INFORMATION</p>
           <div className="grid grid-cols-[1fr_3fr] gap-y-2.5 text-neutral-700 mt-4">
             <p className="font-medium">Email: </p>
             <p className="text-blue-500">{userData.email}</p>
@@ -140,9 +81,7 @@ const MyProfile = () => {
                 className="bg-gray-100 p-2 rounded w-full"
                 type="text"
                 value={userData.phone}
-                onChange={(e) =>
-                  setUserData((prev) => ({ ...prev, phone: e.target.value }))
-                }
+                onChange={(e) => setUserData((prev) => ({ ...prev, phone: e.target.value }))}
               />
             ) : (
               <p className="text-blue-400">{userData.phone}</p>
@@ -187,17 +126,13 @@ const MyProfile = () => {
         </div>
 
         <div>
-          <p className="text-neutral-500 underline mt-3 text-center">
-            BASIC INFORMATION
-          </p>
+          <p className="text-neutral-500 underline mt-3 text-center">BASIC INFORMATION</p>
           <div className="grid grid-cols-[1fr_3fr] gap-y-2.5 mt-3 text-neutral-700">
             <p className="font-medium">Gender</p>
             {isEdit ? (
               <select
                 className="bg-gray-100 p-2 rounded"
-                onChange={(e) =>
-                  setUserData((prev) => ({ ...prev, gender: e.target.value }))
-                }
+                onChange={(e) => setUserData((prev) => ({ ...prev, gender: e.target.value }))}
                 value={userData.gender}
               >
                 <option value="male">Male</option>
@@ -212,9 +147,7 @@ const MyProfile = () => {
               <input
                 className="bg-gray-100 p-2 rounded"
                 type="date"
-                onChange={(e) =>
-                  setUserData((prev) => ({ ...prev, dob: e.target.value }))
-                }
+                onChange={(e) => setUserData((prev) => ({ ...prev, dob: e.target.value }))}
                 value={userData.dob}
               />
             ) : (
