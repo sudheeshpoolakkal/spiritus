@@ -11,6 +11,7 @@ import Checkout from './pages/Checkout'
 import MyAppointments from './pages/MyAppointments'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
+import UploadProfileImage from './pages/UploadProfileImage'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
@@ -30,6 +31,8 @@ const App = () => {
   <Route path='/my-appointments' element={<MyAppointments />} />
   <Route path='/checkout' element={<Checkout />} />
   <Route path='/appointment/:docId' element={<Appointment />} />
+  <Route path="/upload-profile" element={<UploadProfileImage />} />
+
 </Routes>
       <Footer />
     </div>

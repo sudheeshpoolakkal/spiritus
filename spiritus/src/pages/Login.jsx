@@ -22,10 +22,11 @@ const Login = () => {
       if (state === 'Sign Up') {
         // Registration request
         const {data} = await axios.post(backendUrl + '/api/user/register',{name,email,password})
-        if (data.success)
-        {
-          localStorage.setItem('token',data.token)
-          setToken(data.token)
+        if (data.success) {
+          localStorage.setItem('token', data.token);
+          setToken(data.token);
+          // Navigate to profile image upload page
+          navigate('/upload-profile');
         }
         else {
           toast.error(data.message)
