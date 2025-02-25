@@ -4,9 +4,10 @@
 @tailwind components;
 @tailwind utilities;
 
-::-webkit-scrollbar{
-    @apply hidden
+::-webkit-scrollbar {
+    display: none; /* Correct way to hide scrollbar */
 }
-*{
-    font-family: Outfit;
+
+* {
+    font-family: 'Outfit', sans-serif;
 }
