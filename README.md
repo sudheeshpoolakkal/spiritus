@@ -1,1 +1,1 @@
-your mind matters
+clean your mind and spirit with us
