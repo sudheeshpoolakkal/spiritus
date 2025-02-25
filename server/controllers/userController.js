@@ -189,7 +189,7 @@ const bookAppointment = async (req, res) => {
         // Save updated slots data in docData
         await doctorModel.findByIdAndUpdate(docId, { slots_booked });
 
-        res.json({ success: true, message: 'Appointment Booked' });
+        res.json({ success: true, message: 'Pay to confirm the appointment!' });
     }
     catch (error) {
         console.log(error)
@@ -275,31 +275,24 @@ const processPayment = async (req, res) => {
     try {
       const { appointmentId } = req.body;
       const appointmentData = await appointmentModel.findById(appointmentId);
-  
+      
+      console.log("Processing payment for appointment:", appointmentData);
+      
       if (!appointmentData || appointmentData.cancelled || appointmentData.payment) {
         return res.status(400).json({ success: false, message: "Invalid appointment" });
       }
-  
-      // Mark the appointment as paid.
+      
+      // Mark appointment as paid.
       appointmentData.payment = true;
       await appointmentData.save();
-  
-      // Now update doctor's slots: remove the booked slot.
-      const { docId, slotDate, slotTime } = appointmentData;
-      const doctorData = await doctorModel.findById(docId);
-      if (doctorData && doctorData.slots_booked && doctorData.slots_booked[slotDate]) {
-        doctorData.slots_booked[slotDate] = doctorData.slots_booked[slotDate].filter(
-          (time) => time !== slotTime
-        );
-        await doctorModel.findByIdAndUpdate(docId, { slots_booked: doctorData.slots_booked });
-      }
-  
+      
       res.json({ success: true, message: "Payment processed successfully" });
     } catch (error) {
       console.error(error);
       res.status(500).json({ success: false, message: error.message });
     }
   };
-              
+  
+       
 
 export { registerUser, loginUser, getProfile, updateProfile, bookAppointment, listAppointment, cancelAppointment, getVideoCallLink, processPayment  };
