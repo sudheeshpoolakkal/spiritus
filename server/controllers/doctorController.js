@@ -58,7 +58,7 @@ const loginDoctor = async (req, res) => {
     }
 }
 
-// api to get doctor appoinment for doctor panel
+// api to get doctor appointment for doctor panel
 
 const appointmentsDoctor = async (req, res) => {
 

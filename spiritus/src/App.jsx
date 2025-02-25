@@ -20,20 +20,17 @@ const App = () => {
       <ToastContainer />
       <Navbar />
       <Routes>
-        <Route path='/' element={<Home />} />
-        <Route path='/doctors' element={<Doctors />} />
-        <Route path='/doctors/:speciality' element={<Doctors />} />
-        <Route path='/login' element={<Login />} />
-        <Route path='/about' element={<About />} />
-        <Route path='/contact' element={<Contact />} />
-        <Route path='/my-profile' element={<MyProfile />} />
-        <Route path='/my-appointments' element={<MyAppointments />} />
-        <Route path='/checkout' element={<Checkout />} />
-        <Route path='/appoinment/:docID' element={<MyAppointments />} />
-        <Route path='/appoinment/:docID' element={<Appointment />} />
-        {/* Remove or comment out the following line since Appointment is not defined:
-            <Route path="/appointment/:docId" element={<Appointment />} /> */}
-      </Routes>
+  <Route path='/' element={<Home />} />
+  <Route path='/doctors' element={<Doctors />} />
+  <Route path='/doctors/:speciality' element={<Doctors />} />
+  <Route path='/login' element={<Login />} />
+  <Route path='/about' element={<About />} />
+  <Route path='/contact' element={<Contact />} />
+  <Route path='/my-profile' element={<MyProfile />} />
+  <Route path='/my-appointments' element={<MyAppointments />} />
+  <Route path='/checkout' element={<Checkout />} />
+  <Route path='/appointment/:docId' element={<Appointment />} />
+</Routes>
       <Footer />
     </div>
   )

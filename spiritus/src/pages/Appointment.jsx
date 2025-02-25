@@ -60,7 +60,7 @@ const Appointment = () => {
                 let month = currentDate.getMonth() + 1;
                 let year = currentDate.getFullYear();
 
-                const slotDate = `${day}_${month}_${year}`;
+                const slotDate = `${day}_${month}_${year}`; 
                 const slotTime = formattedTime;
 
                 const isSlotAvailable =

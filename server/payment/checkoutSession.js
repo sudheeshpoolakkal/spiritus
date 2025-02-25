@@ -3,8 +3,6 @@ import Stripe from 'stripe';
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 // Function to create a checkout session
-
-// Function to create a checkout session
 export const createCheckoutSession = async (req, res) => {
     const { amount, currency, productName } = req.body; // Get amount, currency, and product name from request body
 

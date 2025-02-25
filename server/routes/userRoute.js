@@ -15,7 +15,5 @@ userRouter.post('/update-profile', upload.single('image'), authUser, updateProfi
 userRouter.get('/appointments', authUser, listAppointment)
 userRouter.post('/cancel-appointment', authUser, cancelAppointment)
 userRouter.get("/video-call/:appointmentId", getVideoCallLink);
-//userRouter.post('/payment', authUser, paymentStripe)
-//userRouter.post('/create-checkout-session', createCheckoutSession);
 userRouter.post('/process-payment', authUser, processPayment);
 export default userRouter
