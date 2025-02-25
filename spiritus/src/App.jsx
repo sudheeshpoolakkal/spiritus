@@ -12,6 +12,7 @@ import MyAppointments from './pages/MyAppointments'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import UploadProfileImage from './pages/UploadProfileImage'
+import BackgroundMusic from './components/BackgroundMusic';
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
@@ -19,6 +20,7 @@ const App = () => {
   return (
     <div className='mx-4 sm:mx-[10%]'>
       <ToastContainer />
+      <BackgroundMusic />
       <Navbar />
       <Routes>
   <Route path='/' element={<Home />} />
