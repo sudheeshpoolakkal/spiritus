@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useContext, useState } from 'react';
-import { AppContext } from '@/context/AppContext';
-import { FaVolumeUp, FaVolumeMute } from 'react-icons/fa'; // Import icons
-import mindfulnessAudio from '@/assets/mindfulness.m4a';
+import React, { useEffect, useRef, useContext, useState } from "react";
+import { AppContext } from "@/context/AppContext";
+import { FaVolumeUp, FaVolumeMute } from "react-icons/fa"; // Import icons
+import mindfulnessAudio from "@/assets/buddha.m4a";
 const BackgroundMusic = () => {
   const audioRef = useRef(null);
   const { token } = useContext(AppContext);
@@ -37,14 +37,14 @@ const BackgroundMusic = () => {
   return (
     <div className="fixed bottom-4 right-4 z-50 flex items-center">
       <audio
-                ref={audioRef}
-                src={mindfulnessAudio} // Use the imported audio file
-                loop
-                autoPlay
-                muted={isMuted}
-            >
-                Your browser does not support the audio element.
-            </audio>
+        ref={audioRef}
+        src={mindfulnessAudio} // Use the imported audio file
+        loop
+        autoPlay
+        muted={isMuted}
+      >
+        Your browser does not support the audio element.
+      </audio>
       <button
         onClick={toggleMute}
         className="bg-gray-800 text-white p-2 rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400"
