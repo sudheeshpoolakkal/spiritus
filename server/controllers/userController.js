@@ -89,59 +89,113 @@ const getProfile = async (req, res) => {
 
 //API TO UPDATE USER PROFILE
 const updateProfile = async (req, res) => {
-    try {
-        const { userId, name, phone, address, dob, gender } = req.body;
-        const imageFile = req.file; // Use req.file since multer.memoryStorage() processes single file
+  try {
+    const { userId, name, phone, address, dob, gender } = req.body;
+    const imageFile = req.file; // using multer's memoryStorage
 
-        if (!name || !phone || !dob || !gender) {
-            return res.json({ success: false, message: "Data Missing" });
-        }
-
-        // Log the incoming request for debugging
-        console.log("Update Profile Request:", req.body);
-
-        const updateData = {
-            name,
-            phone,
-            address: JSON.parse(address),
-            dob,
-            gender,
-        };
-
-        if (imageFile) {
-            try {
-                const result = await new Promise((resolve, reject) => {
-                    const uploadStream = cloudinary.uploader.upload_stream(
-                        { resource_type: "image" },
-                        (error, result) => {
-                            if (error) {
-                                reject(error);
-                            } else {
-                                resolve(result);
-                            }
-                        }
-                    );
-                    uploadStream.end(imageFile.buffer); // Send the file buffer to Cloudinary
-                });
-
-                // Log the result from Cloudinary for debugging
-                console.log("Cloudinary Upload Result:", result);
-
-                updateData.image = result.secure_url; // Save the Cloudinary URL
-            } catch (cloudinaryError) {
-                console.error("Cloudinary Error:", cloudinaryError);
-                return res.json({ success: false, message: "Image upload failed." });
-            }
-        }
-
-        await userModel.findByIdAndUpdate(userId, updateData); // Update the user's profile with Cloudinary URL
-
-        res.json({ success: true, message: "Profile Updated!" });
-    } catch (error) {
-        console.error("Update Profile Error:", error);
-        res.json({ success: false, message: error.message });
+    if (!name || !phone || !dob || !gender) {
+      return res.json({ success: false, message: "Data Missing" });
     }
+
+    console.log("Update Profile Request:", req.body);
+
+    const updateData = {
+      name,
+      phone,
+      address: JSON.parse(address),
+      dob,
+      gender,
+    };
+
+    if (imageFile) {
+      try {
+        const result = await new Promise((resolve, reject) => {
+          const uploadStream = cloudinary.uploader.upload_stream(
+            { 
+              resource_type: "image",
+              transformation: [
+                { crop: "fill", aspect_ratio: "1.0", gravity: "auto" }
+              ]
+            },
+            (error, result) => {
+              if (error) {
+                reject(error);
+              } else {
+                resolve(result);
+              }
+            }
+          );
+          uploadStream.end(imageFile.buffer);
+        });
+
+        console.log("Cloudinary Upload Result:", result);
+        updateData.image = result.secure_url;
+      } catch (cloudinaryError) {
+        console.error("Cloudinary Error:", cloudinaryError);
+        return res.json({ success: false, message: "Image upload failed." });
+      }
+    }
+
+    await userModel.findByIdAndUpdate(userId, updateData);
+
+    res.json({ success: true, message: "Profile Updated!" });
+  } catch (error) {
+    console.error("Update Profile Error:", error);
+    res.json({ success: false, message: error.message });
+  }
 };
+// NEW FUNCTION: uploadProfileImage
+const uploadProfileImage = async (req, res) => {
+    try {
+      // Use the userId from req.body if available; otherwise, decode the token manually.
+      let userId = req.body.userId;
+      if (!userId) {
+        const { token } = req.headers;
+        if (!token) {
+          return res.json({ success: false, message: "Not authorized. Login again" });
+        }
+        const token_decode = jwt.verify(token, process.env.JWT_SECRET);
+        userId = token_decode.id;
+      }
+  
+      const imageFile = req.file;
+      if (!userId) {
+        return res.json({ success: false, message: "User ID missing" });
+      }
+      if (!imageFile) {
+        return res.json({ success: false, message: "No image file provided" });
+      }
+  
+      // Auto-crop to a 1:1 aspect ratio using Cloudinary transformation
+      let imageUrl;
+      try {
+        const result = await new Promise((resolve, reject) => {
+          const uploadStream = cloudinary.uploader.upload_stream(
+            {
+              resource_type: "image",
+              transformation: [{ crop: "fill", aspect_ratio: "1.0", gravity: "auto" }],
+            },
+            (error, result) => {
+              if (error) reject(error);
+              else resolve(result);
+            }
+          );
+          uploadStream.end(imageFile.buffer);
+        });
+        imageUrl = result.secure_url;
+      } catch (cloudError) {
+        console.error("Cloudinary Error:", cloudError);
+        return res.json({ success: false, message: "Image upload failed" });
+      }
+  
+      await userModel.findByIdAndUpdate(userId, { image: imageUrl });
+      res.json({ success: true});
+    } catch (error) {
+      console.error("uploadProfileImage Error:", error);
+      res.json({ success: false, message: error.message });
+    }
+  };
+
 
 // API to Book Appointment
 const bookAppointment = async (req, res) => {
@@ -295,4 +349,4 @@ const processPayment = async (req, res) => {
   
        
 
-export { registerUser, loginUser, getProfile, updateProfile, bookAppointment, listAppointment, cancelAppointment, getVideoCallLink, processPayment  };
+export { registerUser, loginUser, getProfile, uploadProfileImage, updateProfile, bookAppointment, listAppointment, cancelAppointment, getVideoCallLink, processPayment  };
