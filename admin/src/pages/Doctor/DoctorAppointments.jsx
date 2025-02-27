@@ -116,7 +116,7 @@ const DoctorAppointments = () => {
                 className='text-red-500 border border-red-500 px-2 py-1 rounded cursor-pointer'
                 onClick={() => navigate('/doctor-prescription', { state: { appointment: item } })}
               >
-                Add Prescription
+                If Crucial
               </button>
             )}
           </div>

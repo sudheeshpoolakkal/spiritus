@@ -134,6 +134,22 @@ const DoctorContextProvider = (props) => {
     }
 };
 
+const addPrescription = async (formData) => {
+  try {
+    const { data } = await axios.post(backendUrl + '/api/prescription/add', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        dToken,
+      },
+    });
+    return data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+
   const value = {
     // Define your context values here
     dToken,
@@ -151,6 +167,7 @@ const DoctorContextProvider = (props) => {
     setProfileData,
     getProfileData,
     setVideoCallLink,
+    addPrescription,
   };
 
   return (
