@@ -128,96 +128,180 @@ const appointmentCancel = async (req, res) => {
 // API to get dashboard data for doctor panel
 const doctorDashboard = async (req, res) => {
     try {
-      // Expect docId to be passed in the body (or extract it from the token if available)
-      const { docId } = req.body;
-      if (!docId) {
-        return res.status(400).json({ success: false, message: "Doctor id is missing" });
-      }
-      const appointments = await appointmentModel.find({ docId });
-      let earnings = 0;
-      appointments.forEach((item) => {
-        if (item.isCompleted || item.payment) {
-          earnings += item.amount;  // Doctor earns the base fee (appointment.amount)
+        // Expect docId to be passed in the body (or extract it from the token if available)
+        const { docId } = req.body;
+        if (!docId) {
+            return res.status(400).json({ success: false, message: "Doctor id is missing" });
         }
-      });
-      let patients = [];
-      appointments.forEach((item) => {
-        if (!patients.includes(item.userId)) {
-          patients.push(item.userId);
-        }
-      });
-      const dashData = {
-        earnings,
-        appointments: appointments.length,
-        patients: patients.length,
-        latestAppointments: appointments.reverse().slice(0, 5)
-      };
-      res.json({ success: true, dashData });
+        const appointments = await appointmentModel.find({ docId });
+        let earnings = 0;
+        appointments.forEach((item) => {
+            if (item.isCompleted || item.payment) {
+                earnings += item.amount;  // Doctor earns the base fee (appointment.amount)
+            }
+        });
+        let patients = [];
+        appointments.forEach((item) => {
+            if (!patients.includes(item.userId)) {
+                patients.push(item.userId);
+            }
+        });
+        const dashData = {
+            earnings,
+            appointments: appointments.length,
+            patients: patients.length,
+            latestAppointments: appointments.reverse().slice(0, 5)
+        };
+        res.json({ success: true, dashData });
     } catch (error) {
-      console.error(error);
-      res.json({ success: false, message: error.message });
+        console.error(error);
+        res.json({ success: false, message: error.message });
     }
-  };  //API TO GET DOCTOR PROFILE FOR DOCTOR PANEL
+};  //API TO GET DOCTOR PROFILE FOR DOCTOR PANEL
 
-        const doctorProfile = async (req, res) => {
-            try {
-                const { docId } = req.body
-                const profileData = await doctorModel.findById(docId).select('-password')
+const doctorProfile = async (req, res) => {
+    try {
+        const { docId } = req.body;
+        const profileData = await doctorModel.findById(docId).select('-password');
 
-                res.json({ success: true, profileData })
-            } catch (error) {
-                console.log(error)
-                res.json({ success: false, message: error.message })
-            }
+        if (!profileData) {
+            return res.status(404).json({ success: false, message: "Doctor not found." });
         }
 
-        //API TO UPDATE DOCTOR PROFILE DATA
-
-        const updateDoctorProfile = async (req, res) => {
-
-            try {
-
-                const { docId, fees, address, available } = req.body
-                await doctorModel.findByIdAndUpdate(docId, { fees, address, available })
-                res.json({ success: true, message: 'Profile updated!' })
-
-
-            } catch (error) {
-                console.log(error)
-                res.json({ success: false, message: error.message })
+        res.json({
+            success: true,
+            profileData: {
+                ...profileData.toObject(),
+                rating: profileData.rating,
+                ratingCount: profileData.ratingCount
             }
+        });
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: error.message });
+    }
+};
 
-        }
+//API TO UPDATE DOCTOR PROFILE DATA
+
+const updateDoctorProfile = async (req, res) => {
+
+    try {
+
+        const { docId, fees, address, available } = req.body
+        await doctorModel.findByIdAndUpdate(docId, { fees, address, available })
+        res.json({ success: true, message: 'Profile updated!' })
+
+
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, message: error.message })
+    }
+
+}
 
 // API to set video call link
 const setVideoCallLink = async (req, res) => {
     try {
-      const { appointmentId, videoCallLink } = req.body;
-  
-      const appointment = await appointmentModel.findByIdAndUpdate(
-        appointmentId,
-        { videoCallLink },
-        { new: true }
-      );
-  
-      res.json({ success: true, message: "Link saved successfully!", appointment });
+        const { appointmentId, videoCallLink } = req.body;
+
+        const appointment = await appointmentModel.findByIdAndUpdate(
+            appointmentId,
+            { videoCallLink },
+            { new: true }
+        );
+
+        res.json({ success: true, message: "Link saved successfully!", appointment });
     } catch (error) {
-      res.status(500).json({ success: false, error: error.message });
+        res.status(500).json({ success: false, error: error.message });
     }
-  };        
+};
 
-   
 
-        export {
-            changeAvailablity,
-            doctorList,
-            loginDoctor,
-            appointmentsDoctor,
-            appointmentCancel,
-            appointmentComplete,
-            doctorDashboard,
-            doctorProfile,
-            updateDoctorProfile,
-            setVideoCallLink,
+const submitRating = async (req, res) => {
+    try {
+        const { docId, rating, review, userId } = req.body;
+
+        if (!docId || !rating || !userId) {
+            return res.status(400).json({ success: false, message: "Doctor ID, rating, and user ID are required." });
         }
-    
+
+        if (rating < 1 || rating > 5) {
+            return res.status(400).json({ success: false, message: "Rating must be between 1 and 5." });
+        }
+
+        const doctor = await doctorModel.findById(docId);
+        if (!doctor) {
+            return res.status(404).json({ success: false, message: "Doctor not found." });
+        }
+
+        // Store the review if provided
+        const newReview = {
+            userId,
+            rating,
+            review: review || "", // If review is optional, store an empty string when not provided
+            date: new Date()
+        };
+
+        // Add the new review to the doctor's review list
+        doctor.reviews.push(newReview);
+
+        // Calculate new average rating
+        const newRatingCount = doctor.ratingCount + 1;
+        const newRating = ((doctor.rating * doctor.ratingCount) + rating) / newRatingCount;
+
+        // Update doctor details
+        doctor.rating = parseFloat(newRating.toFixed(1));
+        doctor.ratingCount = newRatingCount;
+
+        await doctor.save();
+
+        res.json({ success: true, message: "Rating & Review submitted successfully!", data: doctor.reviews });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+const getReviews = async (req, res) => {
+    try {
+        const { docId } = req.params;
+        
+        if (!docId) {
+            return res.status(400).json({ success: false, message: "Doctor ID is required." });
+        }
+
+        const doctor = await doctorModel.findById(docId);
+        if (!doctor) {
+            return res.status(404).json({ success: false, message: "Doctor not found." });
+        }
+
+        // Return the reviews
+        res.json({ 
+            success: true, 
+            reviews: doctor.reviews || [] 
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+
+
+
+export {
+    changeAvailablity,
+    doctorList,
+    loginDoctor,
+    appointmentsDoctor,
+    appointmentCancel,
+    appointmentComplete,
+    doctorDashboard,
+    doctorProfile,
+    updateDoctorProfile,
+    setVideoCallLink,
+    submitRating,
+    getReviews,
+
+}
