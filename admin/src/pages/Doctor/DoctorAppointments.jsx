@@ -2,18 +2,18 @@ import React, { useContext, useEffect, useState } from 'react';
 import { DoctorContext } from '../../context/DoctorContext';
 import { AppContext } from '../../context/AppContext';
 import { assets } from '../../assets/assets_admin/assets';
+import { useNavigate } from 'react-router-dom';
 
 const DoctorAppointments = () => {
   const { dToken, appointments, getAppointments, completeAppointment, cancelAppointment, setVideoCallLink } = useContext(DoctorContext);
   const { calculateAge, slotDateFormat, currency } = useContext(AppContext);
   const [videoCallLinks, setVideoCallLinks] = useState({});
+  const navigate = useNavigate();
 
-  // Fetch appointments when the component mounts
   useEffect(() => {
     getAppointments();
   }, [dToken]);
 
-  // Update videoCallLinks state when appointments change
   useEffect(() => {
     if (appointments.length > 0) {
       const links = {};
@@ -26,7 +26,6 @@ const DoctorAppointments = () => {
     }
   }, [appointments]);
 
-  // Function to set a new video call link
   const handleSetVideoCallLink = async (appointmentId) => {
     const link = prompt('Enter video call link:');
     if (link) {
@@ -39,7 +38,7 @@ const DoctorAppointments = () => {
     <div className='w-full max-w-6xl m-5'>
       <p className='mb-3 text-lg font-medium'>All Appointments</p>
       <div className='bg-white border rounded text-sm max-h-[80vh] min-h-[50vh] overflow-y-scroll'>
-        <div className='max-sm:hidden grid grid-cols-[0.5fr_2fr_1fr_1fr_3fr_1fr_1fr_1fr] gap-1 py-3 px-6 border-b'>
+        <div className='max-sm:hidden grid grid-cols-[0.5fr_2fr_1fr_1fr_3fr_1fr_1fr_1fr_1fr] gap-1 py-3 px-6 border-b'>
           <p>#</p>
           <p>Patient</p>
           <p>Payment</p>
@@ -48,15 +47,16 @@ const DoctorAppointments = () => {
           <p>Fees</p>
           <p>Action</p>
           <p>Meeting</p>
+          <p>Prescription</p>
         </div>
         {appointments.slice().reverse().map((item, index) => (
           <div
-            className='flex flex-wrap justify-between max-sm:gap-5 max-sm:text-base sm:grid grid-cols-[0.5fr_2fr_1fr_1fr_3fr_1fr_1fr_1fr] gap-1 items-center text-gray-500 py-3 px-6 border-b hover:bg-gray-50'
+            className='flex flex-wrap justify-between max-sm:gap-5 max-sm:text-base sm:grid grid-cols-[0.5fr_2fr_1fr_1fr_3fr_1fr_1fr_1fr_1fr] gap-1 items-center text-gray-500 py-3 px-6 border-b hover:bg-gray-50'
             key={item._id}
           >
             <p className='max-sm:hidden'>{index + 1}</p>
             <div className='flex items-center gap-2'>
-              <img className='w-20 rounded-full' src={item.userData.image} alt='' /> 
+              <img className='w-20 rounded-full' src={item.userData.image} alt='' />
               <p>{item.userData.name}</p>
             </div>
             <div>
@@ -65,8 +65,7 @@ const DoctorAppointments = () => {
             <p>{calculateAge(item.userData.dob)}</p>
             <p>{slotDateFormat(item.slotDate)},{item.slotTime}</p>
             <p>{currency}{item.amount}</p>
-
-            {/* Appointment Status */}
+            
             {item.cancelled ? (
               <p className='text-red-500'>Cancelled</p>
             ) : item.isCompleted ? (
@@ -105,6 +104,20 @@ const DoctorAppointments = () => {
                   alt='Complete'
                 />
               </div>
+            )}
+
+            {/* Display Add Prescription button ONLY if:
+                1. The appointment is NOT cancelled.
+                2. The appointment is completed.
+                3. No video call link is available.
+            */}
+            {!item.cancelled && item.isCompleted && !videoCallLinks[item._id] && (
+              <button
+                className='text-red-500 border border-red-500 px-2 py-1 rounded cursor-pointer'
+                onClick={() => navigate('/doctor-prescription', { state: { appointment: item } })}
+              >
+                If Crucial
+              </button>
             )}
           </div>
         ))}
