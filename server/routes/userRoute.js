@@ -1,5 +1,5 @@
 import express from 'express'
-import { registerUser, loginUser, getProfile, updateProfile, uploadProfileImage, bookAppointment, listAppointment, cancelAppointment, getVideoCallLink, processPayment  } from '../controllers/userController.js'
+import { registerUser, loginUser, getProfile, updateProfile, uploadProfileImage, bookAppointment, listAppointment, cancelAppointment, getVideoCallLink, processPayment, rateDoctor  } from '../controllers/userController.js'
 import authUser from '../middlewares/authUser.js'
 import upload from '../middlewares/multer.js'
 
@@ -17,5 +17,7 @@ userRouter.post('/cancel-appointment', authUser, cancelAppointment)
 userRouter.get("/video-call/:appointmentId", getVideoCallLink);
 userRouter.post('/process-payment', authUser, processPayment);
 userRouter.post('/upload-profile-image', authUser, upload.single('image'), uploadProfileImage);
+userRouter.post('/rate-doctor', authUser, rateDoctor);
+
 
 export default userRouter

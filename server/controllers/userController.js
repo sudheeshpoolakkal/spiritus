@@ -6,8 +6,6 @@ import doctorModel from '../models/doctorModel.js'
 import appointmentModel from '../models/appointmentModel.js'
 //import razorpay from 'razorpay'
 import { v2 as cloudinary } from 'cloudinary';
-
-
 // API to register user
 const registerUser = async (req, res) => {
     try {
@@ -346,7 +344,113 @@ const processPayment = async (req, res) => {
       res.status(500).json({ success: false, message: error.message });
     }
   };
+
+  const rateDoctor = async (req, res) => {
+    try {
+        const { appointmentId, rating, review, docId, userId } = req.body;
+
+        if (!appointmentId || !rating || !docId || !userId) {
+            return res.status(400).json({
+                success: false,
+                message: 'Missing required fields: appointmentId, rating, docId, or userId'
+            });
+        }
+
+        if (rating < 1 || rating > 5) {
+            return res.status(400).json({
+                success: false,
+                message: 'Rating must be between 1 and 5'
+            });
+        }
+
+        // Find the appointment
+        const appointment = await appointmentModel.findById(appointmentId);
+
+        if (!appointment) {
+            return res.status(404).json({
+                success: false,
+                message: 'Appointment not found'
+            });
+        }
+
+        // Verify that the appointment belongs to the user
+        if (appointment.userId !== userId) {
+            return res.status(403).json({
+                success: false,
+                message: 'You are not authorized to rate this appointment'
+            });
+        }
+
+        // Check if the appointment has already been rated/reviewed
+        if (appointment.rating) {
+            return res.status(400).json({
+                success: false,
+                message: 'You have already rated this appointment'
+            });
+        }
+
+        // Verify that the appointment is completed
+        if (!appointment.isCompleted || appointment.cancelled) {
+            return res.status(400).json({
+                success: false,
+                message: 'Only completed appointments can be rated'
+            });
+        }
+
+        // Update the appointment with the rating & review
+        appointment.rating = rating;
+        if (review) {
+            appointment.review = review; // Store review only if provided
+        }
+        await appointment.save();
+
+        // Update the doctor's rating and review
+        const doctor = await doctorModel.findById(docId);
+
+        if (!doctor) {
+            return res.status(404).json({
+                success: false,
+                message: 'Doctor not found'
+            });
+        }
+
+        // Calculate new rating average
+        const totalRating = doctor.rating * doctor.ratingCount + rating;
+        const newRatingCount = doctor.ratingCount + 1;
+        const newRating = totalRating / newRatingCount;
+
+        // Update the doctor's record
+        doctor.rating = newRating;
+        doctor.ratingCount = newRatingCount;
+
+        // Add the review to the doctor's review array if provided
+        if (review) {
+            doctor.reviews.push({ userId, rating, review });
+        }
+
+        await doctor.save();
+
+        return res.status(200).json({
+            success: true,
+            message: 'Rating and review submitted successfully',
+            data: {
+                newRating: doctor.rating,
+                ratingCount: doctor.ratingCount,
+                reviews: doctor.reviews
+            }
+        });
+
+    } catch (error) {
+        console.error('Error in rateDoctor:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error.message
+        });
+    }
+};
+
   
        
 
-export { registerUser, loginUser, getProfile, uploadProfileImage, updateProfile, bookAppointment, listAppointment, cancelAppointment, getVideoCallLink, processPayment  };
+export { registerUser, loginUser, getProfile, uploadProfileImage, updateProfile, bookAppointment, listAppointment, cancelAppointment, getVideoCallLink, processPayment, rateDoctor  };
