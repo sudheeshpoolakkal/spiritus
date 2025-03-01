@@ -55,28 +55,49 @@ const AdminContextProvider = (props) => {
 
   }
 
-    const getAllAppointments = async ()=>{
-
-      try{
-
-        const { data } = await axios.get(backendUrl + '/api/admin/appointments', {headers:{aToken}})
-
-        if (data.success){
-
-          setAppointments(data.appointments)
-          console.log(data.appointments);
-
-        }
-        else{
-          toast.error(data.message)
-        }
-
+  const getAllAppointments = async () => {
+    try {
+      const { data } = await axios.get(`${backendUrl}/api/admin/appointments`, {
+        headers: { aToken },
+      });
+  
+      if (data.success) {
+        const appointmentsWithPrescriptions = await Promise.all(
+          data.appointments.map(async (appointment) => {
+            if (appointment.isCompleted) {
+              try {
+                // Request only if prescription exists
+                const prescriptionRes = await axios.get(
+                  `${backendUrl}/api/prescription/admin/${appointment._id}`,
+                  { headers: { aToken } }
+                );
+                
+        
+                if (prescriptionRes.data.success) {
+                  return { ...appointment, prescription: prescriptionRes.data.prescription };
+                }
+              } catch (error) {
+                // Log error but don't break execution
+                console.warn(`No prescription found for appointment ${appointment._id}`);
+              }
+            }
+            return { ...appointment, prescription: null };
+          })
+        );
+        
+        setAppointments(appointmentsWithPrescriptions);
+        
+        
+        
+      } else {
+        toast.error(data.message);
       }
-      catch(error){
-        toast.error(error.message)
-      }
-
+    } catch (error) {
+      console.error(error);
+      toast.error(error.message);
     }
+  };
+  
 
     const cancelAppointment = async (appointmentId) => {
       try {
@@ -116,7 +137,26 @@ const AdminContextProvider = (props) => {
       }
 
     }
+
+ 
+    const getPrescriptions = async () => {
+      try {
+        const { data } = await axios.get(`${backendUrl}/api/prescription/admin`, {
+          headers: { aToken },
+        });
     
+        if (data.success) {
+          setPrescriptions(data.prescriptions);
+        } else {
+          toast.error(data.message);
+        }
+      } catch (error) {
+        console.error(error);
+        toast.error(error.message);
+      }
+    };
+    
+        
 
 
   const value = {
@@ -131,7 +171,8 @@ const AdminContextProvider = (props) => {
     getAllAppointments,
     cancelAppointment,
     dashData,
-    getDashData
+    getDashData,
+    getPrescriptions,
   };
 
   return <AdminContext.Provider value={value}>{props.children}</AdminContext.Provider>;

@@ -1,7 +1,7 @@
-// components/DoctorPrescription.js
 import React, { useState, useContext } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { DoctorContext } from '../../context/DoctorContext';
+import { AppContext } from '../../context/AppContext'; // Import AppContext for date formatting
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -11,6 +11,7 @@ const DoctorPrescription = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { dToken } = useContext(DoctorContext);
+  const { slotDateFormat } = useContext(AppContext); // Get slotDateFormat function
   const appointment = location.state?.appointment;
 
   const [report, setReport] = useState('');
@@ -22,7 +23,6 @@ const DoctorPrescription = () => {
     const selectedFile = e.target.files[0];
     setFile(selectedFile);
 
-    // Show file preview
     if (selectedFile) {
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -32,6 +32,18 @@ const DoctorPrescription = () => {
     } else {
       setFilePreview(null);
     }
+  };
+
+  const calculateAge = (dob) => {
+    const birthDate = new Date(dob);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
   };
 
   const handleSubmit = async () => {
@@ -59,11 +71,9 @@ const DoctorPrescription = () => {
           dToken,
         },
       });
-      console.log('Response from server:', response.data);
       toast.success('Prescription added successfully!');
-      setTimeout(() => navigate(-1), 2000); // Navigate back after 2 seconds
+      setTimeout(() => navigate(-1), 2000);
     } catch (error) {
-      console.error('Error uploading prescription:', error);
       toast.error('Error uploading prescription.');
     } finally {
       setIsLoading(false);
@@ -74,15 +84,16 @@ const DoctorPrescription = () => {
     <div className='max-w-3xl mx-auto p-5 bg-white shadow-lg rounded-lg transform transition-all duration-300 hover:shadow-xl'>
       <ToastContainer />
       <h2 className='text-3xl font-bold mb-6 text-blue-600'>Prescription</h2>
+      
       <div className='mb-6'>
         <p className='text-lg font-semibold text-gray-700'>
           <span className='text-blue-500'>Patient Name:</span> {appointment.userData.name}
         </p>
         <p className='text-lg font-semibold text-gray-700'>
-          <span className='text-blue-500'>Age:</span> {appointment.userData.dob}
+          <span className='text-blue-500'>Age:</span> {calculateAge(appointment.userData.dob)} years
         </p>
         <p className='text-lg font-semibold text-gray-700'>
-          <span className='text-blue-500'>Date & Time:</span> {appointment.slotDate}, {appointment.slotTime}
+          <span className='text-blue-500'>Date:</span> {slotDateFormat(appointment.slotDate)}
         </p>
       </div>
 
