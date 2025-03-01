@@ -10,6 +10,7 @@ const AdminContextProvider = (props) => {
   const [doctors,setDoctors]= useState([]);
   const [appointments,setAppointments] = useState([]);
   const [dashData, setDashData] = useState(false)
+  const [feedbacks, setFeedbacks] = useState([]);
 
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -156,6 +157,67 @@ const AdminContextProvider = (props) => {
       }
     };
     
+
+    // Get all feedbacks
+  const getAllFeedbacks = async () => {
+    try {
+      const { data } = await axios.get(`${backendUrl}/api/admin/feedbacks`, {
+        headers: { aToken },
+      });
+
+      if (data.success) {
+        setFeedbacks(data.feedbacks);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(error.message);
+    }
+  };
+
+  // Mark feedback as read
+  const markFeedbackAsRead = async (feedbackId) => {
+    try {
+      const { data } = await axios.post(
+        `${backendUrl}/api/admin/mark-feedback-read`,
+        { feedbackId },
+        { headers: { aToken } }
+      );
+
+      if (data.success) {
+        toast.success(data.message);
+        getAllFeedbacks();
+        getDashData(); // Update unread count in dashboard
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(error.message);
+    }
+  };
+
+  // Delete feedback
+  const deleteFeedback = async (feedbackId) => {
+    try {
+      const { data } = await axios.post(
+        `${backendUrl}/api/admin/delete-feedback`,
+        { feedbackId },
+        { headers: { aToken } }
+      );
+
+      if (data.success) {
+        toast.success(data.message);
+        getAllFeedbacks();
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(error.message);
+    }
+  };
         
 
 
@@ -173,6 +235,10 @@ const AdminContextProvider = (props) => {
     dashData,
     getDashData,
     getPrescriptions,
+    feedbacks,
+    getAllFeedbacks,
+    markFeedbackAsRead,
+    deleteFeedback,
   };
 
   return <AdminContext.Provider value={value}>{props.children}</AdminContext.Provider>;

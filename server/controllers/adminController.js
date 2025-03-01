@@ -5,6 +5,7 @@ import doctorModel from '../models/doctorModel.js';
 import jwt from 'jsonwebtoken'
 import appointmentModel from "../models/appointmentModel.js";
 import userModel from "../models/userModel.js";
+import feedbackModel from "../models/feedbackModel.js";
 // API for adding doctor
 // adminController.js
 // adminController.js
@@ -182,33 +183,84 @@ const appointmentCancel = async (req, res) => {
 
 // API to get Dashboard data for admin panel
 const adminDashboard = async (req, res) => {
-    try {
-      const doctors = await doctorModel.find({});
-      const users = await userModel.find({});
-      const appointments = await appointmentModel.find({});
+  try {
+    const doctors = await doctorModel.find({});
+    const users = await userModel.find({});
+    const appointments = await appointmentModel.find({});
+    const unreadFeedbacks = await feedbackModel.countDocuments({ isRead: false });
   
-      let adminEarnings = 0;
-      // For each paid appointment, admin earns 16% of the base fee.
-      appointments.forEach(item => {
-        if (item.payment) {
-          adminEarnings += item.amount * 0.16;
-        }
-      });
+    let adminEarnings = 0;
+    // For each paid appointment, admin earns 16% of the base fee.
+    appointments.forEach(item => {
+      if (item.payment) {
+        adminEarnings += item.amount * 0.16;
+      }
+    });
   
-      const dashData = {
-        doctors: doctors.length,
-        appointments: appointments.length,
-        patients: users.length,
-        earnings: adminEarnings.toFixed(2), // 2 decimal places
-        latestAppointments: appointments.reverse().slice(0, 5)
-      };
+    const dashData = {
+      doctors: doctors.length,
+      appointments: appointments.length,
+      patients: users.length,
+      earnings: adminEarnings.toFixed(2), // 2 decimal places
+      unreadFeedbacks,
+      latestAppointments: appointments.reverse().slice(0, 5)
+    };
   
-      res.json({ success: true, dashData });
-    } catch (error) {
-      console.error(error);
-      res.json({ success: false, message: error.message });
+    res.json({ success: true, dashData });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+
+// API to get all feedbacks
+const getAllFeedbacks = async (req, res) => {
+  try {
+    const feedbacks = await feedbackModel.find({}).sort({ createdAt: -1 });
+    res.json({ success: true, feedbacks });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+// API to mark feedback as read
+const markFeedbackAsRead = async (req, res) => {
+  try {
+    const { feedbackId } = req.body;
+    
+    const feedback = await feedbackModel.findById(feedbackId);
+    if (!feedback) {
+      return res.json({ success: false, message: "Feedback not found" });
     }
-  };
+    
+    feedback.isRead = true;
+    await feedback.save();
+    
+    res.json({ success: true, message: "Feedback marked as read" });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+// API to delete feedback
+const deleteFeedback = async (req, res) => {
+  try {
+    const { feedbackId } = req.body;
+    
+    const result = await feedbackModel.findByIdAndDelete(feedbackId);
+    if (!result) {
+      return res.json({ success: false, message: "Feedback not found" });
+    }
+    
+    res.json({ success: true, message: "Feedback deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: error.message });
+  }
+};
   
-export { addDoctor , loginAdmin , allDoctors, appointmentsAdmin, appointmentCancel, adminDashboard };
+export { addDoctor , loginAdmin , allDoctors, appointmentsAdmin, appointmentCancel, adminDashboard,deleteFeedback,markFeedbackAsRead,getAllFeedbacks };
 

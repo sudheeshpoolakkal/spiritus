@@ -4,6 +4,7 @@ import userModel from '../models/userModel.js'
 import jwt from 'jsonwebtoken'
 import doctorModel from '../models/doctorModel.js'
 import appointmentModel from '../models/appointmentModel.js'
+import feedbackModel from "../models/feedbackModel.js";
 //import razorpay from 'razorpay'
 import { v2 as cloudinary } from 'cloudinary';
 // API to register user
@@ -450,7 +451,37 @@ const processPayment = async (req, res) => {
     }
 };
 
+const submitFeedback = async (req, res) => {
+  try {
+    const { name, email, message } = req.body;
+    
+    // Check if all fields are provided
+    if (!name || !email || !message) {
+      return res.json({ success: false, message: "Please fill all fields" });
+    }
+    
+    // Validate email format
+    if (!validator.isEmail(email)) {
+      return res.json({ success: false, message: "Please enter a valid email" });
+    }
+    
+    // Create new feedback
+    const feedback = new feedbackModel({
+      name,
+      email,
+      message
+    });
+    
+    await feedback.save();
+    
+    res.json({ success: true, message: "Feedback submitted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
   
        
 
-export { registerUser, loginUser, getProfile, uploadProfileImage, updateProfile, bookAppointment, listAppointment, cancelAppointment, getVideoCallLink, processPayment, rateDoctor  };
+export { registerUser, loginUser, getProfile, uploadProfileImage, updateProfile, bookAppointment, listAppointment, cancelAppointment, getVideoCallLink, processPayment, rateDoctor, submitFeedback  };

@@ -3,19 +3,28 @@ import React, { useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FaStar } from 'react-icons/fa' // Import star icon
 
-function TopDoctors() {
+function PopularDoctors() {
     const navigate = useNavigate()
     const { doctors } = useContext(AppContext)
     
-    // Sort doctors by rating from highest to lowest
-    const sortedDoctors = [...doctors].sort((a, b) => (b.rating || 0) - (a.rating || 0))
+    // Sort doctors by the number of ratings (assuming each doctor has a 'ratings' array)
+    // If the structure is different, adjust this sort accordingly
+    const popularDoctors = [...doctors].sort((a, b) => {
+        // Count the number of ratings
+        const aRatings = Array.isArray(a.ratings) ? a.ratings.length : 
+                         (a.ratingsCount || 0);
+        const bRatings = Array.isArray(b.ratings) ? b.ratings.length : 
+                         (b.ratingsCount || 0);
+        
+        return bRatings - aRatings;
+    });
 
     return (
         <div className='flex flex-col items-center gap-4 my-16 text-gray-900 md:mx-10'>
-            <h1 className='text-3xl font-medium'>Top Doctors to Book</h1>
-            <p className='sm:w-1/3 text-center text-sm'>Simply Browse through our extensive list of trusted Doctors.</p>
+            <h1 className='text-3xl font-medium'>Popular Doctors</h1>
+            <p className='sm:w-1/3 text-center text-sm'>Most frequently rated doctors by our patients.</p>
             <div className='w-full grid grid-cols-auto gap-4 pt-5 gap-y-6 px-3 sm:px-0'>
-                {sortedDoctors.slice(0,10).map((item, index) => (
+                {popularDoctors.slice(0,10).map((item, index) => (
                     <div 
                         onClick={() => { navigate(`/appointment/${item._id}`); scrollTo(0, 0) }} 
                         key={index} 
@@ -52,4 +61,4 @@ function TopDoctors() {
     )
 }
 
-export default TopDoctors
+export default PopularDoctors
