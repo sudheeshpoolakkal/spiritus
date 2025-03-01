@@ -15,6 +15,7 @@ import UploadProfileImage from './pages/UploadProfileImage'
 import BackgroundMusic from './components/BackgroundMusic';
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import UserPrescription from './pages/UserPrescription'
 
 const App = () => {
   return (
@@ -34,6 +35,8 @@ const App = () => {
   <Route path='/checkout' element={<Checkout />} />
   <Route path='/appointment/:docId' element={<Appointment />} />
   <Route path="/upload-profile" element={<UploadProfileImage />} />
+  <Route path="/user-prescription" element={<UserPrescription />} />
+
 
 </Routes>
       <Footer />
