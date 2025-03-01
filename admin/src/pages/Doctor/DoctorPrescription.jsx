@@ -3,8 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { DoctorContext } from '../../context/DoctorContext';
 import { AppContext } from '../../context/AppContext';
 import axios from 'axios';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'react-toastify';
 import { ImSpinner8 } from 'react-icons/im';
 
 const DoctorPrescription = () => {
@@ -86,7 +85,6 @@ const DoctorPrescription = () => {
 
   return (
     <div className="max-w-3xl mx-auto p-5 bg-white shadow-lg rounded-lg transform transition-all duration-300 hover:shadow-xl">
-      <ToastContainer />
       <h2 className="text-3xl font-bold mb-6 text-blue-600">Prescription</h2>
 
       <div className="mb-6">
