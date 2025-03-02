@@ -4,6 +4,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { assets } from '@/assets/assets_frontend/assets';
+import bg3 from '@/assets/assets_frontend/aurora.webp';
 
 const UploadProfileImage = () => {
   const { backendUrl, token, loadUserProfileData, userData } = useContext(AppContext);
@@ -22,15 +23,15 @@ const UploadProfileImage = () => {
   };
 
   const uploadUserImage = async () => {
-    try {
-      if (!profileFile) {
-        toast.error("Please select an image");
-        return;
-      }
-      setIsUploading(true);
-      const formData = new FormData();
-      formData.append('image', profileFile);
+    if (!profileFile) {
+      toast.error("Please select an image");
+      return;
+    }
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append('image', profileFile);
 
+    try {
       const { data } = await axios.post(
         `${backendUrl}/api/user/upload-profile-image`,
         formData,
@@ -45,7 +46,7 @@ const UploadProfileImage = () => {
         toast.error(data.message);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       toast.error(error.message);
     } finally {
       setIsUploading(false);
@@ -53,14 +54,17 @@ const UploadProfileImage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full border border-gray-200">
-        <h2 className="text-3xl font-semibold text-center text-gray-900 mb-8">
+    <div 
+      className="min-h-screen flex items-center justify-center bg-cover bg-center" 
+      style={{ backgroundImage: `url(${bg3})` }}
+    >
+      <div className="bg-[#242425] p-8 rounded-3xl shadow-lg w-full max-w-md text-zinc-200">
+        <h2 className="text-2xl font-bold text-center mb-8">
           Upload Profile Image
         </h2>
         <div className="flex flex-col items-center">
-          <label
-            htmlFor="profile-img"
+          <label 
+            htmlFor="profile-img" 
             className="cursor-pointer transition-transform transform hover:scale-105"
           >
             <div className="relative">
@@ -80,10 +84,10 @@ const UploadProfileImage = () => {
           <button
             onClick={uploadUserImage}
             disabled={isUploading}
-            className={`mt-8 w-full py-3 px-6 rounded-lg font-semibold transition-colors ${
+            className={`mt-8 w-full py-3 px-6 rounded-lg font-semibold transition-colors shadow ${
               isUploading
-                ? 'bg-blue-300 text-white cursor-wait'
-                : 'bg-blue-600 hover:bg-blue-700 text-white'
+                ? 'bg-indigo-300 text-white cursor-wait'
+                : 'bg-green-600 hover:bg-green-700 text-white'
             }`}
           >
             {isUploading ? 'Uploading...' : 'Save Profile Image'}
