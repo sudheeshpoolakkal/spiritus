@@ -1,7 +1,7 @@
 import { assets } from '@/assets/assets_frontend/assets';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import bg3 from '@/assets/assets_frontend/bg7.jpg'; // Import your background image
+import bg9 from '@/assets/assets_frontend/bg9.jpg'; // Import your background image
 
 function Banner() {
   const navigate = useNavigate();
@@ -9,7 +9,7 @@ function Banner() {
   return (
     <div 
       className="flex flex-col md:flex-row rounded-lg px-6 sm:px-10 md:px-14 lg:px-12 my-20 md:mx-10 items-center bg-cover bg-center bg-no-repeat"
-      style={{ backgroundImage: `url(${bg3})` }} // Correct usage of backgroundImage
+      style={{ backgroundImage: `url(${bg9})` }} // Correct usage of backgroundImage
     >
       {/* ----- Left Side ----- */}
       <div className="flex-1 text-center md:text-left py-8 sm:py-10 md:py-16 lg:py-24 lg:pl-5">

@@ -1,16 +1,26 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AppContext } from '../context/AppContext';
-import { FaStar } from 'react-icons/fa';
+import { FaStar, FaSearch } from 'react-icons/fa';
 
 const Doctors = () => {
   const { speciality } = useParams();
+  const { doctors } = useContext(AppContext);
   const [filterDoc, setFilterDoc] = useState([]);
   const [showFilter, setShowFilter] = useState(false);
-  const { doctors } = useContext(AppContext);
+  const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
 
-  // Apply filter based on the selected speciality
+  const specialties = [
+    'General physician',
+    'Gynecologist',
+    'Dermatologist',
+    'Pediatricians',
+    'Neurologist',
+    'Gastroenterologist'
+  ];
+
+  // Apply filter based on selected speciality
   const applyFilter = () => {
     if (speciality) {
       setFilterDoc(doctors.filter((doc) => doc.speciality === speciality));
@@ -19,102 +29,177 @@ const Doctors = () => {
     }
   };
 
-  // Update the filtered list when `doctors` or `speciality` changes
   useEffect(() => {
     applyFilter();
   }, [doctors, speciality]);
 
+  // Filter doctors based on search term
+  useEffect(() => {
+    if (searchTerm.trim() === '') {
+      applyFilter();
+      return;
+    }
+    
+    const filtered = doctors.filter(
+      (doc) => 
+        doc.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        doc.speciality.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilterDoc(filtered);
+  }, [searchTerm]);
+
   return (
-    <div className="min-h-screen flex flex-col sm:flex-row">
-      {/* Sidebar */}
-      <aside className="w-full sm:w-1/4 p-6 bg-gray-100 border-b sm:border-b-0 sm:border-r">
-        <p className="font-semibold mb-4">Browse through doctor specialties</p>
-        <button
-          className={`py-2 px-4 border rounded text-sm transition-all sm:hidden ${
-            showFilter ? 'bg-primary text-white' : ''
-          }`}
-          onClick={() => setShowFilter((prev) => !prev)}
-        >
-          Filter
-        </button>
-        <div
-          className={`flex-col gap-4 text-sm text-gray-600 ${
-            showFilter ? 'flex' : 'hidden sm:flex'
-          }`}
-        >
-          {[
-            'General physician',
-            'Gynecologist',
-            'Dermatologist',
-            'Pediatricians',
-            'Neurologist',
-            'Gastroenterologist'
-          ].map((spec, index) => (
-            <button
-              key={index}
-              onClick={() => setFilterDoc(doctors.filter((doc) => doc.speciality === spec))}
-              className="p-2 bg-white border rounded hover:bg-gray-50"
-            >
-              {spec}
-            </button>
-          ))}
-          <button
-            onClick={() => setFilterDoc(doctors)}
-            className="p-2 bg-blue-100 border rounded hover:bg-blue-200"
-          >
-            Clear Filter
-          </button>
+    <div className="min-h-screen bg-white">
+      {/* Simple Header */}
+      <div className="max-w-6xl mx-auto px-4 pt-8 pb-6">
+        <div className="flex flex-col items-center justify-center gap-8 text-gray-900">
+          <h1 className="text-3xl font-bold">Find Doctors</h1>
+          <p className="sm:w-1/2 text-center text-base text-gray-600">
+            Browse our extensive list of trusted doctors tailored to your needs.
+          </p>
+          
+          {/* Search Input */}
+          <div className="relative w-full max-w-md">
+            <input
+              type="text"
+              className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-full text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+              placeholder="Search doctors..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm" />
+          </div>
         </div>
-      </aside>
+      </div>
 
-      {/* Doctor cards grid */}
-      <section className="w-full sm:w-3/4 p-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filterDoc.length > 0 ? (
-            filterDoc.map((item, index) => {
-              // Calculate average rating
-              const avgRating =
-                item.reviews && item.reviews.length > 0
-                  ? (item.reviews.reduce((sum, review) => sum + review.rating, 0) / item.reviews.length).toFixed(1)
-                  : null;
-
-              return (
-                <div
-                  onClick={() => navigate(`/appointment/${item._id}`)}
-                  className="border border-gray-200 rounded-lg overflow-hidden cursor-pointer hover:shadow-lg transition duration-300"
-                  key={index}
+      <div className="max-w-6xl mx-auto px-4 pb-12">
+        <div className="flex flex-col sm:flex-row gap-6">
+          {/* Minimal Sidebar */}
+          <aside className="w-full sm:w-48 shrink-0">
+            <div className="sm:sticky sm:top-6">
+              <button
+                className="w-full mb-3 px-3 py-2 bg-gray-100 text-gray-700 text-sm rounded sm:hidden"
+                onClick={() => setShowFilter(!showFilter)}
+              >
+                {showFilter ? 'Hide Filters' : 'Show Filters'}
+              </button>
+              
+              <div className={`space-y-1 ${showFilter ? 'block' : 'hidden sm:block'}`}>
+                <p className="text-xs text-gray-500 uppercase tracking-wider mb-2 font-medium">Specialties</p>
+                {specialties.map((spec, index) => (
+                  <button
+                    key={index}
+                    onClick={() => {
+                      setFilterDoc(doctors.filter((doc) => doc.speciality === spec));
+                      setSearchTerm('');
+                    }}
+                    className={`w-full px-3 py-2 text-left text-sm rounded transition-colors ${
+                      filterDoc.length > 0 && 
+                      filterDoc[0].speciality === spec && 
+                      !searchTerm ? 
+                      'bg-primary text-white font-medium' : 
+                      'hover:bg-gray-100 text-gray-700'
+                    }`}
+                  >
+                    {spec}
+                  </button>
+                ))}
+                <button
+                  onClick={() => {
+                    setFilterDoc(doctors);
+                    setSearchTerm('');
+                  }}
+                  className="w-full px-3 py-2 text-left text-sm text-primary hover:bg-gray-50 rounded transition-colors"
                 >
-                  <img
-                    className="w-full h-50 object-cover"
-                    src={item.image}
-                    alt={item.name}
-                  />
-                  <div className="p-4">
-                    <div className={`flex items-center gap-2 text-sm text-center ${item.available ? 'text-green-500' : 'text-red-500'} `}>
-                      <p className={`w-2 h-2 ${item.available ? 'bg-green-500 rounded-full' : 'bg-red-500 rounded-full'}`}></p>
-                      <p>{item.available ? 'Available' : 'Not Available'}</p>
-                    </div>
-                    <p className="text-gray-900 text-lg font-semibold">{item.name}</p>
-                    <p className="text-gray-600 text-sm">{item.speciality}</p>
+                  All Doctors
+                </button>
+              </div>
+            </div>
+          </aside>
 
-                    {/* Rating Section */}
-                    {avgRating ? (
-                      <div className='flex items-center gap-1 text-yellow-500 mt-1'>
-                        <FaStar />
-                        <span className='text-sm text-gray-700'>{avgRating}</span>
+          {/* Doctor Cards Grid - Matching RelatedDoctors design */}
+          <section className="flex-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {filterDoc.length > 0 ? (
+                filterDoc.map((item, index) => {
+                  // Calculate average rating
+                  const avgRating =
+                    item.reviews && item.reviews.length > 0
+                      ? (
+                          item.reviews.reduce((sum, review) => sum + review.rating, 0) /
+                          item.reviews.length
+                        ).toFixed(1)
+                      : null;
+                  return (
+                    <div
+                      key={index}
+                      onClick={() => navigate(`/appointment/${item._id}`)}
+                      className="bg-white rounded-lg shadow transition transform duration-300 hover:-translate-y-1 hover:shadow-lg cursor-pointer"
+                    >
+                      {/* Image container - aspect-square */}
+                      <div className="w-full aspect-square overflow-hidden rounded-sm">
+
+                        <img
+                          className="w-full h-full object-cover"
+                          src={item.image}
+                          alt={item.name}
+                        />
                       </div>
-                    ) : (
-                      <p className="text-sm text-gray-500">No ratings</p>
-                    )}
-                  </div>
+
+                      {/* Card Details - matching RelatedDoctors styling */}
+                      <div className="p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          {/* Availability */}
+                          <div className="flex items-center gap-1 text-sm">
+                            <span
+                              className={`w-2 h-2 rounded-full ${
+                                item.available ? 'bg-green-500' : 'bg-red-500'
+                              }`}
+                            ></span>
+                            <span className={item.available ? 'text-green-600' : 'text-red-600'}>
+                              {item.available ? 'Available' : 'Not Available'}
+                            </span>
+                          </div>
+                          {/* Rating */}
+                          <div className="flex items-center gap-1 text-yellow-500">
+                            <FaStar className="text-sm" />
+                            <span className="text-xs text-gray-700">
+                              {avgRating || 'No ratings'}
+                            </span>
+                          </div>
+                        </div>
+                        <h3 className="text-base font-semibold text-gray-900 mb-1">
+                          {item.name}
+                        </h3>
+                        <p className="text-xs text-gray-500 uppercase tracking-wider">
+                          {item.speciality}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
+                  <p className="text-gray-500">
+                    {searchTerm ? 
+                      `No results for "${searchTerm}"` : 
+                      'No doctors available for this specialty'}
+                  </p>
+                  <button 
+                    className="mt-6 px-10 py-3 bg-[#0D8845] hover:bg-black text-white rounded-full transition-colors duration-300"
+                    onClick={() => {
+                      setFilterDoc(doctors);
+                      setSearchTerm('');
+                    }}
+                  >
+                    View All Doctors
+                  </button>
                 </div>
-              );
-            })
-          ) : (
-            <p>No doctors available for the selected specialty.</p>
-          )}
+              )}
+            </div>
+          </section>
         </div>
-      </section>
+      </div>
     </div>
   );
 };

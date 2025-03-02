@@ -18,29 +18,43 @@ import 'react-toastify/dist/ReactToastify.css'
 
 const App = () => {
   const location = useLocation()
-  const hideLayout = location.pathname === '/login'
+  // Hide layout for /login, /my-profile, and /upload-profile routes
+  const hideLayout = ['/login', '/my-profile', '/upload-profile'].includes(location.pathname);
 
   return (
-    <div className={`${hideLayout ? 'mx-0' : 'mx-4 sm:mx-[1%]'}`}>
-      <ToastContainer />
-      <BackgroundMusic />
+    <>
+      {/* Fixed Navbar */}
       {!hideLayout && <Navbar />}
-      <Routes>
-        <Route path='/' element={<Home />} />
-        <Route path='/doctors' element={<Doctors />} />
-        <Route path='/doctors/:speciality' element={<Doctors />} />
-        <Route path='/login' element={<Login />} />
-        <Route path='/about' element={<About />} />
-        <Route path='/contact' element={<Contact />} />
-        <Route path='/my-profile' element={<MyProfile />} />
-        <Route path='/my-appointments' element={<MyAppointments />} />
-        <Route path='/checkout' element={<Checkout />} />
-        <Route path='/appointment/:docId' element={<Appointment />} />
-        <Route path="/upload-profile" element={<UploadProfileImage />} />
-      </Routes>
-      {!hideLayout && <Footer />}
-    </div>
+      
+      {/* Main Content with Top Padding to Offset Fixed Navbar */}
+      <div className={`${hideLayout ? 'p-0' : 'mx-4 sm:mx-[1%] pt-20'}`}>
+        <ToastContainer />
+        <BackgroundMusic />
+        <Routes>
+          <Route path='/' element={<Home />} />
+          <Route path='/doctors' element={<Doctors />} />
+          <Route path='/doctors/:speciality' element={<Doctors />} />
+          <Route path='/login' element={<Login />} />
+          <Route path='/about' element={<About />} />
+          <Route path='/contact' element={<Contact />} />
+          <Route path='/my-profile' element={<MyProfile />} />
+          <Route path='/my-appointments' element={<MyAppointments />} />
+          <Route path='/checkout' element={<Checkout />} />
+          <Route path='/appointment/:docId' element={<Appointment />} />
+          <Route path="/upload-profile" element={<UploadProfileImage />} />
+        </Routes>
+      </div>
+      
+      {/* Footer (full-width, no margin) */}
+      {!hideLayout && (
+        <div className="mx-0">
+          <Footer noBorder={location.pathname === '/about'} />
+        </div>
+      )}
+    </>
   )
 }
 
-export default App
+export default App;
+
+

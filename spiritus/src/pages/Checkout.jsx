@@ -1,4 +1,3 @@
-// src/pages/Checkout.jsx
 import React, { useContext, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -26,7 +25,11 @@ const Checkout = () => {
 
   if (!appointment) {
     toast.error("Appointment details not found.");
-    return <div className="text-center mt-10"><h1>Error: Appointment not found</h1></div>;
+    return (
+      <div className="text-center mt-10">
+        <h1>Error: Appointment not found</h1>
+      </div>
+    );
   }
 
   // Calculate total amount with 16% extra
@@ -105,119 +108,134 @@ const Checkout = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 bg-white p-6 rounded-md shadow">
-      <h1 className="text-2xl font-semibold text-center mb-4">Checkout</h1>
-      
-      {/* Display appointment details including amount with surcharge */}
-      <div className="mb-4 text-center">
-        <p>
-          Appointment ID: <span className="font-bold">{appointment._id}</span>
-        </p>
-        <p>
-          Amount to pay: <span className="font-bold">{currencySymbol}{totalAmount}</span>
-        </p>
-       
-      </div>
+    <div className="max-w-md mx-auto mt-10">
+      <div className="bg-white p-6 rounded-lg shadow-lg">
+        <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">Checkout</h1>
+        
+        {/* Appointment Details */}
+        <div className="mb-6 border-b pb-4">
+          <p className="text-gray-600 text-sm">
+            Appointment ID: <span className="font-semibold text-gray-800">{appointment._id}</span>
+          </p>
+          <p className="text-gray-600 text-sm mt-1">
+            Amount to pay: <span className="font-semibold text-gray-800">{currencySymbol}{totalAmount}</span>
+          </p>
+        </div>
 
-      {/* Payment Method Selection */}
-      <div className="flex justify-center mb-4">
-        <label className="mr-6">
-          <input
-            type="radio"
-            name="paymentMethod"
-            value="card"
-            checked={paymentMethod === 'card'}
-            onChange={(e) => setPaymentMethod(e.target.value)}
-          />
-          <span className="ml-2">Card</span>
-        </label>
-        <label>
-          <input
-            type="radio"
-            name="paymentMethod"
-            value="upi"
-            checked={paymentMethod === 'upi'}
-            onChange={(e) => setPaymentMethod(e.target.value)}
-          />
-          <span className="ml-2">UPI</span>
-        </label>
-      </div>
+        {/* Payment Method Tabs */}
+        <div className="flex justify-center mb-6">
+          <button
+            onClick={() => setPaymentMethod('card')}
+            className={`px-4 py-2 mr-2 border-b-2 transition-colors ${paymentMethod === 'card' ? 'border-blue-500 text-blue-600 font-semibold' : 'border-transparent text-gray-600'}`}
+          >
+            Card
+          </button>
+          <button
+            onClick={() => setPaymentMethod('upi')}
+            className={`px-4 py-2 border-b-2 transition-colors ${paymentMethod === 'upi' ? 'border-blue-500 text-blue-600 font-semibold' : 'border-transparent text-gray-600'}`}
+          >
+            UPI
+          </button>
+        </div>
 
-      {paymentMethod === 'card' && (
-        <form onSubmit={handlePayment}>
-          <div className="mb-3">
-            <label className="block text-sm font-medium">Name on Card</label>
-            <input
-              type="text"
-              className="border w-full p-2 rounded"
-              value={cardName}
-              onChange={(e) => setCardName(e.target.value)}
-              required
-            />
-          </div>
-          <div className="mb-3">
-            <label className="block text-sm font-medium">Card Number</label>
-            <input
-              type="text"
-              className="border w-full p-2 rounded"
-              value={cardNumber}
-              onChange={(e) => setCardNumber(e.target.value)}
-              required
-            />
-          </div>
-          <div className="flex gap-3 mb-3">
-            <div className="flex-1">
-              <label className="block text-sm font-medium">Expiry (MM/YY)</label>
+        {paymentMethod === 'card' && (
+          <form onSubmit={handlePayment}>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Name on Card</label>
               <input
                 type="text"
-                className="border w-full p-2 rounded"
-                value={expiry}
-                onChange={(e) => setExpiry(e.target.value)}
+                className="border border-gray-300 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={cardName}
+                onChange={(e) => setCardName(e.target.value)}
+                placeholder="John Doe"
                 required
               />
             </div>
-            <div className="flex-1">
-              <label className="block text-sm font-medium">CVV</label>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Card Number</label>
               <input
                 type="text"
-                className="border w-full p-2 rounded"
-                value={cvv}
-                onChange={(e) => setCvv(e.target.value)}
+                maxLength="16"
+                inputMode="numeric"
+                pattern="\d*"
+                onInput={(e) => {
+                  e.target.value = e.target.value.replace(/\D/g, '');
+                  setCardNumber(e.target.value);
+                }}
+                className="border border-gray-300 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={cardNumber}
+                placeholder="1234123412341234"
                 required
               />
             </div>
-          </div>
-          <button
-            type="submit"
-            disabled={loading}
-            className="mt-3 w-full py-2 bg-blue-500 text-white font-semibold rounded hover:bg-blue-600 transition"
-          >
-            {loading ? 'Processing...' : 'Submit Payment'}
-          </button>
-        </form>
-      )}
+            <div className="flex gap-4 mb-4">
+              <div className="w-1/2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Expiry (MM/YY)</label>
+                <input
+                  type="text"
+                  maxLength="5"
+                  inputMode="numeric"
+                  onInput={(e) => {
+                    e.target.value = e.target.value.replace(/[^0-9\/]/g, '');
+                    setExpiry(e.target.value);
+                  }}
+                  className="border border-gray-300 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={expiry}
+                  placeholder="08/24"
+                  required
+                />
+              </div>
+              <div className="w-1/2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">CVV</label>
+                <input
+                  type="text"
+                  maxLength="3"
+                  inputMode="numeric"
+                  pattern="\d*"
+                  onInput={(e) => {
+                    e.target.value = e.target.value.replace(/\D/g, '');
+                    setCvv(e.target.value);
+                  }}
+                  className="border border-gray-300 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={cvv}
+                  placeholder="123"
+                  required
+                />
+              </div>
+            </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-2 bg-indigo-600 text-white rounded-md font-semibold hover:bg-indigo-700 transition-colors"
+            >
+              {loading ? 'Processing...' : 'Submit Payment'}
+            </button>
+          </form>
+        )}
 
-      {paymentMethod === 'upi' && (
-        <form onSubmit={handlePayment}>
-          <div className="mb-3">
-            <label className="block text-sm font-medium">UPI ID</label>
-            <input
-              type="text"
-              className="border w-full p-2 rounded"
-              value={upiId}
-              onChange={(e) => setUpiId(e.target.value)}
-              required
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={loading}
-            className="mt-3 w-full py-2 bg-blue-500 text-white font-semibold rounded hover:bg-blue-600 transition"
-          >
-            {loading ? 'Processing...' : 'Submit Payment'}
-          </button>
-        </form>
-      )}
+        {paymentMethod === 'upi' && (
+          <form onSubmit={handlePayment}>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">UPI ID</label>
+              <input
+                type="text"
+                className="border border-gray-300 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={upiId}
+                onChange={(e) => setUpiId(e.target.value)}
+                placeholder="username@bank"
+                required
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-2 bg-[#0D8845] text-white rounded-md font-semibold hover:bg-indigo-700 transition-colors"
+            >
+              {loading ? 'Processing...' : 'Submit Payment'}
+            </button>
+          </form>
+        )}
+      </div>
     </div>
   );
 };

@@ -1,55 +1,72 @@
 import { AppContext } from '@/context/AppContext'
 import React, { useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { FaStar } from 'react-icons/fa' // Import star icon
+import { FaStar } from 'react-icons/fa'
 
 function TopDoctors() {
-    const navigate = useNavigate()
-    const { doctors } = useContext(AppContext)
-    
-    // Sort doctors by rating from highest to lowest
-    const sortedDoctors = [...doctors].sort((a, b) => (b.rating || 0) - (a.rating || 0))
+  const navigate = useNavigate()
+  const { doctors } = useContext(AppContext)
+  
+  // Sort doctors by rating from highest to lowest
+  const sortedDoctors = [...doctors].sort((a, b) => (b.rating || 0) - (a.rating || 0))
 
-    return (
-        <div className='flex flex-col items-center gap-4 my-16 text-gray-900 md:mx-10'>
-            <h1 className='text-3xl font-medium'>Top Doctors to Book</h1>
-            <p className='sm:w-1/3 text-center text-sm'>Simply Browse through our extensive list of trusted Doctors.</p>
-            <div className='w-full grid grid-cols-auto gap-4 pt-5 gap-y-6 px-3 sm:px-0'>
-                {sortedDoctors.slice(0,10).map((item, index) => (
-                    <div 
-                        onClick={() => { navigate(`/appointment/${item._id}`); scrollTo(0, 0) }} 
-                        key={index} 
-                        className='border border-blue-200 rounded-xl overflow-hidden cursor-pointer hover:translate-y-[-10px] transition-all duration-500'
-                    >
-                        {/* Fix the image aspect ratio */}
-                        <div className="w-full h-48 overflow-hidden">
-                            <img className='w-full h-full object-cover' src={item.image} alt="" />
-                        </div>
-                        <div className='p-4'>
-                            <div className={`flex items-center gap-2 text-sm ${item.available ? 'text-green-500' : 'text-red-500'}`}>
-                                <p className={`w-2 h-2 ${item.available ? 'bg-green-500' : 'bg-red-500'} rounded-full`}></p>
-                                <p>{item.available ? 'Available' : 'Not Available'}</p>
-                            </div>
-                            <p className='text-gray-900 text-lg font-medium'>{item.name}</p>
-                            <p className='text-gray-600 text-sm'>{item.speciality}</p>
+  return (
+    <div className="flex flex-col items-center gap-8 my-16 text-gray-900 md:mx-10">
+      <h1 className="text-3xl font-semibold">Top Doctors to Book</h1>
+      <p className="sm:w-1/3 text-center text-sm text-gray-600">
+        Simply browse through our extensive list of trusted doctors.
+      </p>
+      
+      <div className="w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 px-3">
+        {sortedDoctors.slice(0, 10).map((item, index) => (
+          <div 
+            key={index}
+            onClick={() => { navigate(`/appointment/${item._id}`); window.scrollTo(0, 0) }} 
+            className="bg-white rounded-md shadow-md overflow-hidden cursor-pointer transition-transform duration-300 ease-in-out hover:-translate-y-2 w-56 mx-auto"
 
-                            {/* Rating Section */}
-                            <div className='flex items-center gap-1 text-yellow-500 mt-2'>
-                                <FaStar />
-                                <span className='text-sm text-gray-700'>{item.rating ? item.rating.toFixed(1) : 'No ratings yet'}</span>
-                            </div>
-                        </div>
-                    </div>
-                ))}
+          >
+            <div className="w-full aspect-square overflow-hidden">
+              <img className="w-full h-full object-cover" src={item.image} alt={item.name} />
             </div>
-            <button 
-                onClick={() => { navigate('/doctors'); scrollTo(0, 0) }} 
-                className='bg-blue-50 text-gray-600 px-12 py-3 rounded-full mt-10'
-            >
-                More
-            </button>
-        </div>
-    )
+            {/* Updated Card Details */}
+            <div className="p-4">
+              <div className="flex items-center justify-between mb-2">
+                {/* Availability Badge */}
+                <span className={`flex items-center gap-1 text-xs font-medium ${item.available ? 'text-[#0D8845]' : 'text-red-600'}`}>
+                  <span className={`w-2 h-2 rounded-full ${item.available ? 'bg-green-600' : 'bg-red-600'}`}></span>
+                  {item.available ? 'Available' : 'Not Available'}
+                </span>
+                {/* Rating */}
+                <div className="flex items-center gap-1 text-yellow-300">
+                  <FaStar className="text-sm" />
+                  <span className="text-xs text-gray-700">
+                    {item.rating ? item.rating.toFixed(1) : 'No ratings'}
+                  </span>
+                </div>
+              </div>
+              {/* Doctor Name */}
+              <h3 className="text-base font-semibold text-gray-900 mb-1">{item.name}</h3>
+              {/* Speciality */}
+              <p className="text-xs text-gray-500 uppercase tracking-wide">{item.speciality}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      {/*<button 
+        onClick={() => { navigate('/doctors'); window.scrollTo(0, 0) }} 
+        className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-full transition-colors mt-8"
+      >
+        More
+      </button>*/}
+      <button 
+        onClick={() => { navigate('/doctors'); window.scrollTo(0, 0) }} 
+        className="bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-full transition-colors mt-8"
+      >
+        More
+      </button>
+    </div>
+  )
 }
 
-export default TopDoctors
+export default TopDoctors;

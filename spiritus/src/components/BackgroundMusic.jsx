@@ -47,7 +47,8 @@ const BackgroundMusic = () => {
     <div className="fixed bottom-4 right-4 z-50 flex items-center">
       <audio
         ref={audioRef}
-        src="https://res.cloudinary.com/dbafo0u1c/video/upload/v1740494207/buddha_oomulm.m4a"
+        src="https://res.cloudinary.com/dbafo0u1c/video/upload/f_auto:video,q_auto/rhcmjl88qtgh0itwbrbz"
+        //src="https://res.cloudinary.com/dbafo0u1c/video/upload/v1740494207/buddha_oomulm.m4a"
         loop
         muted={isMuted}
       />
