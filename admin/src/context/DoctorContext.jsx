@@ -2,7 +2,6 @@ import { createContext, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-// Initialize the context
 export const DoctorContext = createContext();
 
 const DoctorContextProvider = (props) => {
@@ -11,25 +10,27 @@ const DoctorContextProvider = (props) => {
   const [dToken, setDToken] = useState(
     localStorage.getItem("dToken") ? localStorage.getItem("dToken") : ""
   );
-
   const [appointments, setAppointments] = useState([]);
   const [dashData, setDashData] = useState(false);
   const [profileData, setProfileData] = useState(false);
-  
 
   const getAppointments = async () => {
     try {
-      const { data } = await axios.get(backendUrl + "/api/doctor/appointments", {
+      const { data } = await axios.get(`${backendUrl}/api/doctor/appointments`, {
         headers: { dToken },
       });
       if (data.success) {
-        setAppointments(data.appointments);
-        console.log(data.appointments);
+        const updatedAppointments = data.appointments.map((appointment) => ({
+          ...appointment,
+          prescription: appointment.prescription || null,
+        }));
+        setAppointments(updatedAppointments);
+        console.log("Appointments with prescription data:", updatedAppointments);
       } else {
         toast.error(data.message);
       }
     } catch (error) {
-      console.log(error);
+      console.error("Error fetching appointments:", error);
       toast.error(error.message);
     }
   };
@@ -41,7 +42,6 @@ const DoctorContextProvider = (props) => {
         { appointmentId },
         { headers: { dToken } }
       );
-
       if (data.success) {
         toast.success(data.message);
         getAppointments();
@@ -61,7 +61,6 @@ const DoctorContextProvider = (props) => {
         { appointmentId },
         { headers: { dToken } }
       );
-
       if (data.success) {
         toast.success(data.message);
         getAppointments();
@@ -76,7 +75,6 @@ const DoctorContextProvider = (props) => {
 
   const getDashData = async () => {
     try {
-      // Retrieve the doctor's id (ensure you store this during login)
       const docId = localStorage.getItem("docId");
       if (!docId) {
         toast.error("Doctor id not found");
@@ -116,42 +114,39 @@ const DoctorContextProvider = (props) => {
 
   const setVideoCallLink = async (appointmentId, videoCallLink) => {
     try {
-        const { data } = await axios.post(
-            backendUrl + "/api/doctor/set-video-call",
-            { appointmentId, videoCallLink },
-            { headers: { dToken } }
-        );
-
-        if (data.success) {
-            toast.success("Video call link saved successfully!");
-            getAppointments();
-        } else {
-            toast.error(data.message);
-        }
+      const { data } = await axios.post(
+        backendUrl + "/api/doctor/set-video-call",
+        { appointmentId, videoCallLink },
+        { headers: { dToken } }
+      );
+      if (data.success) {
+        toast.success("Video call link saved successfully!");
+        getAppointments();
+      } else {
+        toast.error(data.message);
+      }
     } catch (error) {
-        console.log(error);
-        toast.error(error.message);
+      console.log(error);
+      toast.error(error.message);
     }
-};
+  };
 
-const addPrescription = async (formData) => {
-  try {
-    const { data } = await axios.post(backendUrl + '/api/prescription/add', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        dToken,
-      },
-    });
-    return data;
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
-};
-
+  const addPrescription = async (formData) => {
+    try {
+      const { data } = await axios.post(backendUrl + '/api/prescription/add', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          dToken,
+        },
+      });
+      return data;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  };
 
   const value = {
-    // Define your context values here
     dToken,
     setDToken,
     backendUrl,
@@ -172,7 +167,7 @@ const addPrescription = async (formData) => {
 
   return (
     <DoctorContext.Provider value={value}>
-      {props.children} {/* Render the children components */}
+      {props.children}
     </DoctorContext.Provider>
   );
 };

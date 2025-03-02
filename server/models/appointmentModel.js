@@ -13,6 +13,8 @@ const appointmentSchema = new mongoose.Schema({
     payment: { type: Boolean, default: false},
     isCompleted: { type: Boolean, default: false},
     videoCallLink: String, // Store the video call link
+    meetingCompleted: { type: Boolean, default: false }
+
 })
 
 const appointmentModel = mongoose.models.appointment || mongoose.model('appointment',appointmentSchema)
