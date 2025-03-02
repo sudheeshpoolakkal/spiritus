@@ -198,57 +198,56 @@ const uploadProfileImage = async (req, res) => {
 
 // API to Book Appointment
 const bookAppointment = async (req, res) => {
+  try {
+      const { userId, docId, slotDate, slotTime, patientDescription } = req.body;
 
-    try {
-        const { userId, docId, slotDate, slotTime } = req.body;
+      const docData = await doctorModel.findById(docId).select('-password');
 
-        const docData = await doctorModel.findById(docId).select('-password');
+      if (!docData || !docData.available) {
+          return res.json({ success: false, message: 'Doctor not Available' });
+      }
 
-        if (!docData || !docData.available) {
-            return res.json({ success: false, message: 'Doctor not Available' });
-        }
+      let slots_booked = docData.slots_booked || {}; // Ensure slots_booked is initialized
 
-        let slots_booked = docData.slots_booked || {}; // Ensure slots_booked is initialized
+      // Checking for slot availability
+      if (slots_booked[slotDate]) {
+          if (slots_booked[slotDate].includes(slotTime)) {
+              return res.json({ success: false, message: 'Slot not Available' });
+          }
+          slots_booked[slotDate].push(slotTime);
+      } else {
+          slots_booked[slotDate] = [slotTime];
+      }
 
-        // Checking for slot availability
-        if (slots_booked[slotDate]) {
-            if (slots_booked[slotDate].includes(slotTime)) {
-                return res.json({ success: false, message: 'Slot not Available' });
-            }
-            slots_booked[slotDate].push(slotTime);
-        } else {
-            slots_booked[slotDate] = [slotTime];
-        }
+      const userData = await userModel.findById(userId).select('-password');
 
-        const userData = await userModel.findById(userId).select('-password');
+      // Remove sensitive data before adding to appointment data
+      delete docData.slots_booked;
 
-        // Remove sensitive data before adding to appointment data
-        delete docData.slots_booked;
+      const appointmentData = {
+          userId,
+          docId,
+          userData,
+          docData,
+          amount: docData.fees,
+          slotTime,
+          slotDate,
+          date: Date.now(),
+          patientDescription: patientDescription || '' // Add patient description
+      };
 
-        const appointmentData = {
-            userId,
-            docId,
-            userData,
-            docData,
-            amount: docData.fees,
-            slotTime,
-            slotDate,
-            date: Date.now(),
-        };
+      const newAppointment = new appointmentModel(appointmentData);
+      await newAppointment.save();
 
-        const newAppointment = new appointmentModel(appointmentData);
-        await newAppointment.save();
+      // Save updated slots data in docData
+      await doctorModel.findByIdAndUpdate(docId, { slots_booked });
 
-        // Save updated slots data in docData
-        await doctorModel.findByIdAndUpdate(docId, { slots_booked });
-
-        res.json({ success: true, message: 'Pay to confirm the appointment!' });
-    }
-    catch (error) {
-        console.log(error)
-        res.json({ success: false, message: error.message })
-    }
-
+      res.json({ success: true, message: 'Pay to confirm the appointment!' });
+  }
+  catch (error) {
+      console.log(error)
+      res.json({ success: false, message: error.message })
+  }
 }
 
 // API to get user appointments for frontend my-appointments page

@@ -1,3 +1,4 @@
+
 import React, { useContext } from "react";
 import Login from "./pages/Login";
 import { ToastContainer, toast } from "react-toastify";
@@ -17,6 +18,7 @@ import { DoctorProfile } from "./pages/Doctor/DoctorProfile";
 import DoctorPrescription from "./pages/Doctor/DoctorPrescription";
 import AdminPrescription from "./pages/Admin/AdminPrescription";
 import FeedBack from "./pages/Admin/FeedBack";
+
 
 const App = () => {
   const { aToken } = useContext(AdminContext);
@@ -40,10 +42,12 @@ const App = () => {
           <Route path="/feedback" element={<FeedBack />} />
 
           {/*Doctor Route*/}
+
           <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
           <Route path="/doctor-appointments" element={<DoctorAppointments />} />
           <Route path="/doctor-profile" element={<DoctorProfile />} />
           <Route path="/doctor-prescription" element={<DoctorPrescription />} />
+
         </Routes>
       </div>
     </div>
