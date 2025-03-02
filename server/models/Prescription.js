@@ -1,4 +1,3 @@
-// models/Prescription.js
 import mongoose from 'mongoose';
 
 const PrescriptionSchema = new mongoose.Schema({

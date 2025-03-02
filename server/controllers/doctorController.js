@@ -2,6 +2,7 @@ import doctorModel from "../models/doctorModel.js";
 import appointmentModel from "../models/appointmentModel.js";
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+
 const changeAvailablity = async (req, res) => {
 
     try {
@@ -59,47 +60,47 @@ const loginDoctor = async (req, res) => {
 }
 
 // api to get doctor appointment for doctor panel
-
 const appointmentsDoctor = async (req, res) => {
-
     try {
-
-        const { docId } = req.body
-        const appointments = await appointmentModel.find({ docId })
-        res.json({ success: true, appointments })
-
+        const { docId } = req.body;
+        // No need to modify the query as the appointments collection already includes patientDescription
+        const appointments = await appointmentModel.find({ docId });
+        res.json({ success: true, appointments });
     } catch (error) {
-        console.log(error)
-        res.json({ success: false, message: error.message })
+        console.log(error);
+        res.json({ success: false, message: error.message });
     }
-
-}
+};
 
 
 //API to mark appointment as completed
 
 const appointmentComplete = async (req, res) => {
-
     try {
-
-        const { docId, appointmentId } = req.body
-        const appointmentData = await appointmentModel.findById(appointmentId)
-        if (appointmentData && appointmentData.docId === docId) {
-            await appointmentModel.findByIdAndUpdate(appointmentId, { isCompleted: true })
-            return res.json({ success: true, message: 'Appointment completed' })
-        }
-        else {
-
-            return res.json({ success: false, message: 'Invalid Appointment Id or Doctor Id' })
-        }
-
-
+      // Expect appointmentId from the request body.
+      const { appointmentId } = req.body;
+  
+      // Check if the appointment exists.
+      const appointmentData = await appointmentModel.findById(appointmentId);
+      if (!appointmentData) {
+        return res.json({ success: false, message: 'Appointment not found' });
+      }
+  
+      // Update the appointment in MongoDB to mark it as completed.
+      await appointmentModel.findByIdAndUpdate(appointmentId, { isCompleted: true });
+  
+      // Return success message.
+      return res.json({
+        success: true,
+        message: 'Meeting marked as completed',
+      });
     } catch (error) {
-        console.log(error)
-        res.json({ success: false, message: error.message })
+      console.log(error);
+      res.json({ success: false, message: error.message });
     }
-}
-
+  };
+  
+  
 //API to cancel appointment for docpanel
 
 const appointmentCancel = async (req, res) => {

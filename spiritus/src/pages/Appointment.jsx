@@ -57,7 +57,9 @@ const Appointment = () => {
   const fetchCompletedAppointments = () => {
     if (appointments && docId) {
       const completed = appointments.filter(
+
         app => app.docId === docId && app.isCompleted && !app.cancelled && !app.rating
+
       );
       setCompletedAppointments(completed);
       if (completed.length > 0) {
@@ -68,6 +70,7 @@ const Appointment = () => {
 
   const getAvailableSlot = () => {
     if (!docInfo) return;
+
     const availableSlots = [];
     const today = new Date();
 
@@ -95,12 +98,14 @@ const Appointment = () => {
 
         const slotIsPaid = appointments
           ? appointments.some(
+
               app =>
                 app.docData._id === docInfo._id &&
                 app.slotDate === slotDate &&
                 app.slotTime === formattedTime &&
                 app.payment === true
             )
+
           : false;
 
         if (!slotIsPaid) {
@@ -111,9 +116,22 @@ const Appointment = () => {
         }
         currentDate.setMinutes(currentDate.getMinutes() + 30);
       }
+
       availableSlots.push(daySlots);
+
     }
+    
     setDocSlots(availableSlots);
+    
+    // Reset slot selection if needed
+    if (availableSlots.length === 0) {
+      setSlotTime('');
+    } else if (slotIndex >= availableSlots.length) {
+      setSlotIndex(0);
+      setSlotTime('');
+    } else if (docSlots[slotIndex]?.length === 0 || !docSlots[slotIndex]) {
+      setSlotTime('');
+    }
   };
 
   const bookAppointment = async () => {
@@ -121,7 +139,13 @@ const Appointment = () => {
       toast.warn('Login to book an appointment');
       return navigate('/login');
     }
+
     try {
+      if (!docSlots[slotIndex] || docSlots[slotIndex].length === 0) {
+        toast.error('No available slots for selected date');
+        return;
+      }
+      
       const date = docSlots[slotIndex][0].datetime;
       let day = date.getDate();
       let month = date.getMonth() + 1;
@@ -136,7 +160,10 @@ const Appointment = () => {
 
       if (data.success) {
         toast.success(data.message);
-        getDoctorsData();
+        // Update the local appointments to reflect the new booking
+        await getDoctorsData();
+        // Refresh available slots to immediately reflect the booking
+        getAvailableSlot();
         navigate('/my-appointments');
       } else {
         toast.error(data.message);
@@ -164,7 +191,9 @@ const Appointment = () => {
       return;
     }
     try {
+
       const userId = localStorage.getItem('userId');
+
       const { data } = await axios.post(
         `${backendUrl}/api/user/rate-doctor`,
         { appointmentId, rating, review, docId, userId },
@@ -175,8 +204,10 @@ const Appointment = () => {
         setHasRated(true);
         setRating(0);
         setReview('');
+
         getDoctorsData();
         setCompletedAppointments(prev => prev.filter(app => app._id !== appointmentId));
+
         fetchDoctorReviews();
         setActiveTab('reviews');
       } else {
@@ -191,6 +222,12 @@ const Appointment = () => {
   const formatDate = (dateString) => {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
+  // Handle slot date selection
+  const handleSlotIndexChange = (index) => {
+    setSlotIndex(index);
+    setSlotTime(''); // Reset time selection when date changes
   };
 
   useEffect(() => {
@@ -212,16 +249,19 @@ const Appointment = () => {
   }, [appointments, docId]);
 
   if (!docInfo) {
+
     return (
       <div className="flex justify-center items-center min-h-screen bg-white">
         <div className="animate-pulse flex flex-col items-center">
           <div className="h-32 w-32 bg-gray-200 rounded-full mb-4"></div>
           <div className="h-6 w-48 bg-gray-200 rounded mb-4"></div>
           <div className="h-4 w-64 bg-gray-200 rounded"></div>
+
         </div>
       </div>
     );
   }
+
 
   // Star rating component
   const StarRating = ({ rating, size = "sm", interactive = false, onChange, hoverValue = 0, onHover }) => {
@@ -335,6 +375,7 @@ const Appointment = () => {
                     <span className="ml-2 text-sm font-medium text-gray-700">
                       {docInfo.rating?.toFixed(1) || "0.0"}
                     </span>
+
                   </div>
                   <span className="text-xs text-gray-500">({docInfo.ratingCount || 0} ratings)</span>
                   <span className="text-xs px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full border border-blue-100">
@@ -363,6 +404,7 @@ const Appointment = () => {
           </div>
         </div>
       </div>
+
       
       {/* Tab Navigation */}
       <TabNav />
@@ -405,6 +447,7 @@ const Appointment = () => {
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
               {docSlots.length > 0 &&
                 docSlots[slotIndex].map((item, index) => (
+
                   <button
                     key={index}
                     onClick={() => setSlotTime(item.time)}
@@ -449,6 +492,7 @@ const Appointment = () => {
               )}
             </div>
           </div>
+
         </div>
       )}
       
@@ -464,6 +508,7 @@ const Appointment = () => {
                 <span className="text-gray-500 ml-1">({docInfo.ratingCount || 0})</span>
               </span>
             </div>
+
           </div>
           
           {loading ? (

@@ -15,8 +15,10 @@ import UploadProfileImage from './pages/UploadProfileImage'
 import BackgroundMusic from './components/BackgroundMusic'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import UserPrescription from './pages/UserPrescription'
 
 const App = () => {
+
   const location = useLocation()
   // Hide layout for /login, /my-profile, and /upload-profile routes
   const hideLayout = ['/login', '/my-profile', '/upload-profile'].includes(location.pathname);
@@ -54,6 +56,7 @@ const App = () => {
     </>
   )
 }
+
 
 export default App;
 

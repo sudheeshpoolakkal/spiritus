@@ -46,7 +46,26 @@ const AppContextProvider = (props) => {
     try {
       const { data } = await axios.get(backendUrl + '/api/user/appointments', { headers: { token } });
       if (data.success) {
-        setAppointments(data.appointments);
+        // For each completed & paid appointment, fetch prescription details
+        const appointmentsWithPrescriptions = await Promise.all(
+          data.appointments.map(async (appointment) => {
+            if (appointment.isCompleted && appointment.payment) {
+              try {
+                const res = await axios.get(
+                  `${backendUrl}/api/prescription/user/${appointment._id}`,
+                  { headers: { token } }
+                );
+                if (res.data.success) {
+                  return { ...appointment, prescription: res.data.prescription };
+                }
+              } catch (error) {
+                console.warn(`No prescription for appointment ${appointment._id}`);
+              }
+            }
+            return appointment;
+          })
+        );
+        setAppointments(appointmentsWithPrescriptions.reverse());
       } else {
         toast.error(data.message);
       }
@@ -54,6 +73,7 @@ const AppContextProvider = (props) => {
       toast.error(error.message);
     }
   };
+  
 
   useEffect(() => {
     getDoctorsData();

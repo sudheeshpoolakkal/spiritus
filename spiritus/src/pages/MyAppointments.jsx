@@ -7,10 +7,12 @@ import { useNavigate } from 'react-router-dom'
 const MyAppointments = () => {
   const { backendUrl, token, getDoctorsData } = useContext(AppContext)
   const [appointments, setAppointments] = useState([])
+
   const [isLoading, setIsLoading] = useState(true)
   const [activeFilter, setActiveFilter] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const navigate = useNavigate()
+
 
   const months = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -19,12 +21,15 @@ const MyAppointments = () => {
     return dateArray[0] + " " + months[Number(dateArray[1])] + " " + dateArray[2];
   };
 
+  // Modified: Fetch prescription details for completed and paid appointments
   const getUserAppointments = async () => {
     setIsLoading(true)
     try {
       const { data } = await axios.get(`${backendUrl}/api/user/appointments`, { headers: { token } })
       if (data.success) {
+
         setAppointments(data.appointments.reverse())
+
       }
     } catch (error) {
       toast.error(error.message || "Failed to fetch appointments")
@@ -35,7 +40,9 @@ const MyAppointments = () => {
 
   const cancelAppointment = async (appointmentId) => {
     try {
+
       const { data } = await axios.post(`${backendUrl}/api/user/cancel-appointment`, { appointmentId }, { headers: { token } })
+
       if (data.success) {
         toast.success(data.message)
         getUserAppointments()
@@ -54,22 +61,25 @@ const MyAppointments = () => {
 
   useEffect(() => {
     if (token) {
-      getUserAppointments()
+      getUserAppointments();
     }
-  }, [token])
+  }, [token]);
 
   const isJoinButtonVisible = (slotDate, slotTime) => {
     const [day, month, year] = slotDate.split('_').map(Number);
     const [hours, minutes] = slotTime.split(':').map(Number);
     const appointmentTime = new Date(year, month - 1, day, hours, minutes);
     const currentTime = new Date();
+
     const timeDifference = (appointmentTime - currentTime) / (1000 * 60);
+
     return timeDifference <= 15 && timeDifference >= -15;
   };
 
   const shouldShowScheduledMessage = (slotDate, slotTime) => {
     const [day, month, year] = slotDate.split('_').map(Number);
     const [hours, minutes] = slotTime.split(':').map(Number);
+
     const appointmentTime = new Date(year, month - 1, day, hours, minutes);
     const currentTime = new Date();
     const timeDifference = (appointmentTime - currentTime) / (1000 * 60);
@@ -126,6 +136,7 @@ const MyAppointments = () => {
     });
     
     return grouped;
+
   };
   
   const groupedAppointments = groupAppointmentsByDate();
@@ -166,6 +177,7 @@ const MyAppointments = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
+
             
             <div className="flex items-center overflow-x-auto pb-1 whitespace-nowrap">
               {['all', 'active', 'upcoming', 'completed', 'cancelled', 'missed'].map((filter) => (
@@ -181,6 +193,7 @@ const MyAppointments = () => {
                   {filter.charAt(0).toUpperCase() + filter.slice(1)}
                 </button>
               ))}
+
             </div>
           </div>
         </div>

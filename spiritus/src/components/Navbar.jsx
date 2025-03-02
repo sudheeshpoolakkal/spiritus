@@ -1,18 +1,12 @@
-import React, { useContext, useState } from 'react';
-import { assets } from '../assets/assets_frontend/assets';
-import { NavLink, useNavigate } from 'react-router-dom';
+import React, { useContext, useState } from 'react'
+import { assets } from '../assets/assets_frontend/assets'
+import { NavLink, useNavigate } from 'react-router-dom'
 import { AppContext } from '../context/AppContext';
 
 const Navbar = () => {
-  const navigate = useNavigate();
-  const { token, setToken, userData } = useContext(AppContext);
-  const [showMenu, setShowMenu] = useState(false);
 
-  const logout = () => {
-    setToken(false);
-    localStorage.removeItem('token');
-    navigate('/login');
-  };
+      const navigate= useNavigate();
+
 
   return (
     <nav className="fixed top-0 left-0 w-full z-40 bg-white/90 backdrop-blur-sm shadow-sm py-2 px-4 md:px-8">
@@ -113,8 +107,23 @@ const Navbar = () => {
               {path === '/' ? 'HOME' : path.slice(1).toUpperCase()}
             </NavLink>
           ))}
+
         </ul>
-      </div>
+      <div className='flex items-center gap-4'>
+        {
+          token && userData
+          ? <div className='flex items-center gap-2 cursor-pointer group relative'> 
+                       <img className='w-10 rounded-full'src={userData.image} alt=""/>
+                       <img className='w-2.5' src={assets.dropdown_icon} alt=""/>
+                       <div className='absolute top-0 right-0 pt-14 text-base font-medium text-gray-600 z-20 hidden group-hover:block'>
+                           <div className='min-w-48 bg-stone-100 rounded flex flex-col gap-4'>
+                            <p onClick={()=>navigate('my-profile')} className='hover:text-black cursor-pointer'>My Profile</p>
+                            <p onClick={()=>navigate('my-appointments')} className='hover:text-black cursor-pointer'>My Appoinment</p>
+                            <p onClick={logout} className='hover:text-black cursor-pointer'>Logout</p>
+                        
+                           </div>
+                       </div>
+
 
       {/* Overlay when Mobile Menu is Open */}
       {showMenu && (
@@ -128,4 +137,5 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+
+export default Navbar
