@@ -15,7 +15,9 @@ const DoctorAppointments = () => {
   } = useContext(DoctorContext);
   const { calculateAge, slotDateFormat, currency } = useContext(AppContext);
   const [videoCallLinks, setVideoCallLinks] = useState({});
+
   const [selectedAppointment, setSelectedAppointment] = useState(null);
+
   // joinedMeetings tracks appointments where the meeting link has been clicked
   const [joinedMeetings, setJoinedMeetings] = useState({});
   const navigate = useNavigate();
@@ -57,6 +59,7 @@ const DoctorAppointments = () => {
   };
 
   return (
+
     <div className='w-full m-3 md:m-5'>
       {/* Mobile View Selection Tab */}
       <div className='md:hidden flex justify-between bg-white border rounded mb-2'>
@@ -159,6 +162,7 @@ const DoctorAppointments = () => {
                 <span className="ml-1">Back</span>
               </button>
             )}
+
           </div>
           
           {selectedAppointment ? (
