@@ -1,14 +1,23 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { DoctorContext } from '../../context/DoctorContext';
-import { AppContext } from '../../context/AppContext';
-import { assets } from '../../assets/assets_admin/assets';
-import { useNavigate } from 'react-router-dom';
+import React, { useContext, useEffect, useState } from "react";
+import { DoctorContext } from "../../context/DoctorContext";
+import { AppContext } from "../../context/AppContext";
+import { assets } from "../../assets/assets_admin/assets";
+import { useNavigate } from "react-router-dom";
 
 const DoctorAppointments = () => {
-  const { dToken, appointments, getAppointments, completeAppointment, cancelAppointment, setVideoCallLink } = useContext(DoctorContext);
+  const {
+    dToken,
+    appointments,
+    getAppointments,
+    completeAppointment,
+    cancelAppointment,
+    setVideoCallLink,
+  } = useContext(DoctorContext);
   const { calculateAge, slotDateFormat, currency } = useContext(AppContext);
   const [videoCallLinks, setVideoCallLinks] = useState({});
   const [selectedAppointment, setSelectedAppointment] = useState(null);
+  // joinedMeetings tracks appointments where the meeting link has been clicked
+  const [joinedMeetings, setJoinedMeetings] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -28,11 +37,23 @@ const DoctorAppointments = () => {
   }, [appointments]);
 
   const handleSetVideoCallLink = async (appointmentId) => {
-    const link = prompt('Enter video call link:');
+    const link = prompt("Enter video call link:");
     if (link) {
       await setVideoCallLink(appointmentId, link);
       setVideoCallLinks((prev) => ({ ...prev, [appointmentId]: link }));
     }
+  };
+
+  // When a meeting link is clicked, mark the appointment as joined and open the link.
+  const handleJoinMeetingClick = (appointmentId, link) => {
+    setJoinedMeetings((prev) => ({ ...prev, [appointmentId]: true }));
+    window.open(link, "_blank");
+  };
+
+  // When the "Mark as Completed" checkbox is checked, call the API.
+  const handleMarkCompleted = async (appointmentId) => {
+    await completeAppointment(appointmentId);
+    // Assuming completeAppointment triggers a re-fetch of appointments.
   };
 
   return (
@@ -55,7 +76,7 @@ const DoctorAppointments = () => {
 
       {/* Desktop and Mobile Layout Container */}
       <div className='flex flex-col md:flex-row gap-5'>
-        {/* Simplified Appointments List - Hidden on mobile when appointment is selected */}
+        {/* Appointments List - Hidden on mobile when appointment is selected */}
         <div className={`w-full md:w-5/12 ${selectedAppointment ? 'hidden md:block' : ''}`}>
           <p className='mb-3 text-lg font-medium'>All Appointments</p>
           <div className='bg-white border rounded text-sm max-h-[80vh] min-h-[50vh] overflow-y-scroll'>
@@ -124,7 +145,7 @@ const DoctorAppointments = () => {
           </div>
         </div>
 
-        {/* Appointment Details Panel - Expanded on desktop */}
+        {/* Appointment Details Panel */}
         <div className={`w-full md:w-7/12 ${!selectedAppointment ? 'hidden md:block' : ''}`}>
           <div className="flex items-center justify-between mb-3">
             <p className='text-lg font-medium'>Appointment Details</p>
@@ -197,6 +218,7 @@ const DoctorAppointments = () => {
                 </div>
               </div>
 
+              {/* Actions Section */}
               {!selectedAppointment.cancelled && (
                 <div className='flex flex-col sm:flex-row flex-wrap gap-3 mt-6'>
                   {!selectedAppointment.isCompleted ? (
@@ -233,6 +255,13 @@ const DoctorAppointments = () => {
                               target='_blank'
                               rel='noopener noreferrer'
                               className='text-blue-500 underline text-sm break-all'
+                              onClick={(e) => {
+                                e.preventDefault();
+                                handleJoinMeetingClick(
+                                  selectedAppointment._id,
+                                  videoCallLinks[selectedAppointment._id]
+                                );
+                              }}
                             >
                               {videoCallLinks[selectedAppointment._id]}
                             </a>
@@ -247,16 +276,48 @@ const DoctorAppointments = () => {
                             Change Video Call Link
                           </button>
                           
-                          {/* Prescription button - ONLY visible when video call link is provided */}
-                          <button
-                            className='mt-3 px-4 py-2 border border-green-600 text-green-600 rounded hover:bg-green-50'
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              navigate('/doctor-prescription', { state: { appointment: selectedAppointment } });
-                            }}
-                          >
-                            Add Prescription
-                          </button>
+                          {/* Display completion checkbox if meeting joined but not marked as complete */}
+                          {joinedMeetings[selectedAppointment._id] && 
+                           (!selectedAppointment.prescription || !selectedAppointment.prescription.report) && (
+                            <div className='mt-3 flex items-center'>
+                              <input
+                                type='checkbox'
+                                id={`complete-${selectedAppointment._id}`}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    handleMarkCompleted(selectedAppointment._id);
+                                  }
+                                }}
+                                className='mr-2'
+                              />
+                              <label htmlFor={`complete-${selectedAppointment._id}`}>
+                                Mark as Completed
+                              </label>
+                            </div>
+                          )}
+                          
+                          {/* Prescription button based on state */}
+                          {selectedAppointment.prescription && selectedAppointment.prescription.report ? (
+                            <button
+                              className='mt-3 px-4 py-2 border border-green-600 text-green-600 rounded hover:bg-green-50'
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate('/doctor-view-prescription', { state: { appointment: selectedAppointment } });
+                              }}
+                            >
+                              View Prescription
+                            </button>
+                          ) : (
+                            <button
+                              className='mt-3 px-4 py-2 border border-green-600 text-green-600 rounded hover:bg-green-50'
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate('/doctor-prescription', { state: { appointment: selectedAppointment } });
+                              }}
+                            >
+                              {joinedMeetings[selectedAppointment._id] ? 'Add Prescription' : 'Add Prescription (If Crucial)'}
+                            </button>
+                          )}
                         </div>
                       ) : (
                         <button

@@ -5,14 +5,9 @@ import { toast } from 'react-toastify'
 import { useNavigate } from 'react-router-dom'  // <-- Import useNavigate
 
 const MyAppointments = () => {
-
   const { backendUrl, token, getDoctorsData } = useContext(AppContext)
   const [appointments, setAppointments] = useState([])
   const navigate = useNavigate()  // <-- Initialize navigate
-
-  
-  
-  
 
   const months = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -21,12 +16,32 @@ const MyAppointments = () => {
     return dateArray[0] + " " + months[Number(dateArray[1])] + " " + dateArray[2];
   };
 
+  // Modified: Fetch prescription details for completed and paid appointments
   const getUserAppointments = async () => {
     try {
-      const { data } = await axios.get(backendUrl + '/api/user/appointments', { headers: { token } })
+      const { data } = await axios.get(`${backendUrl}/api/user/appointments`, { headers: { token } })
       if (data.success) {
-        setAppointments(data.appointments.reverse())
-        console.log(data.appointments);
+        const appointmentsWithPrescription = await Promise.all(
+          data.appointments.map(async (appointment) => {
+            // If appointment is completed and payment made, fetch prescription details
+            if (appointment.isCompleted && appointment.payment) {
+              try {
+                const res = await axios.get(
+                  `${backendUrl}/api/prescription/user/${appointment._id}`,
+                  { headers: { token } }
+                );
+                if (res.data.success) {
+                  appointment.prescription = res.data.prescription;
+                }
+              } catch (err) {
+                console.warn(`No prescription available for appointment ${appointment._id}`);
+              }
+            }
+            return appointment;
+          })
+        );
+        setAppointments(appointmentsWithPrescription.reverse());
+        console.log(appointmentsWithPrescription);
       }
     } catch (error) {
       console.log(error);
@@ -36,7 +51,11 @@ const MyAppointments = () => {
 
   const cancelAppointment = async (appointmentId) => {
     try {
-      const { data } = await axios.post(backendUrl + '/api/user/cancel-appointment', { appointmentId }, { headers: { token } })
+      const { data } = await axios.post(
+        `${backendUrl}/api/user/cancel-appointment`,
+        { appointmentId },
+        { headers: { token } }
+      );
       if (data.success) {
         toast.success(data.message)
         getUserAppointments()
@@ -50,40 +69,33 @@ const MyAppointments = () => {
     }
   }
 
-  // New: Handler to navigate to the dummy checkout form
+  // Handler to navigate to the dummy checkout form
   const handlePayOnline = (appointment) => {
     navigate('/checkout', { state: { appointment } });
   };
-  
 
   useEffect(() => {
     if (token) {
-      getUserAppointments()
+      getUserAppointments();
     }
-  }, [token])
+  }, [token]);
 
   const isJoinButtonVisible = (slotDate, slotTime) => {
     const [day, month, year] = slotDate.split('_').map(Number);
     const [hours, minutes] = slotTime.split(':').map(Number);
-
     const appointmentTime = new Date(year, month - 1, day, hours, minutes);
     const currentTime = new Date();
-
-    const timeDifference = (appointmentTime - currentTime) / (1000 * 60); // Difference in minutes
-
+    const timeDifference = (appointmentTime - currentTime) / (1000 * 60); // in minutes
     return timeDifference <= 15 && timeDifference >= -15;
   };
 
   const shouldShowScheduledMessage = (slotDate, slotTime) => {
     const [day, month, year] = slotDate.split('_').map(Number);
     const [hours, minutes] = slotTime.split(':').map(Number);
-
     const appointmentTime = new Date(year, month - 1, day, hours, minutes);
     const currentTime = new Date();
-
-    const timeDifference = (appointmentTime - currentTime) / (1000 * 60); // Difference in minutes
-
-    return timeDifference > 15; // Show message if it's more than 15 minutes before the appointment
+    const timeDifference = (appointmentTime - currentTime) / (1000 * 60); // in minutes
+    return timeDifference > 15;
   };
 
   return (
@@ -110,18 +122,19 @@ const MyAppointments = () => {
               {!item.cancelled && item.payment && !item.isCompleted && (
                 <button className='sm:min-w-48 py-2 border rounded text-stone-500 bg-indigo-50'>Paid</button>
               )}
-              {/* Update the button to call the payment handler */}
               {!item.cancelled && !item.payment && !item.isCompleted && (
                 <button
-                onClick={() => handlePayOnline(item)}
-                className='text-sm text-stone-500 text-center sm:min-w-48 py-2 border rounded hover:bg-primary hover:text-white transition-all duration-300'
-              >
-                Pay Online
-              </button>
-              
+                  onClick={() => handlePayOnline(item)}
+                  className='text-sm text-stone-500 text-center sm:min-w-48 py-2 border rounded hover:bg-primary hover:text-white transition-all duration-300'
+                >
+                  Pay Online
+                </button>
               )}
               {!item.cancelled && !item.isCompleted && (
-                <button onClick={() => cancelAppointment(item._id)} className='text-sm text-stone-500 text-center sm:min-w-48 py-2 border rounded hover:bg-red-600 hover:text-white transition-all duration-300'>
+                <button
+                  onClick={() => cancelAppointment(item._id)}
+                  className='text-sm text-stone-500 text-center sm:min-w-48 py-2 border rounded hover:bg-red-600 hover:text-white transition-all duration-300'
+                >
                   Cancel appointment
                 </button>
               )}
@@ -136,20 +149,30 @@ const MyAppointments = () => {
                 </button>
               )}
               
-              {/* Show message if the meeting is scheduled but not yet visible */}
               {item.videoCallLink && shouldShowScheduledMessage(item.slotDate, item.slotTime) && (
                 <p className="w-auto text-green-500 text-sm">
                   Your meeting has been scheduled. The link will be visible 15 minutes before the appointment time.
                 </p>
               )}
 
-              {/* Show Join Meeting button if it's within the time window */}
               {item.videoCallLink && isJoinButtonVisible(item.slotDate, item.slotTime) && (
                 <a href={item.videoCallLink} target='_blank' rel='noopener noreferrer'>
                   <button className='sm:min-w-48 py-2 border rounded text-blue-500 bg-blue-100 hover:bg-blue-500 hover:text-white'>
                     Join Meeting
                   </button>
                 </a>
+              )}
+
+              {/* Prescription View Button */}
+              {item.isCompleted && item.payment && item.prescription && item.prescription.prescriptionFile ? (
+                <button
+                  onClick={() => navigate('/user-prescription', { state: { appointment: item } })}
+                  className='text-sm text-blue-500 border border-blue-500 px-2 py-1 rounded hover:bg-blue-500 hover:text-white transition-all duration-300'
+                >
+                  View Prescription
+                </button>
+              ) : (
+                <p className='text-gray-400 text-xs'>Prescription Not Available</p>
               )}
             </div>
           </div>
