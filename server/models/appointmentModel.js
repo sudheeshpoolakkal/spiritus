@@ -15,7 +15,10 @@ const appointmentSchema = new mongoose.Schema({
     videoCallLink: String, // Store the video call link
     rating: { type: Number, min: 1, max: 5 }, // Rating given by the user
     review: { type: String, default: '' }, // Optional review
-    meetingCompleted: { type: Boolean, default: false }
+
+    patientDescription: { type: String, default: '' }, // Adding patient description field
+    meetingCompleted: { type: Boolean, default: false },
+
 
 })
 

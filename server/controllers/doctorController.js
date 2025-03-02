@@ -2,6 +2,7 @@ import doctorModel from "../models/doctorModel.js";
 import appointmentModel from "../models/appointmentModel.js";
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+
 const changeAvailablity = async (req, res) => {
 
     try {
@@ -59,21 +60,17 @@ const loginDoctor = async (req, res) => {
 }
 
 // api to get doctor appointment for doctor panel
-
 const appointmentsDoctor = async (req, res) => {
-
     try {
-
-        const { docId } = req.body
-        const appointments = await appointmentModel.find({ docId })
-        res.json({ success: true, appointments })
-
+        const { docId } = req.body;
+        // No need to modify the query as the appointments collection already includes patientDescription
+        const appointments = await appointmentModel.find({ docId });
+        res.json({ success: true, appointments });
     } catch (error) {
-        console.log(error)
-        res.json({ success: false, message: error.message })
+        console.log(error);
+        res.json({ success: false, message: error.message });
     }
-
-}
+};
 
 
 //API to mark appointment as completed

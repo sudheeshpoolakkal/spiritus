@@ -61,10 +61,10 @@ const Appointment = () => {
   const fetchCompletedAppointments = () => {
     if (appointments && docId) {
       const completed = appointments.filter(
-        app => app.docId === docId && 
-              app.isCompleted === true && 
-              !app.cancelled &&
-              !app.rating // Only include appointments that haven't been rated yet
+        app => app.docId === docId &&
+          app.isCompleted === true &&
+          !app.cancelled &&
+          !app.rating // Only include appointments that haven't been rated yet
       );
       setCompletedAppointments(completed);
     }
@@ -72,7 +72,7 @@ const Appointment = () => {
 
   const getAvailableSlot = () => {
     if (!docInfo) return;
-    
+
     const availableSlots = [];
     const today = new Date();
 
@@ -101,12 +101,12 @@ const Appointment = () => {
         // Use the appointments array (from context) to check if a paid appointment exists for this slot.
         const slotIsPaid = appointments
           ? appointments.some(
-              (app) =>
-                app.docData._id === docInfo._id &&
-                app.slotDate === slotDate &&
-                app.slotTime === formattedTime &&
-                app.payment === true
-            )
+            (app) =>
+              app.docData._id === docInfo._id &&
+              app.slotDate === slotDate &&
+              app.slotTime === formattedTime &&
+              app.payment === true
+          )
           : false;
 
         // Only add the slot if there's no paid appointment.
@@ -119,9 +119,23 @@ const Appointment = () => {
         currentDate.setMinutes(currentDate.getMinutes() + 30);
       }
 
-      availableSlots.push(daySlots);
+      // Only add the day if it has available slots
+      if (daySlots.length > 0) {
+        availableSlots.push(daySlots);
+      }
     }
+    
     setDocSlots(availableSlots);
+    
+    // Reset slot selection if needed
+    if (availableSlots.length === 0) {
+      setSlotTime('');
+    } else if (slotIndex >= availableSlots.length) {
+      setSlotIndex(0);
+      setSlotTime('');
+    } else if (docSlots[slotIndex]?.length === 0 || !docSlots[slotIndex]) {
+      setSlotTime('');
+    }
   };
 
   const bookAppointment = async () => {
@@ -130,7 +144,18 @@ const Appointment = () => {
       return navigate('/login');
     }
 
+    // Validate patient description if required
+    if (!patientDescription.trim()) {
+      toast.warn('Please describe your symptoms or reason for booking');
+      return;
+    }
+
     try {
+      if (!docSlots[slotIndex] || docSlots[slotIndex].length === 0) {
+        toast.error('No available slots for selected date');
+        return;
+      }
+      
       const date = docSlots[slotIndex][0].datetime;
       let day = date.getDate();
       let month = date.getMonth() + 1;
@@ -145,7 +170,10 @@ const Appointment = () => {
 
       if (data.success) {
         toast.success(data.message);
-        getDoctorsData();
+        // Update the local appointments to reflect the new booking
+        await getDoctorsData();
+        // Refresh available slots to immediately reflect the booking
+        getAvailableSlot();
         navigate('/my-appointments');
       } else {
         toast.error(data.message);
@@ -180,7 +208,7 @@ const Appointment = () => {
     try {
       // Get user ID from token or context
       const userId = localStorage.getItem('userId'); // Adjust based on how you store user ID
-      
+
       const { data } = await axios.post(
         `${backendUrl}/api/user/rate-doctor`,
         { appointmentId, rating, review, docId, userId },
@@ -193,12 +221,12 @@ const Appointment = () => {
         setRating(0);
         setReview('');
         getDoctorsData(); // Refresh doctor data to update rating
-        
+
         // Mark this appointment as rated in local state
-        setCompletedAppointments(prev => 
+        setCompletedAppointments(prev =>
           prev.filter(app => app._id !== appointmentId)
         );
-        
+
         // Refresh doctor reviews
         fetchDoctorReviews();
       } else {
@@ -214,6 +242,12 @@ const Appointment = () => {
   const formatDate = (dateString) => {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
+  // Handle slot date selection
+  const handleSlotIndexChange = (index) => {
+    setSlotIndex(index);
+    setSlotTime(''); // Reset time selection when date changes
   };
 
   useEffect(() => {
@@ -247,18 +281,18 @@ const Appointment = () => {
         <div className='flex-1 border border-gray-400 rounded-lg p-8 py-7 bg-white mx-2 sm:mx-0 mt-[-80px] sm:mt-0'>
           <div className='flex items-center justify-between'>
             <p className='flex items-center gap-2 text-2xl font-medium text-gray-900'>
-              {docInfo.name} 
+              {docInfo.name}
               <img className='w-5' src={assets.verified_icon} alt="" />
             </p>
             <div className='flex items-center'>
               <div className='flex items-center'>
                 <span className='flex items-center text-yellow-400 mr-1'>
                   {[1, 2, 3, 4, 5].map((star) => (
-                    <svg 
-                      key={star} 
-                      xmlns="http://www.w3.org/2000/svg" 
-                      className="h-5 w-5" 
-                      viewBox="0 0 20 20" 
+                    <svg
+                      key={star}
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      viewBox="0 0 20 20"
                       fill={star <= (docInfo.rating || 0) ? "currentColor" : "none"}
                       stroke="currentColor"
                     >
@@ -287,53 +321,62 @@ const Appointment = () => {
 
       <div className='sm:ml-72 sm:pl-4 mt-4 font-medium text-gray-700'>
         <p>Booking Slots</p>
-        <div className='flex gap-3 items-center w-full overflow-x-auto mt-4'>
-          {docSlots.length > 0 && docSlots.map((item, index) => (
-            <div
-              key={index}
-              className={`text-center py-6 min-w-16 rounded-full cursor-pointer ${slotIndex === index ? 'bg-primary text-white' : 'border border-gray-200'}`}
-              onClick={() => setSlotIndex(index)}
-            >
-              <p>{item[0] && daysOfWeek[item[0].datetime.getDay()]}</p>
-              <p>{item[0] && item[0].datetime.getDate()}</p>
+        {docSlots.length === 0 ? (
+          <div className="bg-gray-50 p-6 rounded-lg mt-4 text-center border">
+            <p className="text-gray-600">No available appointment slots with this doctor.</p>
+          </div>
+        ) : (
+          <>
+            <div className='flex gap-3 items-center w-full overflow-x-auto mt-4'>
+              {docSlots.map((item, index) => (
+                <div
+                  key={index}
+                  className={`text-center py-6 min-w-16 rounded-full cursor-pointer ${slotIndex === index ? 'bg-primary text-white' : 'border border-gray-200'}`}
+                  onClick={() => handleSlotIndexChange(index)}
+                >
+                  <p>{item[0] && daysOfWeek[item[0].datetime.getDay()]}</p>
+                  <p>{item[0] && item[0].datetime.getDate()}</p>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-        <div className='flex items-center gap-3 w-full overflow-x-auto mt-10'>
-          {docSlots.length > 0 && docSlots[slotIndex].map((item, index) => (
-            <p
-              key={index}
-              onClick={() => setSlotTime(item.time)}
-              className={`text-sm font-light flex-shrink-0 px-5 py-2 rounded-full cursor-pointer ${item.time === slotTime ? 'bg-primary text-white' : 'text-gray-40 border border-gray-300'}`}
+            <div className='flex items-center gap-3 w-full overflow-x-auto mt-10'>
+              {docSlots[slotIndex]?.map((item, index) => (
+                <p
+                  key={index}
+                  onClick={() => setSlotTime(item.time)}
+                  className={`text-sm font-light flex-shrink-0 px-5 py-2 rounded-full cursor-pointer ${item.time === slotTime ? 'bg-primary text-white' : 'text-gray-40 border border-gray-300'}`}
+                >
+                  {item.time.toLowerCase()}
+                </p>
+              ))}
+            </div>
+
+            <textarea
+              value={patientDescription}
+              onChange={(e) => setPatientDescription(e.target.value)}
+              placeholder="Describe your symptoms or the reason for booking..."
+              className="w-full mt-4 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none text-gray-700"
+              rows="4"
+              required
+            />
+
+            <button
+              onClick={bookAppointment}
+              disabled={!slotTime}
+              className={`${!slotTime ? 'bg-gray-400' : 'bg-primary'} text-white text-sm font-light px-14 py-3 rounded-full my-6`}
             >
-              {item.time.toLowerCase()}
-            </p>
-          ))}
-        </div>
-
-        <textarea
-          value={patientDescription}
-          onChange={(e) => setPatientDescription(e.target.value)}
-          placeholder="Describe your symptoms or the reason for booking..."
-          className="w-full mt-4 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none text-gray-700"
-          rows="4"
-        />
-
-        <button 
-          onClick={bookAppointment} 
-          disabled={!slotTime}
-          className={`${!slotTime ? 'bg-gray-400' : 'bg-primary'} text-white text-sm font-light px-14 py-3 rounded-full my-6`}
-        >
-          Book an Appointment
-        </button>
+              Book an Appointment
+            </button>
+          </>
+        )}
       </div>
-      
-      <RelatedDoctors docId={docId} speciality={docInfo.speciality}/>
-      
+
+      <RelatedDoctors docId={docId} speciality={docInfo.speciality} />
+
       {/* Reviews Section */}
       <div className="mt-12 mb-8">
         <h3 className="text-xl font-medium text-gray-800 mb-4">Patient Reviews</h3>
-        
+
         {loading ? (
           <p className="text-gray-600">Loading reviews...</p>
         ) : doctorReviews && doctorReviews.length > 0 ? (
@@ -345,11 +388,11 @@ const Appointment = () => {
                     <div className="flex items-center mb-2">
                       <span className="flex items-center text-yellow-400 mr-2">
                         {[1, 2, 3, 4, 5].map((star) => (
-                          <svg 
-                            key={star} 
-                            xmlns="http://www.w3.org/2000/svg" 
-                            className="h-5 w-5" 
-                            viewBox="0 0 20 20" 
+                          <svg
+                            key={star}
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5"
+                            viewBox="0 0 20 20"
                             fill={star <= review.rating ? "currentColor" : "none"}
                             stroke="currentColor"
                           >
@@ -378,21 +421,21 @@ const Appointment = () => {
           </div>
         )}
       </div>
-      
+
       {/* Rating and Review Section */}
       <div className="mt-8 border-t pt-6">
         <h3 className="text-xl font-medium text-gray-800 mb-4">Rate Your Experience</h3>
-        
+
         {completedAppointments.length > 0 ? (
           <div className="bg-white p-6 rounded-lg shadow-sm border">
             <p className="mb-3 text-gray-700">You have completed appointments with this doctor. Share your experience:</p>
-            
+
             {completedAppointments.map((appointment) => (
               <div key={appointment._id} className="mb-6 pb-6 border-b last:border-b-0 last:mb-0 last:pb-0">
                 <p className="text-sm text-gray-500 mb-2">
                   Appointment on {new Date(appointment.date).toLocaleDateString()} at {appointment.slotTime}
                 </p>
-                
+
                 <div className="flex flex-col gap-4 mt-3">
                   <div className="flex">
                     {[1, 2, 3, 4, 5].map((star) => (
@@ -404,18 +447,18 @@ const Appointment = () => {
                         onMouseLeave={() => setHoveredRating(0)}
                         onClick={() => handleRatingChange(star)}
                       >
-                        <svg 
-                          xmlns="http://www.w3.org/2000/svg" 
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
                           className="h-8 w-8 text-yellow-400"
-                          viewBox="0 0 20 20" 
+                          viewBox="0 0 20 20"
                           fill={star <= (hoveredRating || rating) ? "currentColor" : "none"}
                           stroke="currentColor"
                         >
-                          <path 
-                            strokeLinecap="round" 
-                            strokeLinejoin="round" 
-                            strokeWidth={star <= (hoveredRating || rating) ? 0 : 1.5} 
-                            d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" 
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={star <= (hoveredRating || rating) ? 0 : 1.5}
+                            d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
                           />
                         </svg>
                       </button>
@@ -424,7 +467,7 @@ const Appointment = () => {
                       {rating > 0 ? `${rating} star${rating !== 1 ? 's' : ''}` : 'Select a rating'}
                     </span>
                   </div>
-                  
+
                   <textarea
                     value={review}
                     onChange={handleReviewChange}
@@ -432,7 +475,7 @@ const Appointment = () => {
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none text-gray-700"
                     rows="3"
                   />
-                  
+
                   <button
                     onClick={() => submitRatingAndReview(appointment._id)}
                     className="bg-primary text-white text-sm px-6 py-2 rounded-full shadow-sm hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed self-start mt-2"
@@ -447,8 +490,8 @@ const Appointment = () => {
         ) : (
           <div className="bg-gray-50 p-6 rounded-lg border text-center">
             <p className="text-gray-600">
-              {hasRated 
-                ? "Thank you for rating this doctor!" 
+              {hasRated
+                ? "Thank you for rating this doctor!"
                 : "You can rate this doctor after completing an appointment."}
             </p>
           </div>
