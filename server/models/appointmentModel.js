@@ -14,7 +14,9 @@ const appointmentSchema = new mongoose.Schema({
     isCompleted: { type: Boolean, default: false},
     videoCallLink: String, // Store the video call link
     rating: { type: Number, min: 1, max: 5 }, // Rating given by the user
-    review: { type: String, default: '' } // Optional review
+    review: { type: String, default: '' }, // Optional review
+    meetingCompleted: { type: Boolean, default: false }
+
 })
 
 const appointmentModel = mongoose.models.appointment || mongoose.model('appointment',appointmentSchema)

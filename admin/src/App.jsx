@@ -17,6 +17,7 @@ import { DoctorProfile } from './pages/Doctor/DoctorProfile';
 import DoctorPrescription from './pages/Doctor/DoctorPrescription';
 import AdminPrescription from './pages/Admin/AdminPrescription';
 import FeedBack from './pages/Admin/FeedBack';
+import DoctorViewPrescription from './pages/Doctor/DoctorViewPrescription';
 
 
 
@@ -51,6 +52,7 @@ const App = () => {
           <Route path="/doctor-appointments" element={<DoctorAppointments/>} />
           <Route path="/doctor-profile" element={<DoctorProfile/>}/>
           <Route path="/doctor-prescription" element={<DoctorPrescription/>}/>
+          <Route path="/doctor-view-prescription" element={<DoctorViewPrescription/>}/>
           
 
 
