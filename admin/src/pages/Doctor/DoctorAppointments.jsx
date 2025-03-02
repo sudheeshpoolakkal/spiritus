@@ -15,7 +15,7 @@ const DoctorAppointments = () => {
   } = useContext(DoctorContext);
   const { calculateAge, slotDateFormat, currency } = useContext(AppContext);
   const [videoCallLinks, setVideoCallLinks] = useState({});
-  // joinedMeetings tracks appointments whose meeting link has been clicked
+  // joinedMeetings tracks appointments where the meeting link has been clicked
   const [joinedMeetings, setJoinedMeetings] = useState({});
   const navigate = useNavigate();
 
@@ -43,10 +43,16 @@ const DoctorAppointments = () => {
     }
   };
 
-  // When a meeting link is clicked, mark that appointment as joined and open the link.
+  // When a meeting link is clicked, mark the appointment as joined and open the link.
   const handleJoinMeetingClick = (appointmentId, link) => {
     setJoinedMeetings((prev) => ({ ...prev, [appointmentId]: true }));
     window.open(link, "_blank");
+  };
+
+  // When the "Mark as Completed" checkbox is checked, call the API.
+  const handleMarkCompleted = async (appointmentId) => {
+    await completeAppointment(appointmentId);
+    // Assuming completeAppointment triggers a re-fetch of appointments.
   };
 
   return (
@@ -79,7 +85,6 @@ const DoctorAppointments = () => {
               />
               <p>{item.userData.name}</p>
             </div>
-            {/* Payment Column */}
             <p className="text-xs inline border border-primary px-2 rounded-full">
               {item.payment ? "Online" : "Cash"}
             </p>
@@ -98,8 +103,9 @@ const DoctorAppointments = () => {
               <>
                 <p className="text-green-600">Completed</p>
                 {videoCallLinks[item._id] ? (
-                  // If the appointment is already completed or a prescription exists, show "Meeting Completed"
-                  (item.prescription && item.prescription.report) ? (
+                  // If a prescription exists, show "Meeting Completed" text;
+                  // otherwise, if meeting has been joined, show checkbox below join meeting link.
+                  item.prescription && item.prescription.report ? (
                     <span className="text-gray-600">Meeting Completed</span>
                   ) : joinedMeetings[item._id] ? (
                     <div>
@@ -121,10 +127,9 @@ const DoctorAppointments = () => {
                         <input
                           type="checkbox"
                           id={`complete-${item._id}`}
-                          onChange={async (e) => {
+                          onChange={(e) => {
                             if (e.target.checked) {
-                              await completeAppointment(item._id);
-                              // Re-fetch appointments so that item.isCompleted updates
+                              handleMarkCompleted(item._id);
                             }
                           }}
                         />
@@ -136,7 +141,10 @@ const DoctorAppointments = () => {
                   ) : (
                     <a
                       onClick={() =>
-                        handleJoinMeetingClick(item._id, videoCallLinks[item._id])
+                        handleJoinMeetingClick(
+                          item._id,
+                          videoCallLinks[item._id]
+                        )
                       }
                       href={videoCallLinks[item._id]}
                       target="_blank"
@@ -171,7 +179,7 @@ const DoctorAppointments = () => {
                 />
               </div>
             )}
-            {/* Prescription Column: Show only if meeting is completed */}
+            {/* Prescription Column: Only show if meeting is completed */}
             {!item.cancelled &&
               item.isCompleted &&
               (item.prescription && item.prescription.report ? (
