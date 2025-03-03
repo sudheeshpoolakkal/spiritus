@@ -1,15 +1,22 @@
-import React, { useContext, useState } from "react";
-import { assets } from "../assets/assets_frontend/assets";
-import { NavLink, useNavigate } from "react-router-dom";
-import { AppContext } from "../context/AppContext";
+import React, { useContext, useState } from 'react';
+import { assets } from '../assets/assets_frontend/assets';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { AppContext } from '../context/AppContext';
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const { token, userData, logout } = useContext(AppContext);
+  const { token, setToken, userData } = useContext(AppContext);
   const [showMenu, setShowMenu] = useState(false);
 
+  const logout = () => {
+    setToken(false);
+    localStorage.removeItem('token');
+    navigate('/login');
+  };
+
   return (
-    <nav className="fixed top-0 left-0 w-full z-40 bg-white/90 backdrop-blur-sm shadow-sm py-2 px-4 md:px-8">
+    <nav className="fixed top-0 left-0 w-full z-40 bg-white/90 backdrop-blur-sm shadow-[0_4px_8px_rgba(0,0,0,0.1)]
+ py-2 px-4 md:px-8">
       <div className="max-w-[1200px] mx-auto flex items-center justify-between">
         {/* Logo */}
         <img
@@ -63,7 +70,7 @@ const Navbar = () => {
                   My Appointments
                 </p>
                 <p
-                  onClick={() => logout()}
+                  onClick={logout}
                   className="hover:text-black cursor-pointer py-1"
                 >
                   Logout
@@ -110,52 +117,6 @@ const Navbar = () => {
             </NavLink>
           ))}
         </ul>
-        <div className="flex flex-col items-center gap-4 mt-4">
-          {token && userData ? (
-            <div className="flex flex-col items-center gap-2 cursor-pointer group relative">
-              <img className="w-10 rounded-full" src={userData.image} alt="User" />
-              <div className="bg-stone-100 rounded flex flex-col gap-2 text-gray-600 text-sm p-2">
-                <p
-                  onClick={() => {
-                    navigate("/my-profile");
-                    setShowMenu(false);
-                  }}
-                  className="hover:text-black cursor-pointer"
-                >
-                  My Profile
-                </p>
-                <p
-                  onClick={() => {
-                    navigate("/my-appointments");
-                    setShowMenu(false);
-                  }}
-                  className="hover:text-black cursor-pointer"
-                >
-                  My Appointments
-                </p>
-                <p
-                  onClick={() => {
-                    logout();
-                    setShowMenu(false);
-                  }}
-                  className="hover:text-black cursor-pointer"
-                >
-                  Logout
-                </p>
-              </div>
-            </div>
-          ) : (
-            <button
-              onClick={() => {
-                navigate("/login");
-                setShowMenu(false);
-              }}
-              className="bg-primary text-white px-6 py-2 rounded-full font-light hover:scale-105 transition-transform duration-300"
-            >
-              Create Account
-            </button>
-          )}
-        </div>
       </div>
 
       {/* Overlay when Mobile Menu is Open */}

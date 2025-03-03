@@ -300,7 +300,7 @@ const DoctorAppointments = () => {
                             </div>
                           )}
                           
-                          {/* Prescription button based on state */}
+                          {/* Prescription button based on state - UPDATED */}
                           {selectedAppointment.prescription && selectedAppointment.prescription.report ? (
                             <button
                               className='mt-3 px-4 py-2 border border-green-600 text-green-600 rounded hover:bg-green-50'
@@ -309,7 +309,7 @@ const DoctorAppointments = () => {
                                 navigate('/doctor-view-prescription', { state: { appointment: selectedAppointment } });
                               }}
                             >
-                              View Prescription
+                              Show Prescription
                             </button>
                           ) : (
                             <button
