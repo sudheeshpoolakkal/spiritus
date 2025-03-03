@@ -29,9 +29,13 @@ function Login() {
         }
       } else {
         const { data } = await axios.post(`${backendUrl}/api/doctor/login`, { email, password });
+        console.log("Login response:", data); // Log the response for debugging
+
 
         if (data.success) {
           localStorage.setItem('dToken', data.token);
+          localStorage.setItem('docId', data.docId); // Store the docId in local storage
+
           setDToken(data.token);
           navigate('/doctor-dashboard'); // Navigate to Doctor Dashboard
         } else {
