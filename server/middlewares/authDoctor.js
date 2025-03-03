@@ -4,13 +4,17 @@ import jwt from 'jsonwebtoken'
 const authDoctor = async (req,res,next) => {
     try {
         const {dtoken} = req.headers
-        if(!dtoken){
+        console.log("dtoken:", dtoken); // Log the dtoken for debugging
+        if (!dtoken) {
+
             return res.json({success:false,message:"Not authorized. Login again"})
         }
         const token_decode = jwt.verify(dtoken,process.env.JWT_SECRET)     
         req.body.docId = token_decode.id
 
-        next()
+        console.log("Decoded token:", token_decode); // Log the decoded token for debugging
+        next();
+
 
     } catch (error) {
         console.error(error); // Log the error for better debugging

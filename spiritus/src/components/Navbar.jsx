@@ -38,7 +38,7 @@ const Navbar = () => {
                   } hover:text-primary`
                 }
               >
-                {path === "/" ? "Home" : path.slice(1).replace("-", " ")}
+                {path === "/" ? "home" : path.slice(1).replace("-", " ")}
               </NavLink>
               <hr className="absolute left-0 bottom-0 w-0 group-hover:w-3/5 transition-all duration-300 h-0.5 bg-primary" />
             </li>

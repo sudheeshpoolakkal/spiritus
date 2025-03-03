@@ -1,6 +1,14 @@
 import Prescription from '../models/Prescription.js';
 import Appointment from '../models/appointmentModel.js';
 import { v2 as cloudinary } from 'cloudinary';
+import streamifier from 'streamifier';
+
+// Configure Cloudinary with your credentials
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_SECRET_KEY,
+});
 
 // Add prescription and report
 export const addPrescription = async (req, res) => {
@@ -12,24 +20,39 @@ export const addPrescription = async (req, res) => {
     const file = req.file;
 
     // Validate report length
-    if (report.split(' ').length < 30) {
-      return res.status(400).json({ success: false, message: 'Report must be at least 30 words.' });
+    if (!report || report.split(' ').length < 30) {
+      return res
+        .status(400)
+        .json({ success: false, message: 'Report must be at least 30 words.' });
     }
 
     // Check if appointment exists
     const appointment = await Appointment.findById(appointmentId);
     if (!appointment) {
-      return res.status(404).json({ success: false, message: 'Appointment not found.' });
+      return res
+        .status(404)
+        .json({ success: false, message: 'Appointment not found.' });
     }
 
     let prescriptionFileUrl = null;
     let fileType = null;
     let fileName = null;
-    if (file) {
+
+    if (file && file.buffer) {
       console.log('Uploading file to Cloudinary...');
-      const result = await cloudinary.uploader.upload(file.path, {
-        resource_type: 'auto',
+      // Use upload_stream instead of direct upload
+      const result = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          { resource_type: 'auto' },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        );
+        // Convert buffer into a readable stream and pipe it to Cloudinary
+        streamifier.createReadStream(file.buffer).pipe(uploadStream);
       });
+
       prescriptionFileUrl = result.secure_url;
       fileType = file.mimetype;
       fileName = file.originalname;
@@ -55,14 +78,14 @@ export const addPrescription = async (req, res) => {
       },
     });
 
-    res.status(201).json({ 
-      success: true, 
-      message: 'Prescription added successfully.', 
-      prescription: newPrescription 
+    res.status(201).json({
+      success: true,
+      message: 'Prescription added successfully.',
+      prescription: newPrescription,
     });
   } catch (error) {
     console.error('Error in addPrescription:', error);
-    res.status(500).json({ success: false, message: 'Server error.' });
+    res.status(500).json({ success: false, message: 'Error uploading prescription.' });
   }
 };
 
@@ -72,11 +95,13 @@ export const getPrescription = async (req, res) => {
     const { appointmentId } = req.params;
     const prescription = await Prescription.findOne({ appointmentId });
     if (!prescription) {
-      return res.status(404).json({ success: false, message: 'Prescription not found.' });
+      return res
+        .status(404)
+        .json({ success: false, message: 'Prescription not found.' });
     }
     res.status(200).json({ success: true, prescription });
   } catch (error) {
-    console.error(error);
+    console.error('Error in getPrescription:', error);
     res.status(500).json({ success: false, message: 'Server error.' });
   }
 };
