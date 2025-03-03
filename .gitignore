@@ -14,7 +14,7 @@ lerna-debug.log*
 dist
 dist-ssr
 node_modules
-
+node_modules/
 # Local Config & Misc
 *.local
 
