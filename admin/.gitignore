@@ -7,15 +7,9 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Ignore environment files
-**/.env*
-
-# Build & Dependency Folders
+node_modules
 dist
 dist-ssr
-node_modules
-node_modules/
-# Local Config & Misc
 *.local
 
 # Editor directories and files
