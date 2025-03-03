@@ -1,4 +1,5 @@
 import React, { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { assets } from "@/assets/assets_frontend/assets";
 import { AppContext } from "@/context/AppContext";
 import { toast } from "react-toastify";
@@ -6,6 +7,7 @@ import axios from "axios";
 import bg3 from "@/assets/assets_frontend/aurora.webp"; // Background Image
 
 const MyProfile = () => {
+  const navigate = useNavigate();
   const { userData, setUserData, token, backendUrl, loadUserProfileData } =
     useContext(AppContext);
   const [isEdit, setIsEdit] = useState(false);
@@ -44,9 +46,31 @@ const MyProfile = () => {
   return (
     userData && (
       <div
-        className="min-h-screen flex items-center justify-center bg-cover bg-center px-4"
+        className="min-h-screen flex items-center justify-center bg-cover bg-center px-4 relative"
         style={{ backgroundImage: `url(${bg3})` }}
       >
+        {/* Circular "X" button at the top-right corner to navigate back */}
+        <button
+          onClick={() => navigate("/")}
+          className="absolute top-4 right-12 bg-gray-600 text-white w-10 h-10 rounded-full 
+                     flex items-center justify-center hover:bg-gray-500 focus:outline-none"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+
         <div className="bg-[#242425] text-zinc-200 p-8 rounded-3xl shadow-lg w-full max-w-xl">
           {/* Profile Picture Upload */}
           <div className="flex flex-col items-center">
@@ -60,7 +84,7 @@ const MyProfile = () => {
                 <img
                   className="w-8 absolute bottom-2 right-2"
                   src={image ? "" : assets.upload_icon}
-                  alt=""
+                  alt="Upload Icon"
                 />
                 <input
                   type="file"
@@ -205,11 +229,11 @@ const MyProfile = () => {
               </button>
             ) : (
               <button
-  className="px-4 py-2 rounded-lg bg-primary text-white font-semibold hover:bg-primary-dark transition-all"
-  onClick={() => setIsEdit(true)}
->
-  Edit Profile
-</button>
+                className="px-4 py-2 rounded-lg bg-primary text-white font-semibold hover:bg-primary-dark transition-all"
+                onClick={() => setIsEdit(true)}
+              >
+                Edit Profile
+              </button>
             )}
           </div>
         </div>

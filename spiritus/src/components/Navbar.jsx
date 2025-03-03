@@ -1,19 +1,19 @@
-import React, { useContext, useState } from 'react'
-import { assets } from '../assets/assets_frontend/assets'
-import { NavLink, useNavigate } from 'react-router-dom'
-import { AppContext } from '../context/AppContext';
+import React, { useContext, useState } from "react";
+import { assets } from "../assets/assets_frontend/assets";
+import { NavLink, useNavigate } from "react-router-dom";
+import { AppContext } from "../context/AppContext";
 
 const Navbar = () => {
-
-      const navigate= useNavigate();
-
+  const navigate = useNavigate();
+  const { token, userData, logout } = useContext(AppContext);
+  const [showMenu, setShowMenu] = useState(false);
 
   return (
     <nav className="fixed top-0 left-0 w-full z-40 bg-white/90 backdrop-blur-sm shadow-sm py-2 px-4 md:px-8">
       <div className="max-w-[1200px] mx-auto flex items-center justify-between">
         {/* Logo */}
         <img
-          onClick={() => navigate('/')}
+          onClick={() => navigate("/")}
           className="w-44 cursor-pointer"
           src={assets.logo}
           alt="Logo"
@@ -21,17 +21,17 @@ const Navbar = () => {
 
         {/* Desktop Menu */}
         <ul className="hidden md:flex items-center gap-8 font-medium">
-          {['/', '/doctors', '/about', '/contact'].map((path, index) => (
+          {["/", "/doctors", "/about", "/contact"].map((path, index) => (
             <li key={index} className="relative group">
               <NavLink
                 to={path}
                 className={({ isActive }) =>
                   `py-1 transition-colors duration-300 ${
-                    isActive ? 'text-primary' : 'text-gray-800'
+                    isActive ? "text-primary" : "text-gray-800"
                   } hover:text-primary`
                 }
               >
-                {path === '/' ? 'home' : path.slice(1).replace('-', ' ')}
+                {path === "/" ? "Home" : path.slice(1).replace("-", " ")}
               </NavLink>
               <hr className="absolute left-0 bottom-0 w-0 group-hover:w-3/5 transition-all duration-300 h-0.5 bg-primary" />
             </li>
@@ -48,29 +48,31 @@ const Navbar = () => {
                 src={userData.image}
                 alt="User"
               />
-              <img className="w-2.5" src={assets.dropdown_icon} alt="Dropdown" />
               {/* Dropdown Menu */}
               <div className="absolute right-0 top-12 bg-white shadow-lg rounded-md py-2 px-4 text-gray-600 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-50">
                 <p
-                  onClick={() => navigate('/my-profile')}
+                  onClick={() => navigate("/my-profile")}
                   className="hover:text-black cursor-pointer py-1"
                 >
                   My Profile
                 </p>
                 <p
-                  onClick={() => navigate('/my-appointments')}
+                  onClick={() => navigate("/my-appointments")}
                   className="hover:text-black cursor-pointer py-1"
                 >
                   My Appointments
                 </p>
-                <p onClick={logout} className="hover:text-black cursor-pointer py-1">
+                <p
+                  onClick={() => logout()}
+                  className="hover:text-black cursor-pointer py-1"
+                >
                   Logout
                 </p>
               </div>
             </div>
           ) : (
             <button
-              onClick={() => navigate('/login')}
+              onClick={() => navigate("/login")}
               className="bg-primary text-white px-6 py-2 rounded-full font-light hidden md:block hover:scale-105 transition-transform duration-300"
             >
               Create Account
@@ -87,7 +89,7 @@ const Navbar = () => {
       {/* Mobile Menu */}
       <div
         className={`fixed top-0 right-0 h-full w-64 bg-white shadow-lg transform ${
-          showMenu ? 'translate-x-0' : 'translate-x-full'
+          showMenu ? "translate-x-0" : "translate-x-full"
         } transition-transform duration-300 z-50`}
       >
         <div className="flex items-center justify-between px-5 py-6 border-b border-gray-200">
@@ -97,33 +99,64 @@ const Navbar = () => {
           </button>
         </div>
         <ul className="flex flex-col items-center gap-4 mt-6 text-lg font-medium">
-          {['/', '/doctors', '/about', '/contact'].map((path, index) => (
+          {["/", "/doctors", "/about", "/contact"].map((path, index) => (
             <NavLink
               key={index}
               to={path}
               onClick={() => setShowMenu(false)}
               className="px-4 py-2 rounded inline-block hover:bg-gray-100 w-full text-center"
             >
-              {path === '/' ? 'HOME' : path.slice(1).toUpperCase()}
+              {path === "/" ? "HOME" : path.slice(1).toUpperCase()}
             </NavLink>
           ))}
-
         </ul>
-      <div className='flex items-center gap-4'>
-        {
-          token && userData
-          ? <div className='flex items-center gap-2 cursor-pointer group relative'> 
-                       <img className='w-10 rounded-full'src={userData.image} alt=""/>
-                       <img className='w-2.5' src={assets.dropdown_icon} alt=""/>
-                       <div className='absolute top-0 right-0 pt-14 text-base font-medium text-gray-600 z-20 hidden group-hover:block'>
-                           <div className='min-w-48 bg-stone-100 rounded flex flex-col gap-4'>
-                            <p onClick={()=>navigate('my-profile')} className='hover:text-black cursor-pointer'>My Profile</p>
-                            <p onClick={()=>navigate('my-appointments')} className='hover:text-black cursor-pointer'>My Appoinment</p>
-                            <p onClick={logout} className='hover:text-black cursor-pointer'>Logout</p>
-                        
-                           </div>
-                       </div>
-
+        <div className="flex flex-col items-center gap-4 mt-4">
+          {token && userData ? (
+            <div className="flex flex-col items-center gap-2 cursor-pointer group relative">
+              <img className="w-10 rounded-full" src={userData.image} alt="User" />
+              <div className="bg-stone-100 rounded flex flex-col gap-2 text-gray-600 text-sm p-2">
+                <p
+                  onClick={() => {
+                    navigate("/my-profile");
+                    setShowMenu(false);
+                  }}
+                  className="hover:text-black cursor-pointer"
+                >
+                  My Profile
+                </p>
+                <p
+                  onClick={() => {
+                    navigate("/my-appointments");
+                    setShowMenu(false);
+                  }}
+                  className="hover:text-black cursor-pointer"
+                >
+                  My Appointments
+                </p>
+                <p
+                  onClick={() => {
+                    logout();
+                    setShowMenu(false);
+                  }}
+                  className="hover:text-black cursor-pointer"
+                >
+                  Logout
+                </p>
+              </div>
+            </div>
+          ) : (
+            <button
+              onClick={() => {
+                navigate("/login");
+                setShowMenu(false);
+              }}
+              className="bg-primary text-white px-6 py-2 rounded-full font-light hover:scale-105 transition-transform duration-300"
+            >
+              Create Account
+            </button>
+          )}
+        </div>
+      </div>
 
       {/* Overlay when Mobile Menu is Open */}
       {showMenu && (
@@ -132,10 +165,8 @@ const Navbar = () => {
           onClick={() => setShowMenu(false)}
         ></div>
       )}
-
-    </nav> 
+    </nav>
   );
 };
 
-
-export default Navbar
+export default Navbar;
