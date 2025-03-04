@@ -1,8 +1,19 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { DoctorContext } from "../../context/DoctorContext";
 import { AppContext } from "../../context/AppContext";
 import { assets } from "../../assets/assets_admin/assets";
 import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Calendar as LucideCalendar,
+  DollarSign as LucideMoney,
+  CreditCard as LucidePayment,
+  Award as LucideBadge,
+  ChevronLeft as LucideArrowLeft,
+  FileText as LucideDescription,
+  PlusCircle as LucideAddCircle,
+  Video as LucideVideoCamera,
+} from "lucide-react"; // Import Lucide Icons
 
 const DoctorAppointments = () => {
   const {
@@ -15,11 +26,8 @@ const DoctorAppointments = () => {
   } = useContext(DoctorContext);
   const { calculateAge, slotDateFormat, currency } = useContext(AppContext);
   const [videoCallLinks, setVideoCallLinks] = useState({});
-
-  const [selectedAppointment, setSelectedAppointment] = useState(null);
-
-  // joinedMeetings tracks appointments where the meeting link has been clicked
   const [joinedMeetings, setJoinedMeetings] = useState({});
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -39,38 +47,45 @@ const DoctorAppointments = () => {
   }, [appointments]);
 
   const handleSetVideoCallLink = async (appointmentId) => {
-    const link = prompt("Enter video call link:");
+    const link = prompt("Enter video call link (e.g., https://meet.example.com):");
     if (link) {
-      await setVideoCallLink(appointmentId, link);
-      setVideoCallLinks((prev) => ({ ...prev, [appointmentId]: link }));
+      const formattedLink = link.startsWith("http://") || link.startsWith("https://") ? link : `https://${link}`;
+      await setVideoCallLink(appointmentId, formattedLink);
+      setVideoCallLinks((prev) => ({ ...prev, [appointmentId]: formattedLink }));
     }
   };
 
-  // When a meeting link is clicked, mark the appointment as joined and open the link.
   const handleJoinMeetingClick = (appointmentId, link) => {
     setJoinedMeetings((prev) => ({ ...prev, [appointmentId]: true }));
     window.open(link, "_blank");
   };
 
-  // When the "Mark as Completed" checkbox is checked, call the API.
-  const handleMarkCompleted = async (appointmentId) => {
-    await completeAppointment(appointmentId);
-    // Assuming completeAppointment triggers a re-fetch of appointments.
+  const panelVariants = {
+    hidden: { opacity: 0, x: 20 },
+    visible: { opacity: 1, x: 0 },
+    exit: { opacity: 0, x: -20 },
   };
 
   return (
-
-    <div className='w-full m-3 md:m-5'>
+    <div className="w-full mx-3 md:mx-5 my-4">
       {/* Mobile View Selection Tab */}
-      <div className='md:hidden flex justify-between bg-white border rounded mb-2'>
-        <button 
-          className={`w-1/2 py-3 text-center ${!selectedAppointment ? 'bg-blue-50 text-blue-600 font-medium' : ''}`}
+      <div className="md:hidden flex justify-between bg-white shadow-md rounded-lg overflow-hidden mb-4">
+        <button
+          className={`flex-1 py-3 text-center transition-colors ${
+            !selectedAppointment
+              ? "bg-blue-500 text-white font-medium"
+              : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+          }`}
           onClick={() => setSelectedAppointment(null)}
         >
           Appointments
         </button>
-        <button 
-          className={`w-1/2 py-3 text-center ${selectedAppointment ? 'bg-blue-50 text-blue-600 font-medium' : ''}`}
+        <button
+          className={`flex-1 py-3 text-center transition-colors ${
+            selectedAppointment
+              ? "bg-blue-500 text-white font-medium"
+              : "bg-gray-50 text-gray-600"
+          }`}
           disabled={!selectedAppointment}
         >
           Details
@@ -78,276 +93,392 @@ const DoctorAppointments = () => {
       </div>
 
       {/* Desktop and Mobile Layout Container */}
-      <div className='flex flex-col md:flex-row gap-5'>
-        {/* Appointments List - Hidden on mobile when appointment is selected */}
-        <div className={`w-full md:w-5/12 ${selectedAppointment ? 'hidden md:block' : ''}`}>
-          <p className='mb-3 text-lg font-medium'>All Appointments</p>
-          <div className='bg-white border rounded text-sm max-h-[80vh] min-h-[50vh] overflow-y-scroll'>
-            <div className='max-sm:hidden grid grid-cols-[0.5fr_2fr_2fr_1fr] gap-1 py-3 px-6 border-b'>
-              <p>#</p>
-              <p>Patient</p>
-              <p>Date</p>
-              <p>Status</p>
+      <div className="flex flex-col md:flex-row gap-6">
+        {/* Appointments List */}
+        <div className={`w-full md:w-8/12 ${selectedAppointment ? "hidden md:block" : ""}`}>
+          <div className="bg-white shadow-md rounded-lg overflow-hidden">
+            <div className="p-4 border-b border-gray-100">
+              <h2 className="text-lg font-semibold text-gray-800">Appointments</h2>
+              <p className="text-sm text-gray-500">{appointments.length} total appointments</p>
             </div>
-            
-            {/* Mobile Appointment List Layout */}
-            <div className='sm:hidden'>
-              {appointments.slice().reverse().map((item, index) => (
-                <div
-                  className={`flex flex-col p-4 border-b hover:bg-gray-50 cursor-pointer ${selectedAppointment?._id === item._id ? 'bg-blue-50' : ''}`}
-                  key={item._id}
-                  onClick={() => setSelectedAppointment(item)}
-                >
-                  <div className='flex items-center justify-between mb-2'>
-                    <div className='flex items-center gap-2'>
-                      <img className='w-12 h-12 rounded-full object-cover' src={item.userData.image} alt='' />
-                      <div>
-                        <p className='font-medium'>{item.userData.name}</p>
+
+            <div className="overflow-y-auto max-h-[75vh]">
+              {/* Mobile List */}
+              <div className="sm:hidden">
+                {appointments.length === 0 ? (
+                  <div className="p-3 text-center text-gray-500">No appointments found.</div>
+                ) : (
+                  appointments.slice().reverse().map((item) => (
+                    <motion.div
+                      key={item._id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className={`p-3 border-b border-gray-100 last:border-0 hover:bg-gray-50 cursor-pointer transition-colors ${
+                        selectedAppointment?._id === item._id ? "bg-blue-50" : ""
+                      }`}
+                      onClick={() => setSelectedAppointment(item)}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <img
+                            className="w-10 h-10 rounded-full object-cover shadow-sm"
+                            src={item.userData?.image || assets.defaultImage}
+                            alt={item.userData?.name || "Patient"}
+                          />
+                          <div>
+                            <h3 className="text-sm font-medium text-gray-800">
+                              {item.userData?.name || "Unknown"}
+                            </h3>
+                            <p className="text-xs text-gray-500">
+                              {slotDateFormat(item.slotDate)}, {item.slotTime}
+                            </p>
+                          </div>
+                        </div>
+                        <StatusBadge item={item} />
                       </div>
-                    </div>
-                    <span className={`text-sm font-medium px-2 py-1 rounded-full
-                      ${item.cancelled ? 'bg-red-100 text-red-500' : ''} 
-                      ${!item.cancelled && item.isCompleted ? 'bg-green-100 text-green-600' : ''}
-                      ${!item.cancelled && !item.isCompleted ? 'bg-blue-100 text-blue-500' : ''}
-                    `}>
-                      {item.cancelled ? 'Cancelled' : (item.isCompleted ? 'Completed' : 'Pending')}
-                    </span>
-                  </div>
-                  
-                  <div className='text-sm mt-1'>
-                    <p>{slotDateFormat(item.slotDate)}, {item.slotTime}</p>
-                  </div>
+                    </motion.div>
+                  ))
+                )}
+              </div>
+
+              {/* Desktop List */}
+              <div className="max-sm:hidden">
+                <div className="grid grid-cols-[40px_1fr_1fr_100px] gap-3 px-4 py-2 bg-gray-50 text-xs font-medium text-gray-600">
+                  <span>#</span>
+                  <span>Patient</span>
+                  <span>Date & Time</span>
+                  <span>Status</span>
                 </div>
-              ))}
-            </div>
-            
-            {/* Desktop Appointment List Layout */}
-            <div className='max-sm:hidden'>
-              {appointments.slice().reverse().map((item, index) => (
-                <div
-                  className={`grid grid-cols-[0.5fr_2fr_2fr_1fr] gap-1 items-center text-gray-500 py-3 px-6 border-b hover:bg-gray-50 cursor-pointer ${selectedAppointment?._id === item._id ? 'bg-blue-50' : ''}`}
-                  key={item._id}
-                  onClick={() => setSelectedAppointment(item)}
-                >
-                  <p>{index + 1}</p>
-                  <div className='flex items-center gap-2'>
-                    <img className='w-10 h-10 rounded-full object-cover' src={item.userData.image} alt='' />
-                    <p className='truncate'>{item.userData.name}</p>
-                  </div>
-                  <p className='truncate'>{slotDateFormat(item.slotDate)}, {item.slotTime}</p>
-                  <p className={`
-                    ${item.cancelled ? 'text-red-500' : ''} 
-                    ${!item.cancelled && item.isCompleted ? 'text-green-600' : ''}
-                    ${!item.cancelled && !item.isCompleted ? 'text-blue-500' : ''}
-                  `}>
-                    {item.cancelled ? 'Cancelled' : (item.isCompleted ? 'Completed' : 'Pending')}
-                  </p>
-                </div>
-              ))}
+                {appointments.length === 0 ? (
+                  <div className="p-3 text-center text-gray-500">No appointments found.</div>
+                ) : (
+                  appointments.slice().reverse().map((item, index) => (
+                    <motion.div
+                      key={item._id}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className={`grid grid-cols-[40px_1fr_1fr_100px] gap-3 items-center px-4 py-3 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors ${
+                        selectedAppointment?._id === item._id ? "bg-blue-50" : ""
+                      }`}
+                      onClick={() => setSelectedAppointment(item)}
+                    >
+                      <span className="text-gray-500 text-sm">{index + 1}</span>
+                      <div className="flex items-center gap-2">
+                        <img
+                          className="w-8 h-8 rounded-full object-cover shadow-sm"
+                          src={item.userData?.image || assets.defaultImage}
+                          alt={item.userData?.name || "Patient"}
+                        />
+                        <span className="text-sm font-medium text-gray-800 truncate">
+                          {item.userData?.name || "Unknown"}
+                        </span>
+                      </div>
+                      <div>
+                        <p className="text-gray-800 text-sm">{slotDateFormat(item.slotDate)}</p>
+                        <p className="text-xs text-gray-500">{item.slotTime}</p>
+                      </div>
+                      <StatusBadge item={item} />
+                    </motion.div>
+                  ))
+                )}
+              </div>
             </div>
           </div>
         </div>
 
         {/* Appointment Details Panel */}
-        <div className={`w-full md:w-7/12 ${!selectedAppointment ? 'hidden md:block' : ''}`}>
-          <div className="flex items-center justify-between mb-3">
-            <p className='text-lg font-medium'>Appointment Details</p>
-            {/* Back button for mobile */}
-            {selectedAppointment && (
-              <button 
-                className="md:hidden flex items-center text-blue-600"
-                onClick={() => setSelectedAppointment(null)}
-              >
-                <span className="material-icons-outlined">arrow_back</span>
-                <span className="ml-1">Back</span>
-              </button>
-            )}
-
-          </div>
-          
-          {selectedAppointment ? (
-            <div className='bg-white border rounded p-4 md:p-6 max-h-[80vh] overflow-y-auto'>
-              {/* Patient Details */}
-              <div className='flex items-center space-x-4 border-b pb-4 mb-4'>
-                <img 
-                  src={selectedAppointment.userData.image} 
-                  alt={selectedAppointment.userData.name} 
-                  className='w-16 h-16 rounded-full object-cover'
-                />
-                <div>
-                  <h3 className='text-lg font-medium'>{selectedAppointment.userData.name}</h3>
-                  <p className='text-sm text-gray-500'>
-                    Age: {calculateAge(selectedAppointment.userData.dob)} | 
-                    Gender: {selectedAppointment.userData.gender || 'Not specified'}
-                  </p>
-                  <p className='text-sm text-gray-500'>
-                    Email: {selectedAppointment.userData.email}
-                  </p>
-                </div>
-              </div>
-
-              {/* Patient Description - Top priority on mobile, natural order on desktop */}
-              {selectedAppointment.patientDescription && (
-                <div className='mb-6 md:order-none order-first'>
-                  <h4 className='text-md font-medium mb-2'>Patient Description</h4>
-                  <div className='p-3 bg-gray-50 rounded border text-sm'>
-                    {selectedAppointment.patientDescription}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={selectedAppointment?._id || "empty"}
+            variants={panelVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className={`w-full md:w-6/12 ${!selectedAppointment ? "hidden md:block" : ""}`}
+          >
+            <div className="bg-white shadow-md rounded-lg overflow-hidden h-full">
+              {selectedAppointment ? (
+                <div className="p-4 md:p-5 overflow-y-auto max-h-[70vh]">
+                  <div className="flex justify-between items-start mb-5">
+                    <h2 className="text-lg font-semibold text-gray-800">Appointment Details</h2>
+                    <button
+                      className="md:hidden flex items-center text-blue-500 hover:text-blue-600 transition-colors"
+                      onClick={() => setSelectedAppointment(null)}
+                    >
+                      <LucideArrowLeft size={20} />
+                      <span className="ml-1 text-sm font-medium">Back to list</span>
+                    </button>
                   </div>
-                </div>
-              )}
-              
-              <div className='mb-6'>
-                <h4 className='text-md font-medium mb-2'>Appointment Information</h4>
-                <div className='grid grid-cols-2 gap-2 text-sm'>
-                  <p className='text-gray-500'>Date:</p>
-                  <p>{slotDateFormat(selectedAppointment.slotDate)}</p>
-                  
-                  <p className='text-gray-500'>Time:</p>
-                  <p>{selectedAppointment.slotTime}</p>
-                  
-                  <p className='text-gray-500'>Payment:</p>
-                  <p>{selectedAppointment.payment ? 'Paid (Online)' : 'Cash Payment'}</p>
-                  
-                  <p className='text-gray-500'>Fee:</p>
-                  <p>{currency}{selectedAppointment.amount}</p>
-                  
-                  <p className='text-gray-500'>Status:</p>
-                  <p className={`
-                    ${selectedAppointment.cancelled ? 'text-red-500' : ''} 
-                    ${!selectedAppointment.cancelled && selectedAppointment.isCompleted ? 'text-green-600' : ''}
-                    ${!selectedAppointment.cancelled && !selectedAppointment.isCompleted ? 'text-blue-500' : ''}
-                  `}>
-                    {selectedAppointment.cancelled ? 'Cancelled' : (selectedAppointment.isCompleted ? 'Completed' : 'Pending')}
-                  </p>
-                </div>
-              </div>
 
-              {/* Actions Section */}
-              {!selectedAppointment.cancelled && (
-                <div className='flex flex-col sm:flex-row flex-wrap gap-3 mt-6'>
-                  {!selectedAppointment.isCompleted ? (
-                    <>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          cancelAppointment(selectedAppointment._id);
-                        }}
-                        className='flex items-center justify-center gap-2 px-4 py-2 border border-red-500 text-red-500 rounded hover:bg-red-50'
-                      >
-                        <img className='w-5' src={assets.cancel_icon} alt='Cancel' />
-                        Cancel Appointment
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          completeAppointment(selectedAppointment._id);
-                        }}
-                        className='flex items-center justify-center gap-2 px-4 py-2 border border-green-500 text-green-500 rounded hover:bg-green-50'
-                      >
-                        <img className='w-5' src={assets.tick_icon} alt='Complete' />
-                        Mark as Completed
-                      </button>
-                    </>
-                  ) : (
-                    <div className='w-full'>
-                      {videoCallLinks[selectedAppointment._id] ? (
-                        <div className='flex flex-col gap-2'>
-                          <div className='flex flex-col sm:flex-row sm:items-center gap-2 text-gray-700 mb-2'>
-                            <span className='text-sm font-medium'>Video Call Link:</span>
+                  {/* Patient Card */}
+                  <div className="bg-gray-50 rounded-lg p-4 mb-5 shadow-sm">
+                    <div className="flex items-start gap-3">
+                      <img
+                        src={selectedAppointment.userData?.image || assets.defaultImage}
+                        alt={selectedAppointment.userData?.name || "Patient"}
+                        className="w-14 h-14 rounded-full object-cover shadow-sm"
+                      />
+                      <div className="flex-1">
+                        <h3 className="text-base font-semibold text-gray-800">
+                          {selectedAppointment.userData?.name || "Unknown"}
+                        </h3>
+                        <div className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-sm">
+                          <div>
+                            <span className="text-gray-500">Age:</span>{" "}
+                            {calculateAge(selectedAppointment.userData?.dob) || "–"}
+                          </div>
+                          <div>
+                            <span className="text-gray-500">Gender:</span>{" "}
+                            {selectedAppointment.userData?.gender || "–"}
+                          </div>
+                          <div className="col-span-2">
+                            <span className="text-gray-500">Email:</span>{" "}
                             <a
-                              href={videoCallLinks[selectedAppointment._id]}
-                              target='_blank'
-                              rel='noopener noreferrer'
-                              className='text-blue-500 underline text-sm break-all'
-                              onClick={(e) => {
-                                e.preventDefault();
-                                handleJoinMeetingClick(
-                                  selectedAppointment._id,
-                                  videoCallLinks[selectedAppointment._id]
-                                );
-                              }}
+                              href={`mailto:${selectedAppointment.userData?.email}`}
+                              className="text-blue-500 hover:underline"
                             >
-                              {videoCallLinks[selectedAppointment._id]}
+                              {selectedAppointment.userData?.email || "–"}
                             </a>
                           </div>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleSetVideoCallLink(selectedAppointment._id);
-                            }}
-                            className='px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700'
-                          >
-                            Change Video Call Link
-                          </button>
-                          
-                          {/* Display completion checkbox if meeting joined but not marked as complete */}
-                          {joinedMeetings[selectedAppointment._id] && 
-                           (!selectedAppointment.prescription || !selectedAppointment.prescription.report) && (
-                            <div className='mt-3 flex items-center'>
-                              <input
-                                type='checkbox'
-                                id={`complete-${selectedAppointment._id}`}
-                                onChange={(e) => {
-                                  if (e.target.checked) {
-                                    handleMarkCompleted(selectedAppointment._id);
-                                  }
-                                }}
-                                className='mr-2'
-                              />
-                              <label htmlFor={`complete-${selectedAppointment._id}`}>
-                                Mark as Completed
-                              </label>
-                            </div>
-                          )}
-                          
-                          {/* Prescription button based on state - UPDATED */}
-                          {selectedAppointment.prescription && selectedAppointment.prescription.report ? (
-                            <button
-                              className='mt-3 px-4 py-2 border border-green-600 text-green-600 rounded hover:bg-green-50'
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                navigate('/doctor-view-prescription', { state: { appointment: selectedAppointment } });
-                              }}
-                            >
-                              Show Prescription
-                            </button>
-                          ) : (
-                            <button
-                              className='mt-3 px-4 py-2 border border-green-600 text-green-600 rounded hover:bg-green-50'
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                navigate('/doctor-prescription', { state: { appointment: selectedAppointment } });
-                              }}
-                            >
-                              {joinedMeetings[selectedAppointment._id] ? 'Add Prescription' : 'Add Prescription (If Crucial)'}
-                            </button>
-                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Patient Description */}
+                  {selectedAppointment.patientDescription && (
+                    <div className="mb-5">
+                      <h4 className="text-sm font-semibold text-gray-700 mb-2">Patient Notes</h4>
+                      <div className="bg-white border border-gray-100 rounded-lg p-3 text-sm text-gray-600 leading-relaxed">
+                        {selectedAppointment.patientDescription}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Appointment Info */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+                    <InfoCard
+                      icon={<LucideCalendar size={20} />}
+                      title="Date & Time"
+                      value={`${slotDateFormat(selectedAppointment.slotDate)}, ${selectedAppointment.slotTime}`}
+                    />
+                    <InfoCard
+                      icon={<LucidePayment size={20} />}
+                      title="Payment"
+                      value={selectedAppointment.payment ? "Paid Online" : "Cash Payment"}
+                    />
+                    <InfoCard
+                      icon={<LucideMoney size={20} />}
+                      title="Fee"
+                      value={`${currency}${selectedAppointment.amount}`}
+                    />
+                    <InfoCard
+                      icon={<LucideBadge size={20} />}
+                      title="Status"
+                      value={<StatusBadge item={selectedAppointment} />}
+                    />
+                  </div>
+
+                  {/* Action Buttons or Cancelled Message */}
+                  {selectedAppointment.cancelled ? (
+                    <div className="p-4 bg-red-50 text-red-700 rounded-lg text-sm">
+                      This appointment has been cancelled.
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {!selectedAppointment.isCompleted ? (
+                        <div className="flex flex-col sm:flex-row gap-3">
+                          <ActionButton
+                            icon={assets.cancel_icon}
+                            label="Cancel Appointment"
+                            color="red"
+                            onClick={() => cancelAppointment(selectedAppointment._id)}
+                            confirm
+                          />
+                          <ActionButton
+                            icon={assets.tick_icon}
+                            label="Mark Completed"
+                            color="green"
+                            onClick={() => completeAppointment(selectedAppointment._id)}
+                          />
                         </div>
                       ) : (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleSetVideoCallLink(selectedAppointment._id);
-                          }}
-                          className='w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700'
-                        >
-                          Provide Video Call Link
-                        </button>
+                        <VideoCallSection
+                          appointment={selectedAppointment}
+                          videoCallLinks={videoCallLinks}
+                          handleSetVideoCallLink={handleSetVideoCallLink}
+                          handleJoinMeetingClick={handleJoinMeetingClick}
+                          joinedMeetings={joinedMeetings}
+                          navigate={navigate}
+                        />
                       )}
                     </div>
                   )}
                 </div>
+              ) : (
+                <div className="h-full flex items-center justify-center p-6 text-gray-400 text-sm">
+                  <p className="text-center">Select an appointment from the list to view details</p>
+                </div>
               )}
             </div>
-          ) : (
-            <div className='bg-white border rounded p-6 flex items-center justify-center min-h-[50vh] text-gray-400'>
-              Select an appointment to view details
-            </div>
-          )}
-        </div>
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );
 };
+
+// Helper Components
+const StatusBadge = ({ item, className }) => {
+  const statusColors = {
+    cancelled: { bg: "bg-red-100", text: "text-red-700" },
+    completed: { bg: "bg-green-100", text: "text-green-700" },
+    pending: { bg: "bg-blue-100", text: "text-blue-700" },
+  };
+
+  const status = item.cancelled
+    ? "cancelled"
+    : item.isCompleted
+    ? "completed"
+    : "pending";
+
+  return (
+    <span
+      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+        statusColors[status].bg
+      } ${statusColors[status].text} ${className || ""}`}
+    >
+      {status.charAt(0).toUpperCase() + status.slice(1)}
+    </span>
+  );
+};
+
+const InfoCard = ({ icon, title, value }) => (
+  <div className="flex items-center gap-2 bg-gray-50 rounded-lg p-2 shadow-sm">
+    <span className="text-gray-500">{icon}</span>
+    <div>
+      <h5 className="text-xs font-medium text-gray-500">{title}</h5>
+      <p className="text-gray-800 text-sm">{value}</p>
+    </div>
+  </div>
+);
+
+const ActionButton = ({ icon, label, color, onClick, confirm }) => {
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  const handleClick = () => {
+    if (confirm && !showConfirm) {
+      setShowConfirm(true);
+      return;
+    }
+    onClick();
+    setShowConfirm(false);
+  };
+
+  return (
+    <div className="relative flex-1">
+      <button
+        className={`w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg transition-all text-sm ${
+          color === "red"
+            ? "bg-red-50 text-red-700 hover:bg-red-100"
+            : "bg-green-50 text-green-700 hover:bg-green-100"
+        }`}
+        onClick={handleClick}
+      >
+        <img src={icon} className="w-4 h-4" alt={label} />
+        <span className="font-medium">{label}</span>
+      </button>
+
+      {showConfirm && (
+        <div className="absolute inset-0 bg-white flex items-center justify-center gap-2 px-2">
+          <button
+            className="text-red-600 hover:text-red-700 font-medium text-sm"
+            onClick={handleClick}
+          >
+            Confirm
+          </button>
+          <button
+            className="text-gray-500 hover:text-gray-600 text-sm"
+            onClick={() => setShowConfirm(false)}
+          >
+            Cancel
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const VideoCallSection = ({
+  appointment,
+  videoCallLinks,
+  handleSetVideoCallLink,
+  handleJoinMeetingClick,
+  joinedMeetings,
+  navigate,
+}) => (
+  <div className="space-y-3">
+    {videoCallLinks[appointment._id] ? (
+      <>
+        <div className="bg-blue-50 rounded-lg p-3 shadow-sm">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex-1">
+              <h4 className="text-xs font-medium text-blue-800 mb-1">Video Call Link</h4>
+              <a
+                href={videoCallLinks[appointment._id]}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleJoinMeetingClick(appointment._id, videoCallLinks[appointment._id]);
+                }}
+                className="text-blue-500 hover:underline break-all text-sm"
+              >
+                {videoCallLinks[appointment._id]}
+              </a>
+            </div>
+            <button
+              onClick={() => handleSetVideoCallLink(appointment._id)}
+              className="text-blue-500 hover:text-blue-600 text-sm font-medium"
+            >
+              Edit
+            </button>
+          </div>
+        </div>
+
+        {/* Prescription Section */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          {appointment.prescription?.report ? (
+            <button
+              className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 text-sm"
+              onClick={() =>
+                navigate("/doctor-view-prescription", { state: { appointment } })
+              }
+            >
+              <LucideDescription size={16} />
+              View Prescription
+            </button>
+          ) : (
+            <button
+              className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 text-sm"
+              onClick={() =>
+                navigate("/doctor-prescription", { state: { appointment } })
+              }
+            >
+              <LucideAddCircle size={16} />
+              Create Prescription
+            </button>
+          )}
+        </div>
+      </>
+    ) : (
+      <button
+        className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm"
+        onClick={() => handleSetVideoCallLink(appointment._id)}
+      >
+        <LucideVideoCamera size={16} />
+        Add Video Call Link
+      </button>
+    )}
+  </div>
+);
 
 export default DoctorAppointments;

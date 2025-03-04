@@ -1,79 +1,54 @@
-import React, { useContext } from 'react'
-import { AdminContext } from '../context/AdminContext'
-import { NavLink } from 'react-router-dom'
-import { assets } from '../assets/assets_admin/assets'
+import React, { useContext } from 'react';
+import { NavLink } from 'react-router-dom';
+import { AdminContext } from '../context/AdminContext';
 import { DoctorContext } from '../context/DoctorContext';
-const Sidebar = () => {
+import { LayoutDashboard, Calendar, UserPlus, Users, MessageSquare, User } from 'lucide-react';
 
-    const {aToken} = useContext(AdminContext)
-    const {dToken} = useContext(DoctorContext)
+const Sidebar = () => {
+  const { aToken } = useContext(AdminContext);
+  const { dToken } = useContext(DoctorContext);
+
+  // Admin navigation items
+  const adminNavItems = [
+    { to: '/admin-dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+    { to: '/all-appointments', icon: Calendar, label: 'Appointments' },
+    { to: '/add-doctor', icon: UserPlus, label: 'Add Doctor' },
+    { to: '/doctor-list', icon: Users, label: 'Doctors List' },
+    { to: '/feedback', icon: MessageSquare, label: 'Feedbacks' },
+  ];
+
+  // Doctor navigation items
+  const doctorNavItems = [
+    { to: '/doctor-dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+    { to: '/doctor-appointments', icon: Calendar, label: 'Appointments' },
+    { to: '/doctor-profile', icon: User, label: 'Profile' },
+  ];
+
+  // Reusable function to render each navigation item
+  const renderNavItem = (item) => (
+    <NavLink
+      key={item.to}
+      to={item.to}
+      className={({ isActive }) =>
+        `flex items-center gap-3 py-3.5 px-3 md:px-9 md:min-w-72 cursor-pointer transition-colors duration-200 ${
+          isActive ? 'bg-green-100 text-green-700 border-r-4 border-green-500' : 'text-gray-600 hover:bg-gray-100'
+        }`
+      }
+      aria-label={item.label}
+    >
+      <item.icon className="w-5 h-5" />
+      <p className="hidden md:block">{item.label}</p>
+    </NavLink>
+  );
 
   return (
-    <div className='min-h-screen bg-white border-r'>
-        {
-            aToken && <ul className='text-[#515151] mt-5'>
-            
-            <NavLink className={({isActive})=> `flex items-center gap-3 py-3.5 px-3 md:px-9 md:min-w-72 cursor-pointer ${isActive ? 'bg-[#F2F3FF] border-r-4 border-primary' : ''}`}
-             to={'/admin-dashboard'}>
-                <img src={assets.home_icon} alt="" />
-                <p className='hidden md:block'>Dashboard</p>
-            </NavLink>
-
-            <NavLink className={({isActive})=> `flex items-center gap-3 py-3.5 px-3 md:px-9 md:min-w-72 cursor-pointer ${isActive ? 'bg-[#F2F3FF] border-r-4 border-primary' : ''}`}
-             to={'/all-appointments'}>
-                <img src={assets.appointment_icon} alt="" />
-                <p className='hidden md:block'>Appointments</p>
-            </NavLink>
-
-            <NavLink className={({isActive})=> `flex items-center gap-3 py-3.5 px-3 md:px-9 md:min-w-72 cursor-pointer ${isActive ? 'bg-[#F2F3FF] border-r-4 border-primary' : ''}`}
-             to={'/add-doctor'}>
-                <img src={assets.add_icon} alt="" />
-                <p className='hidden md:block'>Add Doctor</p>
-            </NavLink>
-
-            <NavLink className={({isActive})=> `flex items-center gap-3 py-3.5 px-3 md:px-9 md:min-w-72 cursor-pointer ${isActive ? 'bg-[#F2F3FF] border-r-4 border-primary' : ''}`}
-             to={'/doctor-list'}>
-                <img src={assets.people_icon} alt="" />
-                <p className='hidden md:block' >Doctors List</p>
-            </NavLink>
-
-            <NavLink className={({isActive})=> `flex items-center gap-3 py-3.5 px-3 md:px-9 md:min-w-72 cursor-pointer ${isActive ? 'bg-[#F2F3FF] border-r-4 border-primary' : ''}`}
-             to={'/feedback'}>
-                <img src={assets.feedback_icon} alt="" className="w-6 h-6" />
-                <p className='hidden md:block' >Feedbacks</p>
-            </NavLink>
-
-            </ul>
-        }
-
-{
-            dToken && <ul className='text-[#515151] mt-5'>
-            
-            <NavLink className={({isActive})=> `flex items-center gap-3 py-3.5 px-3 md:px-9 md:min-w-72 cursor-pointer ${isActive ? 'bg-[#F2F3FF] border-r-4 border-primary' : ''}`}
-             to={'/doctor-dashboard'}>
-                <img src={assets.home_icon} alt="" />
-                <p className='hidden md:block'>Dashboard</p>
-            </NavLink>
-
-            <NavLink className={({isActive})=> `flex items-center gap-3 py-3.5 px-3 md:px-9 md:min-w-72 cursor-pointer ${isActive ? 'bg-[#F2F3FF] border-r-4 border-primary' : ''}`}
-             to={'/doctor-appointments'}>
-                <img src={assets.appointment_icon} alt="" />
-                <p className='hidden md:block'>Appointments</p>
-            </NavLink>
-
-            
-
-            <NavLink className={({isActive})=> `flex items-center gap-3 py-3.5 px-3 md:px-9 md:min-w-72 cursor-pointer ${isActive ? 'bg-[#F2F3FF] border-r-4 border-primary' : ''}`}
-             to={'/doctor-profile'}>
-                <img src={assets.people_icon} alt="" />
-                <p className='hidden md:block'>Profile</p>
-            </NavLink>
-            
-
-            </ul>
-        }
+    <div className="min-h-screen bg-white border-r border-gray-200">
+      <ul className="mt-5">
+        {aToken && adminNavItems.map(renderNavItem)}
+        {dToken && doctorNavItems.map(renderNavItem)}
+      </ul>
     </div>
-  )
-}
+  );
+};
 
-export default Sidebar
+export default Sidebar;

@@ -133,7 +133,7 @@ const Login = () => {
 
         <button
           type="submit"
-          className="w-full py-2 mb-4 rounded-lg bg-primary text-white font-semibold"
+          className="w-full py-2 mb-4 rounded-full bg-primary text-white font-semibold hover:bg-black"
         >
           {state === "Sign Up" ? "Create Account" : "Login"}
         </button>

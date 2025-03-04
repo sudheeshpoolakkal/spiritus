@@ -17,11 +17,19 @@ const AllAppointments = () => {
   }, [aToken, getAllAppointments]);
 
   return (
-    <div className="w-full max-w-6xl m-5">
-      <p className="mb-3 text-lg font-medium">All Appointments</p>
+    <div className="w-full max-w-6xl mx-auto p-5">
+      <p className="mb-3 text-xl font-semibold text-gray-700">All Appointments</p>
 
-      <div className="bg-white border rounded text-sm max-h-[80vh] min-h-[60vh] overflow-y-scroll">
-        <div className="hidden sm:grid grid-cols-[0.5fr_2fr_1fr_2fr_2fr_1fr_1fr_1fr] grid-flow-col py-3 px-6 border-b">
+      {/* 
+        This container uses both a min and max height.
+        It extends down until 60% of the viewport, 
+        then scrolls if it goes beyond 80% of the viewport.
+      */}
+      <div className="bg-white border rounded-lg shadow-sm text-sm 
+                      min-h-[60vh] max-h-[80vh] overflow-auto">
+        {/* Table Header */}
+        <div className="hidden sm:grid grid-cols-[0.5fr_2fr_1fr_2fr_2fr_1fr_1fr_1fr] 
+                        py-3 px-6 border-b bg-gray-100 font-medium text-gray-600">
           <p>#</p>
           <p>Patient</p>
           <p>Age</p>
@@ -32,52 +40,66 @@ const AllAppointments = () => {
           <p>Prescription</p>
         </div>
 
+        {/* Table Rows */}
         {appointments.map((item, index) => (
           <div
-            className="flex flex-wrap justify-between max-sm:gap-2 sm:grid sm:grid-cols-[0.5fr_2fr_1fr_2fr_2fr_1fr_1fr_1fr] items-center text-gray-500 py-3 px-6 border-b hover:bg-gray-50"
-            key={item._id} // Use unique identifier as key
+            key={item._id} // unique key
+            className="flex flex-wrap justify-between items-center 
+                       sm:grid sm:grid-cols-[0.5fr_2fr_1fr_2fr_2fr_1fr_1fr_1fr] 
+                       text-gray-600 py-3 px-6 border-b hover:bg-gray-50 transition"
           >
-            <p className="max-sm:hidden">{index + 1}</p>
+            {/* Index */}
+            <p className="hidden sm:block">{index + 1}</p>
+
+            {/* Patient */}
             <div className="flex items-center gap-2">
               <img
-                className="w-8 rounded-full cursor-pointer"
+                className="w-8 h-8 rounded-full object-cover"
                 src={item.userData.image}
-                alt=""
+                alt="Patient"
               />
-              <p>{item.userData.name}</p>
+              <p className="truncate">{item.userData.name}</p>
             </div>
-            <p className="max-sm:hidden">{calculateAge(item.userData.dob)}</p>
-            <p>
+
+            {/* Age */}
+            <p className="hidden sm:block">{calculateAge(item.userData.dob)}</p>
+
+            {/* Date & Time */}
+            <p className="text-xs sm:text-sm">
               {slotDateFormat(item.slotDate)}, {item.slotTime || "N/A"}
             </p>
+
+            {/* Doctor */}
             <div className="flex items-center gap-2">
               <img
-                className="w-8 rounded-full bg-gray-200 cursor-pointer"
+                className="w-8 h-8 rounded-full bg-gray-200 object-cover"
                 src={item.docData.image}
-                alt=""
+                alt="Doctor"
               />
-              <p>{item.docData.name}</p>
+              <p className="truncate">{item.docData.name}</p>
             </div>
-            <p>
+
+            {/* Fees */}
+            <p className="text-xs sm:text-sm font-medium">
               {currency}
               {item.amount}
             </p>
 
-            {/* Appointment Actions */}
+            {/* Status/Actions */}
             {item.cancelled ? (
-              <p className="text-red-400 text-xs font-medium">Cancelled</p>
+              <p className="text-red-500 text-xs font-semibold">Cancelled</p>
             ) : item.isCompleted ? (
-              <p className="text-green-500 text-xs font-medium">Completed</p>
+              <p className="text-green-500 text-xs font-semibold">Completed</p>
             ) : (
               <img
                 onClick={() => cancelAppointment(item._id)}
-                className="w-10 cursor-pointer"
+                className="w-6 h-6 cursor-pointer hover:opacity-75"
                 src={assets.cancel_icon}
-                alt="Cancel Appointment"
+                alt="Cancel"
               />
             )}
 
-            {/* Prescription View Button */}
+            {/* Prescription */}
             {item.isCompleted && item.prescription?.prescriptionFile ? (
               <button
                 onClick={() =>
@@ -85,9 +107,10 @@ const AllAppointments = () => {
                     state: { appointment: item },
                   })
                 }
-                className="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600"
+                className="bg-blue-500 text-white px-3 py-1 rounded text-xs 
+                           hover:bg-blue-600 transition"
               >
-                View Prescription
+                View
               </button>
             ) : (
               <p className="text-gray-400 text-xs">Not Available</p>

@@ -1,157 +1,239 @@
-import React, { useContext, useEffect, useState } from 'react'
-import { AppContext } from '../../context/AppContext';
-import { DoctorContext } from '../../context/DoctorContext'
-import axios from 'axios';
-import { toast } from 'react-toastify';
+import React, { useContext, useEffect, useState } from "react";
+import { AppContext } from "../../context/AppContext";
+import { DoctorContext } from "../../context/DoctorContext";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { 
+  FaEdit, 
+  FaSave, 
+  FaTimes, 
+  FaSpinner, 
+  FaMapMarkerAlt, 
+  FaMoneyBillWave, 
+  FaClock,
+  FaUserMd 
+} from "react-icons/fa";
 
 export const DoctorProfile = () => {
-  const { dToken, profileData, setProfileData, getProfileData, backendUrl} = useContext(DoctorContext)
-  const { currency } = useContext(AppContext)
-  const [isEdit, setIsEdit] = useState(false)
-  
+  const { dToken, profileData, setProfileData, getProfileData, backendUrl } = useContext(DoctorContext);
+  const { currency } = useContext(AppContext);
+  const [isEdit, setIsEdit] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [localProfileData, setLocalProfileData] = useState(null);
+
+  // Sync local data with profile data
+  useEffect(() => {
+    if (profileData) {
+      setLocalProfileData({ ...profileData });
+    }
+  }, [profileData]);
+
+  // Update profile method
   const updateProfile = async () => {
+    setIsLoading(true);
     try {
       const updateData = {
-        address: profileData.address,
-        fees: profileData.fees,
-        available: profileData.available
-      }
-      const {data} = await axios.post(backendUrl + '/api/doctor/update-profile', updateData, {headers:{dToken}})
+        address: localProfileData.address,
+        fees: localProfileData.fees,
+        available: localProfileData.available,
+      };
+      const { data } = await axios.post(backendUrl + "/api/doctor/update-profile", updateData, {
+        headers: { dToken },
+      });
       if (data.success) {
-        toast.success(data.message)
-        setIsEdit(false)
-        getProfileData()
+        toast.success(data.message);
+        setIsEdit(false);
+        getProfileData();
       } else {
-        toast.error(data.message)
+        toast.error(data.message);
       }
     } catch (error) {
-      toast.error(error.message)
-      console.log(error)
+      toast.error(error.response?.data?.message || "Update failed");
+    } finally {
+      setIsLoading(false);
     }
-  }
-  
+  };
+
+  // Handle cancel edit
+  const handleCancel = () => {
+    setIsEdit(false);
+    setLocalProfileData(profileData);
+  };
+
+  // Fetch profile data on mount or token change
   useEffect(() => {
-    if(dToken) {
-      getProfileData()
+    if (dToken) {
+      getProfileData();
     }
-  }, [dToken])
-  
-  return profileData && (
-    <div className="max-w-6xl mx-auto p-4">
-      <div className="bg-white shadow-md rounded-xl overflow-hidden">
-        <div className="md:flex">
-          {/* Left column with image */}
-          <div className="md:w-1/3 bg-gray-50 p-6 flex justify-center items-start">
-            <img 
-              className="bg-primary/80 w-full max-w-sm rounded-lg shadow-lg object-cover" 
-              src={profileData.image} 
-              alt={`Dr. ${profileData.name}`} 
+  }, [dToken, getProfileData]);
+
+  if (!localProfileData) return null;
+
+  return (
+    <div className="w-full pl-4 md:pl-6 bg-gray-50 min-h-screen">
+      <div className="bg-white shadow-lg rounded-xl p-6 md:p-8 max-w-4xl">
+        {/* Profile Header */}
+        <div className="flex flex-col md:flex-row items-start gap-6 mb-8 pb-6 border-b">
+          <div className="relative">
+            <img
+              className="w-40 h-40 rounded-full object-cover shadow-md border-4 border-blue-100"
+              src={localProfileData.image}
+              alt={`Dr. ${localProfileData.name}`}
             />
+            {isEdit && (
+              <div className="absolute bottom-0 right-0 bg-blue-600 text-white p-2 rounded-full">
+                <FaEdit />
+              </div>
+            )}
           </div>
-          
-          {/* Right column with information */}
-          <div className="md:w-2/3 p-8">
-            <div className="border-b pb-4 mb-4">
-              <h1 className="text-3xl font-medium text-gray-700">{profileData.name}</h1>
-              <div className="flex flex-wrap items-center gap-3 mt-2 text-gray-600">
-                <p className="font-medium">{profileData.degree} - {profileData.speciality}</p>
-                <span className="py-1 px-3 border text-sm rounded-full bg-gray-50">{profileData.experience}</span>
-              </div>
-            </div>
-            
-            <div className="space-y-6">
-              {/* About section */}
-              <div>
-                <h2 className="text-lg font-medium text-neutral-800 mb-2">About</h2>
-                <p className="text-gray-600">
-                  {profileData.about}
-                </p>
-              </div>
-              
-              {/* Fees section */}
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <p className="text-gray-700 font-medium">
-                  Appointment fee: 
-                  <span className="text-gray-800 ml-2">
-                    {currency}
-                    {isEdit ? 
-                      <input 
-                        type="number" 
-                        className="w-24 p-1 border rounded ml-1" 
-                        onChange={(e) => setProfileData(prev => ({...prev, fees: e.target.value}))} 
-                        value={profileData.fees} 
-                      /> : 
-                      profileData.fees
-                    }
-                  </span>
-                </p>
-              </div>
-              
-              {/* Address section */}
-              <div>
-                <h2 className="text-lg font-medium text-neutral-800 mb-2">Location</h2>
-                <div className="flex gap-2">
-                  <div className="text-gray-600">
-                    {isEdit ? (
-                      <div className="space-y-2">
-                        <input 
-                          type="text" 
-                          className="w-full p-2 border rounded" 
-                          onChange={(e) => setProfileData(prev => ({...prev, address: {...prev.address, line1: e.target.value}}))} 
-                          value={profileData.address.line1} 
-                        />
-                        <input 
-                          type="text" 
-                          className="w-full p-2 border rounded" 
-                          onChange={(e) => setProfileData(prev => ({...prev, address: {...prev.address, line2: e.target.value}}))} 
-                          value={profileData.address.line2} 
-                        />
-                      </div>
-                    ) : (
-                      <p>
-                        {profileData.address.line1}<br />
-                        {profileData.address.line2}
-                      </p>
-                    )}
-                  </div>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+              <FaUserMd className="text-blue-600" />
+              {localProfileData.name}
+            </h1>
+            <p className="text-md text-gray-600 mt-1">
+              {localProfileData.degree} - {localProfileData.speciality}
+            </p>
+            <p className="text-sm text-gray-500">
+              {localProfileData.experience} years of experience
+            </p>
+          </div>
+        </div>
+
+        {/* Profile Details Grid */}
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* About Section */}
+          <div>
+            <h2 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+              <span className="material-icons text-blue-600">info</span>
+              About
+            </h2>
+            {isEdit ? (
+              <textarea
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-200 h-32"
+                value={localProfileData.about}
+                onChange={(e) => setLocalProfileData(prev => ({ ...prev, about: e.target.value }))}
+              />
+            ) : (
+              <p className="text-gray-600 leading-relaxed">
+                {localProfileData.about}
+              </p>
+            )}
+          </div>
+
+          {/* Profile Details */}
+          <div className="space-y-4">
+            {/* Fees Section */}
+            <div>
+              <h3 className="text-md font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                <FaMoneyBillWave className="text-green-600" />
+                Appointment Fee
+              </h3>
+              {isEdit ? (
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-600">{currency}</span>
+                  <input
+                    type="number"
+                    className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-200"
+                    value={localProfileData.fees}
+                    onChange={(e) => setLocalProfileData(prev => ({ ...prev, fees: e.target.value }))}
+                  />
                 </div>
-              </div>
-              
-              {/* Availability toggle */}
+              ) : (
+                <p className="text-gray-600">{currency}{localProfileData.fees}</p>
+              )}
+            </div>
+
+            {/* Location Section */}
+            <div>
+              <h3 className="text-md font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                <FaMapMarkerAlt className="text-red-600" />
+                Location
+              </h3>
+              {isEdit ? (
+                <div className="space-y-2">
+                  <input
+                    type="text"
+                    className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-200"
+                    value={localProfileData.address.line1}
+                    onChange={(e) => setLocalProfileData(prev => ({
+                      ...prev, 
+                      address: { ...prev.address, line1: e.target.value }
+                    }))}
+                  />
+                  <input
+                    type="text"
+                    className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-200"
+                    value={localProfileData.address.line2}
+                    onChange={(e) => setLocalProfileData(prev => ({
+                      ...prev, 
+                      address: { ...prev.address, line2: e.target.value }
+                    }))}
+                  />
+                </div>
+              ) : (
+                <p className="text-gray-600">
+                  {localProfileData.address.line1} <br />
+                  {localProfileData.address.line2}
+                </p>
+              )}
+            </div>
+
+            {/* Availability Section */}
+            <div>
+              <h3 className="text-md font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                <FaClock className="text-purple-600" />
+                Availability
+              </h3>
               <div className="flex items-center gap-2">
-                <input 
-                  onChange={() => isEdit && setProfileData(prev => ({...prev, available: !prev.available}))} 
-                  checked={profileData.available} 
-                  type="checkbox" 
-                  id="available" 
-                  className="h-4 w-4"
+                <input
+                  type="checkbox"
+                  id="available"
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+                  checked={localProfileData.available}
+                  onChange={() => isEdit && setLocalProfileData(prev => ({ ...prev, available: !prev.available }))}
                   disabled={!isEdit}
                 />
-                <label htmlFor="available" className="text-gray-700">Available for appointments</label>
-              </div>
-              
-              {/* Action button */}
-              <div className="pt-4">
-                {isEdit ? (
-                  <button 
-                    onClick={updateProfile} 
-                    className="px-6 py-2 border border-primary text-sm rounded-full hover:bg-primary hover:text-white transition-all"
-                  >
-                    Save Changes
-                  </button>
-                ) : (
-                  <button 
-                    onClick={() => setIsEdit(true)} 
-                    className="px-6 py-2 border border-primary text-sm rounded-full hover:bg-primary hover:text-white transition-all"
-                  >
-                    Edit Profile
-                  </button>
-                )}
+                <label 
+                  htmlFor="available" 
+                  className={`text-sm ${localProfileData.available ? 'text-green-600' : 'text-gray-500'}`}
+                >
+                  {localProfileData.available ? 'Currently Available' : 'Not Available'}
+                </label>
               </div>
             </div>
           </div>
         </div>
+
+        {/* Action Buttons */}
+        <div className="mt-8 flex justify-end gap-3">
+          {isEdit ? (
+            <>
+              <button
+                onClick={handleCancel}
+                className="px-4 py-2 border border-gray-300 text-sm rounded text-gray-700 flex items-center gap-2 hover:bg-gray-100 transition"
+              >
+                <FaTimes /> Cancel
+              </button>
+              <button
+                onClick={updateProfile}
+                className="px-4 py-2 bg-blue-600 text-white text-sm rounded flex items-center gap-2 hover:bg-blue-700 transition disabled:opacity-50"
+                disabled={isLoading}
+              >
+                {isLoading ? <FaSpinner className="animate-spin" /> : <FaSave />}
+                Save Changes
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={() => setIsEdit(true)}
+              className="px-4 py-2 border border-blue-600 text-blue-600 text-sm rounded flex items-center gap-2 hover:bg-blue-50 transition"
+            >
+              <FaEdit /> Edit Profile
+            </button>
+          )}
+        </div>
       </div>
     </div>
-  )
-}
+  );
+};
