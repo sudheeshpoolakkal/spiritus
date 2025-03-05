@@ -1,52 +1,58 @@
 import { createContext, useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 export const AppContext = createContext();
 
 const AppContextProvider = (props) => {
-  const currencySymbol = '₹';
+  const navigate = useNavigate();
+  const currencySymbol = "₹";
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   const [doctors, setDoctors] = useState([]);
-  const [token, setToken] = useState(localStorage.getItem('token') ? localStorage.getItem('token') : false);
+  const [token, setToken] = useState(
+    localStorage.getItem("token") ? localStorage.getItem("token") : false
+  );
   const [userData, setUserData] = useState(false);
-  const [appointments, setAppointments] = useState([]); // Added appointments state
+  const [appointments, setAppointments] = useState([]);
 
   const getDoctorsData = async () => {
     try {
-      const { data } = await axios.get(backendUrl + '/api/doctor/list');
+      const { data } = await axios.get(backendUrl + "/api/doctor/list");
       if (data.success) {
         setDoctors(data.doctors);
       } else {
         toast.error(data.message);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       toast.error(error.message);
     }
   };
 
   const loadUserProfileData = async () => {
     try {
-      const { data } = await axios.get(backendUrl + '/api/user/get-profile', { headers: { token } });
+      const { data } = await axios.get(backendUrl + "/api/user/get-profile", {
+        headers: { token },
+      });
       if (data.success) {
         setUserData(data.userData);
       } else {
         toast.error(data.message);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       toast.error(error.message);
     }
   };
 
-  // Add loadAppointments to refresh the appointments list
   const loadAppointments = async () => {
     try {
-      const { data } = await axios.get(backendUrl + '/api/user/appointments', { headers: { token } });
+      const { data } = await axios.get(backendUrl + "/api/user/appointments", {
+        headers: { token },
+      });
       if (data.success) {
-        // For each completed & paid appointment, fetch prescription details
         const appointmentsWithPrescriptions = await Promise.all(
           data.appointments.map(async (appointment) => {
             if (appointment.isCompleted && appointment.payment) {
@@ -73,7 +79,6 @@ const AppContextProvider = (props) => {
       toast.error(error.message);
     }
   };
-  
 
   useEffect(() => {
     getDoctorsData();
@@ -88,6 +93,15 @@ const AppContextProvider = (props) => {
     }
   }, [token]);
 
+  // Logout function clears token and userData then navigates to login.
+  const logout = () => {
+    console.log("Executing logout");
+    localStorage.removeItem("token");
+    setToken(false);
+    setUserData(false);
+    navigate("/login");
+  };
+
   const value = {
     doctors,
     getDoctorsData,
@@ -98,8 +112,9 @@ const AppContextProvider = (props) => {
     userData,
     setUserData,
     loadUserProfileData,
-    appointments,       // provide appointments
-    loadAppointments,   // provide loadAppointments
+    appointments,
+    loadAppointments,
+    logout, // expose logout
   };
 
   return <AppContext.Provider value={value}>{props.children}</AppContext.Provider>;

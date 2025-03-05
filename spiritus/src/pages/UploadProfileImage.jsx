@@ -36,7 +36,8 @@ const UploadProfileImage = () => {
         `${backendUrl}/api/user/upload-profile-image`,
         formData,
         { headers: { token } }
-      );
+      );      
+      
 
       if (data.success) {
         toast.success(data.message);
