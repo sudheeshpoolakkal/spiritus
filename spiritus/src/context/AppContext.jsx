@@ -80,6 +80,23 @@ const AppContextProvider = (props) => {
     }
   };
 
+  // Added getPrescription function to fetch a prescription by appointment ID
+  const getPrescription = async (appointmentId) => {
+    try {
+      const { data } = await axios.get(
+        `${backendUrl}/api/prescription/user/${appointmentId}`,
+        { headers: { token } }
+      );
+      if (data.success) {
+        return data.prescription;
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
   useEffect(() => {
     getDoctorsData();
   }, []);
@@ -115,6 +132,7 @@ const AppContextProvider = (props) => {
     appointments,
     loadAppointments,
     logout, // expose logout
+    getPrescription, // added getPrescription to context value
   };
 
   return <AppContext.Provider value={value}>{props.children}</AppContext.Provider>;

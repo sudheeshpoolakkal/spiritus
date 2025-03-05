@@ -44,6 +44,7 @@ const App = () => {
           <Route path='/checkout' element={<Checkout />} />
           <Route path='/appointment/:docId' element={<Appointment />} />
           <Route path="/upload-profile" element={<UploadProfileImage />} />
+          <Route path="/user-prescription" element={<UserPrescription />} />
         </Routes>
       </div>
       
