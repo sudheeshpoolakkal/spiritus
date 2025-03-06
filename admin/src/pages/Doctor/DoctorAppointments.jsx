@@ -49,7 +49,8 @@ const DoctorAppointments = () => {
   const handleSetVideoCallLink = async (appointmentId) => {
     const link = prompt("Enter video call link (e.g., https://meet.example.com):");
     if (link) {
-      const formattedLink = link.startsWith("http://") || link.startsWith("https://") ? link : `https://${link}`;
+      const formattedLink =
+        link.startsWith("http://") || link.startsWith("https://") ? link : `https://${link}`;
       await setVideoCallLink(appointmentId, formattedLink);
       setVideoCallLinks((prev) => ({ ...prev, [appointmentId]: formattedLink }));
     }
@@ -108,36 +109,39 @@ const DoctorAppointments = () => {
                 {appointments.length === 0 ? (
                   <div className="p-3 text-center text-gray-500">No appointments found.</div>
                 ) : (
-                  appointments.slice().reverse().map((item) => (
-                    <motion.div
-                      key={item._id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className={`p-3 border-b border-gray-100 last:border-0 hover:bg-gray-50 cursor-pointer transition-colors ${
-                        selectedAppointment?._id === item._id ? "bg-blue-50" : ""
-                      }`}
-                      onClick={() => setSelectedAppointment(item)}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <img
-                            className="w-10 h-10 rounded-full object-cover shadow-sm"
-                            src={item.userData?.image || assets.defaultImage}
-                            alt={item.userData?.name || "Patient"}
-                          />
-                          <div>
-                            <h3 className="text-sm font-medium text-gray-800">
-                              {item.userData?.name || "Unknown"}
-                            </h3>
-                            <p className="text-xs text-gray-500">
-                              {slotDateFormat(item.slotDate)}, {item.slotTime}
-                            </p>
+                  appointments
+                    .slice()
+                    .reverse()
+                    .map((item) => (
+                      <motion.div
+                        key={item._id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className={`p-3 border-b border-gray-100 last:border-0 hover:bg-gray-50 cursor-pointer transition-colors ${
+                          selectedAppointment?._id === item._id ? "bg-blue-50" : ""
+                        }`}
+                        onClick={() => setSelectedAppointment(item)}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <img
+                              className="w-10 h-10 rounded-full object-cover shadow-sm"
+                              src={item.userData?.image || assets.defaultImage}
+                              alt={item.userData?.name || "Patient"}
+                            />
+                            <div>
+                              <h3 className="text-sm font-medium text-gray-800">
+                                {item.userData?.name || "Unknown"}
+                              </h3>
+                              <p className="text-xs text-gray-500">
+                                {slotDateFormat(item.slotDate)}, {item.slotTime}
+                              </p>
+                            </div>
                           </div>
+                          <StatusBadge item={item} />
                         </div>
-                        <StatusBadge item={item} />
-                      </div>
-                    </motion.div>
-                  ))
+                      </motion.div>
+                    ))
                 )}
               </div>
 
@@ -152,34 +156,37 @@ const DoctorAppointments = () => {
                 {appointments.length === 0 ? (
                   <div className="p-3 text-center text-gray-500">No appointments found.</div>
                 ) : (
-                  appointments.slice().reverse().map((item, index) => (
-                    <motion.div
-                      key={item._id}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className={`grid grid-cols-[40px_1fr_1fr_100px] gap-3 items-center px-4 py-3 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors ${
-                        selectedAppointment?._id === item._id ? "bg-blue-50" : ""
-                      }`}
-                      onClick={() => setSelectedAppointment(item)}
-                    >
-                      <span className="text-gray-500 text-sm">{index + 1}</span>
-                      <div className="flex items-center gap-2">
-                        <img
-                          className="w-8 h-8 rounded-full object-cover shadow-sm"
-                          src={item.userData?.image || assets.defaultImage}
-                          alt={item.userData?.name || "Patient"}
-                        />
-                        <span className="text-sm font-medium text-gray-800 truncate">
-                          {item.userData?.name || "Unknown"}
-                        </span>
-                      </div>
-                      <div>
-                        <p className="text-gray-800 text-sm">{slotDateFormat(item.slotDate)}</p>
-                        <p className="text-xs text-gray-500">{item.slotTime}</p>
-                      </div>
-                      <StatusBadge item={item} />
-                    </motion.div>
-                  ))
+                  appointments
+                    .slice()
+                    .reverse()
+                    .map((item, index) => (
+                      <motion.div
+                        key={item._id}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className={`grid grid-cols-[40px_1fr_1fr_100px] gap-3 items-center px-4 py-3 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors ${
+                          selectedAppointment?._id === item._id ? "bg-blue-50" : ""
+                        }`}
+                        onClick={() => setSelectedAppointment(item)}
+                      >
+                        <span className="text-gray-500 text-sm">{index + 1}</span>
+                        <div className="flex items-center gap-2">
+                          <img
+                            className="w-8 h-8 rounded-full object-cover shadow-sm"
+                            src={item.userData?.image || assets.defaultImage}
+                            alt={item.userData?.name || "Patient"}
+                          />
+                          <span className="text-sm font-medium text-gray-800 truncate">
+                            {item.userData?.name || "Unknown"}
+                          </span>
+                        </div>
+                        <div>
+                          <p className="text-gray-800 text-sm">{slotDateFormat(item.slotDate)}</p>
+                          <p className="text-xs text-gray-500">{item.slotTime}</p>
+                        </div>
+                        <StatusBadge item={item} />
+                      </motion.div>
+                    ))
                 )}
               </div>
             </div>
@@ -251,6 +258,16 @@ const DoctorAppointments = () => {
                       <h4 className="text-sm font-semibold text-gray-700 mb-2">Patient Notes</h4>
                       <div className="bg-white border border-gray-100 rounded-lg p-3 text-sm text-gray-600 leading-relaxed">
                         {selectedAppointment.patientDescription}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Voice Message Section moved under Patient Notes */}
+                  {selectedAppointment.audioMessage && (
+                    <div className="mb-5">
+                      <h4 className="text-sm font-semibold text-gray-700 mb-2">Voice Message</h4>
+                      <div className="bg-white border border-gray-100 rounded-lg p-3">
+                        <audio controls src={selectedAppointment.audioMessage} className="w-full" />
                       </div>
                     </div>
                   )}
