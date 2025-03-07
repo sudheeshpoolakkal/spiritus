@@ -1,12 +1,12 @@
-import validator from 'validator';
-import bcrypt from 'bcrypt';
-import userModel from '../models/userModel.js';
-import jwt from 'jsonwebtoken';
-import doctorModel from '../models/doctorModel.js';
-import appointmentModel from '../models/appointmentModel.js';
+import validator from 'validator'
+import bcrypt from 'bcrypt'
+import userModel from '../models/userModel.js'
+import jwt from 'jsonwebtoken'
+import doctorModel from '../models/doctorModel.js'
+import appointmentModel from '../models/appointmentModel.js'
 import feedbackModel from "../models/feedbackModel.js";
+//import razorpay from 'razorpay'
 import { v2 as cloudinary } from 'cloudinary';
-
 // API to register user
 const registerUser = async (req, res) => {
     try {
@@ -16,10 +16,12 @@ const registerUser = async (req, res) => {
             return res.json({ success: false, message: "Missing Dtails..." });
         }
 
+        // Validating Email Format
         if (!validator.isEmail(email)) {
             return res.json({ success: false, message: "Enter a valid email..." });
         }
 
+        // Validating Strong Password
         if (password.length < 8) {
             return res.json({
                 success: false,
@@ -27,10 +29,15 @@ const registerUser = async (req, res) => {
             });
         }
 
+        // Hashing User Password
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        const userData = { name, email, password: hashedPassword };
+        const userData = {
+            name,
+            email,
+            password: hashedPassword,
+        };
 
         const newUser = new userModel(userData);
         const user = await newUser.save();
@@ -44,7 +51,6 @@ const registerUser = async (req, res) => {
     }
 };
 
-// API to log in user
 const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -68,7 +74,7 @@ const loginUser = async (req, res) => {
     }
 };
 
-// API to get user profile data
+//API TO GET USER PROFILE DATA
 const getProfile = async (req, res) => {
     try {
         const { userId } = req.body;
@@ -80,11 +86,11 @@ const getProfile = async (req, res) => {
     }
 };
 
-// API to update user profile
+//API TO UPDATE USER PROFILE
 const updateProfile = async (req, res) => {
   try {
     const { userId, name, phone, address, dob, gender } = req.body;
-    const imageFile = req.file;
+    const imageFile = req.file; // using multer's memoryStorage
 
     if (!name || !phone || !dob || !gender) {
       return res.json({ success: false, message: "Data Missing" });
@@ -106,11 +112,16 @@ const updateProfile = async (req, res) => {
           const uploadStream = cloudinary.uploader.upload_stream(
             { 
               resource_type: "image",
-              transformation: [{ crop: "fill", aspect_ratio: "1.0", gravity: "auto" }]
+              transformation: [
+                { crop: "fill", aspect_ratio: "1.0", gravity: "auto" }
+              ]
             },
             (error, result) => {
-              if (error) reject(error);
-              else resolve(result);
+              if (error) {
+                reject(error);
+              } else {
+                resolve(result);
+              }
             }
           );
           uploadStream.end(imageFile.buffer);
@@ -132,10 +143,10 @@ const updateProfile = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
-
-// API to upload profile image
+// NEW FUNCTION: uploadProfileImage
 const uploadProfileImage = async (req, res) => {
     try {
+      // Use the userId from req.body if available; otherwise, decode the token manually.
       let userId = req.body.userId;
       if (!userId) {
         const { token } = req.headers;
@@ -154,6 +165,7 @@ const uploadProfileImage = async (req, res) => {
         return res.json({ success: false, message: "No image file provided" });
       }
   
+      // Auto-crop to a 1:1 aspect ratio using Cloudinary transformation
       let imageUrl;
       try {
         const result = await new Promise((resolve, reject) => {
@@ -181,20 +193,20 @@ const uploadProfileImage = async (req, res) => {
       console.error("uploadProfileImage Error:", error);
       res.json({ success: false, message: error.message });
     }
-};
+  };
 
-// API to book an appointment (with optional audio message)
+
+// API to Book Appointment
 const bookAppointment = async (req, res) => {
   try {
       const { userId, docId, slotDate, slotTime, patientDescription } = req.body;
       const docData = await doctorModel.findById(docId).select('-password');
-
       if (!docData || !docData.available) {
           return res.json({ success: false, message: 'Doctor not Available' });
       }
-
       let slots_booked = docData.slots_booked || {};
 
+      // Checking for slot availability
       if (slots_booked[slotDate]) {
           if (slots_booked[slotDate].includes(slotTime)) {
               return res.json({ success: false, message: 'Slot not Available' });
@@ -205,6 +217,7 @@ const bookAppointment = async (req, res) => {
       }
 
       const userData = await userModel.findById(userId).select('-password');
+      // Remove sensitive data before adding to appointment data
       delete docData.slots_booked;
 
       const appointmentData = {
@@ -224,11 +237,13 @@ const bookAppointment = async (req, res) => {
         try {
           const result = await new Promise((resolve, reject) => {
             const uploadStream = cloudinary.uploader.upload_stream(
-                { resource_type: "raw" },
-
+              { resource_type: "video" },
               (error, result) => {
-                if (error) reject(error);
-                else resolve(result);
+                if (error) {
+                  reject(error);
+                } else {
+                  resolve(result);
+                }
               }
             );
             uploadStream.end(req.file.buffer);
@@ -242,49 +257,63 @@ const bookAppointment = async (req, res) => {
 
       const newAppointment = new appointmentModel(appointmentData);
       await newAppointment.save();
+      // Save updated slots data in docData
       await doctorModel.findByIdAndUpdate(docId, { slots_booked });
 
       res.json({ success: true, message: 'Pay to confirm the appointment!' });
-  }
-  catch (error) {
+  } catch (error) {
       console.log(error);
       res.json({ success: false, message: error.message });
   }
 };
 
-// API to list appointments
+// API to get user appointments for frontend my-appointments page
 const listAppointment = async (req, res) => {
     try {
-        const { userId } = req.body;
-        const appointments = await appointmentModel.find({ userId });
-        res.json({ success: true, appointments });
+
+        const { userId } = req.body
+        const appointments = await appointmentModel.find({ userId })
+
+        res.json({ success: true, appointments })
+
     }
     catch (error) {
-        console.log(error);
-        res.json({ success: false, message: error.message });
+        console.log(error)
+        res.json({ success: false, message: error.message })
     }
-};
+}
 
-// API to cancel an appointment
+
+
+//  API to cancel appointment
 const cancelAppointment = async (req, res) => {
     try {
         const { userId, appointmentId } = req.body;
+
         const appointmentData = await appointmentModel.findById(appointmentId);
 
         if (!appointmentData) {
             return res.json({ success: false, message: "Appointment not found" });
         }
 
+
+
         if (appointmentData.userId.toString() !== userId) {
             return res.json({ success: false, message: "Unauthorized action.." });
         }
 
         await appointmentModel.findByIdAndUpdate(appointmentId, { cancelled: true });
+
         const { docId, slotDate, slotTime } = appointmentData;
+
         const doctorData = await doctorModel.findById(docId);
+
         let slots_booked = doctorData.slots_booked;
+
         if (slots_booked && slots_booked[slotDate]) {
             slots_booked[slotDate] = slots_booked[slotDate].filter(e => e !== slotTime);
+
+            //await doctorModel.findByIdAndUpdate(docId, { slots_booked });
         }
 
         res.json({ success: true, message: "Appointment Cancelled.." });
@@ -294,31 +323,35 @@ const cancelAppointment = async (req, res) => {
     }
 };
 
-// API to get video call link for an appointment
+
 const getVideoCallLink = async (req, res) => {
     try {
         const { appointmentId } = req.params;
+
         const appointment = await appointmentModel.findById(appointmentId);
         if (!appointment) {
             return res.status(404).json({ error: "Appointment not found" });
         }
-        res.json({ videoCallLink: appointment.videoCallLink || "" });
+
+        res.json({ videoCallLink: appointment.videoCallLink || "" }); // Return only the link
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
 
-// API to process payment for an appointment
+//API TO PROCESS DEMO PAYMENT
 const processPayment = async (req, res) => {
     try {
       const { appointmentId } = req.body;
       const appointmentData = await appointmentModel.findById(appointmentId);
+      
       console.log("Processing payment for appointment:", appointmentData);
       
       if (!appointmentData || appointmentData.cancelled || appointmentData.payment) {
         return res.status(400).json({ success: false, message: "Invalid appointment" });
       }
       
+      // Mark appointment as paid.
       appointmentData.payment = true;
       await appointmentData.save();
       
@@ -327,10 +360,9 @@ const processPayment = async (req, res) => {
       console.error(error);
       res.status(500).json({ success: false, message: error.message });
     }
-};
+  };
 
-// API to rate a doctor
-const rateDoctor = async (req, res) => {
+  const rateDoctor = async (req, res) => {
     try {
         const { appointmentId, rating, review, docId, userId } = req.body;
 
@@ -348,6 +380,7 @@ const rateDoctor = async (req, res) => {
             });
         }
 
+        // Find the appointment
         const appointment = await appointmentModel.findById(appointmentId);
 
         if (!appointment) {
@@ -357,6 +390,7 @@ const rateDoctor = async (req, res) => {
             });
         }
 
+        // Verify that the appointment belongs to the user
         if (appointment.userId !== userId) {
             return res.status(403).json({
                 success: false,
@@ -364,6 +398,7 @@ const rateDoctor = async (req, res) => {
             });
         }
 
+        // Check if the appointment has already been rated/reviewed
         if (appointment.rating) {
             return res.status(400).json({
                 success: false,
@@ -371,6 +406,7 @@ const rateDoctor = async (req, res) => {
             });
         }
 
+        // Verify that the appointment is completed
         if (!appointment.isCompleted || appointment.cancelled) {
             return res.status(400).json({
                 success: false,
@@ -378,12 +414,14 @@ const rateDoctor = async (req, res) => {
             });
         }
 
+        // Update the appointment with the rating & review
         appointment.rating = rating;
         if (review) {
-            appointment.review = review;
+            appointment.review = review; // Store review only if provided
         }
         await appointment.save();
 
+        // Update the doctor's rating and review
         const doctor = await doctorModel.findById(docId);
 
         if (!doctor) {
@@ -393,13 +431,16 @@ const rateDoctor = async (req, res) => {
             });
         }
 
+        // Calculate new rating average
         const totalRating = doctor.rating * doctor.ratingCount + rating;
         const newRatingCount = doctor.ratingCount + 1;
         const newRating = totalRating / newRatingCount;
 
+        // Update the doctor's record
         doctor.rating = newRating;
         doctor.ratingCount = newRatingCount;
 
+        // Add the review to the doctor's review array if provided
         if (review) {
             doctor.reviews.push({ userId, rating, review });
         }
@@ -426,19 +467,21 @@ const rateDoctor = async (req, res) => {
     }
 };
 
-// API to submit user feedback
 const submitFeedback = async (req, res) => {
   try {
     const { name, email, message } = req.body;
     
+    // Check if all fields are provided
     if (!name || !email || !message) {
       return res.json({ success: false, message: "Please fill all fields" });
     }
     
+    // Validate email format
     if (!validator.isEmail(email)) {
       return res.json({ success: false, message: "Please enter a valid email" });
     }
     
+    // Create new feedback
     const feedback = new feedbackModel({
       name,
       email,
@@ -454,3 +497,7 @@ const submitFeedback = async (req, res) => {
   }
 };
 
+  
+       
+
+export { registerUser, loginUser, getProfile, uploadProfileImage, updateProfile, bookAppointment, listAppointment, cancelAppointment, getVideoCallLink, processPayment, rateDoctor, submitFeedback  };

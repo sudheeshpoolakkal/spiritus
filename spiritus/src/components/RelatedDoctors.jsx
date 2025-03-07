@@ -57,7 +57,7 @@ function RelatedDoctors({ speciality, docId }) {
                   </span>
                 </div>
                 {/* Rating */}
-                <div className="flex items-center gap-1 text-yellow-500">
+                <div className="flex items-center gap-1 text-yellow-300">
                   <FaStar className="text-sm" />
                   <span className="text-xs text-gray-700">
                     {item.rating ? item.rating.toFixed(1) : 'No ratings'}
@@ -80,7 +80,7 @@ function RelatedDoctors({ speciality, docId }) {
           navigate('/doctors');
           window.scrollTo(0, 0);
         }}
-        className="bg-blue-600 hover:bg-blue-700 text-white px-10 py-3 rounded-full transition-colors duration-300 mt-8"
+        className="bg-green-600 hover:bg-primary text-white px-10 py-3 rounded-full transition-colors duration-300 mt-8"
       >
         More
       </button>
