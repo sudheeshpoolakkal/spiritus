@@ -4,6 +4,13 @@
   padding: 2rem;
   text-align: center;
 }
+@font-face {
+  font-family: 'Computer Modern';
+  src: url('/fonts/ComputerModern-Regular.woff2') format('woff2'),
+       url('/fonts/ComputerModern-Regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
 
 .logo {
   height: 3em;
