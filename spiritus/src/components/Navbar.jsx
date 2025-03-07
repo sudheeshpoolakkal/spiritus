@@ -100,7 +100,7 @@ const Navbar = () => {
         } transition-transform duration-300 z-50`}
       >
         <div className="flex items-center justify-between px-5 py-6 border-b border-gray-200">
-          <img className="w-36" src={assets.logo} alt="Logo" />
+          <img className="w-20" src={assets.logo} alt="Logo" />
           <button onClick={() => setShowMenu(false)}>
             <img className="w-7 cursor-pointer" src={assets.cross_icon} alt="Close" />
           </button>
