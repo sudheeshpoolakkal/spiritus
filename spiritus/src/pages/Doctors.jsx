@@ -12,12 +12,13 @@ const Doctors = () => {
   const navigate = useNavigate();
 
   const specialties = [
-    'General physician',
-    'Gynecologist',
-    'Dermatologist',
-    'Pediatricians',
-    'Neurologist',
-    'Gastroenterologist'
+    'Psychologist',
+    'Hypnotherapist',
+    'Psychiatrist',
+    'Neuropsychologist',
+    'Psychoanalyst',
+    'SocialWorker',
+
   ];
 
   // Apply filter based on selected speciality
