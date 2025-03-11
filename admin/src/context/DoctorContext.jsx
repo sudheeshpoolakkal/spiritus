@@ -78,6 +78,7 @@ const DoctorContextProvider = (props) => {
       const docId = localStorage.getItem("docId");
       if (!docId) {
         toast.error("Doctor id not found");
+        console.log(docId);
         return;
       }
       const { data } = await axios.post(

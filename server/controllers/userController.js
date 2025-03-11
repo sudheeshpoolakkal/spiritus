@@ -200,14 +200,11 @@ const uploadProfileImage = async (req, res) => {
 const bookAppointment = async (req, res) => {
   try {
       const { userId, docId, slotDate, slotTime, patientDescription } = req.body;
-
       const docData = await doctorModel.findById(docId).select('-password');
-
       if (!docData || !docData.available) {
           return res.json({ success: false, message: 'Doctor not Available' });
       }
-
-      let slots_booked = docData.slots_booked || {}; // Ensure slots_booked is initialized
+      let slots_booked = docData.slots_booked || {};
 
       // Checking for slot availability
       if (slots_booked[slotDate]) {
@@ -220,7 +217,6 @@ const bookAppointment = async (req, res) => {
       }
 
       const userData = await userModel.findById(userId).select('-password');
-
       // Remove sensitive data before adding to appointment data
       delete docData.slots_booked;
 
@@ -233,22 +229,43 @@ const bookAppointment = async (req, res) => {
           slotTime,
           slotDate,
           date: Date.now(),
-          patientDescription: patientDescription || '' // Add patient description
+          patientDescription: patientDescription || ''
       };
+
+      // If an audio file is provided, upload it to Cloudinary and add the URL
+      if (req.file) {
+        try {
+          const result = await new Promise((resolve, reject) => {
+            const uploadStream = cloudinary.uploader.upload_stream(
+              { resource_type: "video" },
+              (error, result) => {
+                if (error) {
+                  reject(error);
+                } else {
+                  resolve(result);
+                }
+              }
+            );
+            uploadStream.end(req.file.buffer);
+          });
+          appointmentData.audioMessage = result.secure_url;
+        } catch (cloudinaryError) {
+          console.error("Cloudinary Audio Upload Error:", cloudinaryError);
+          return res.json({ success: false, message: "Audio upload failed." });
+        }
+      }
 
       const newAppointment = new appointmentModel(appointmentData);
       await newAppointment.save();
-
       // Save updated slots data in docData
       await doctorModel.findByIdAndUpdate(docId, { slots_booked });
 
       res.json({ success: true, message: 'Pay to confirm the appointment!' });
+  } catch (error) {
+      console.log(error);
+      res.json({ success: false, message: error.message });
   }
-  catch (error) {
-      console.log(error)
-      res.json({ success: false, message: error.message })
-  }
-}
+};
 
 // API to get user appointments for frontend my-appointments page
 const listAppointment = async (req, res) => {

@@ -66,7 +66,7 @@ const appointmentsDoctor = async (req, res) => {
     try {
         const { docId } = req.body;
         // No need to modify the query as the appointments collection already includes patientDescription
-        const appointments = await appointmentModel.find({ docId });
+        const appointments = await appointmentModel.find({ docId }).select('+audioMessage');
         res.json({ success: true, appointments });
     } catch (error) {
         console.log(error);
@@ -136,7 +136,8 @@ const doctorDashboard = async (req, res) => {
         if (!docId) {
             return res.status(400).json({ success: false, message: "Doctor id is missing" });
         }
-        const appointments = await appointmentModel.find({ docId });
+        const appointments = await appointmentModel.find({ docId }).select('+audioMessage');
+        console.log(appointments); // Log the fetched appointments for debugging
         let earnings = 0;
         appointments.forEach((item) => {
             if (item.isCompleted || item.payment) {

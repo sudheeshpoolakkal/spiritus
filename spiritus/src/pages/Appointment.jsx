@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
+import AudioRecorder from '../components/AudioRecorder';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AppContext } from '../context/AppContext';
 import { assets } from '../assets/assets_frontend/assets';
@@ -25,6 +26,7 @@ const Appointment = () => {
   const [doctorReviews, setDoctorReviews] = useState([]);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('booking'); // 'booking', 'reviews', 'rate'
+  const [recordedAudio, setRecordedAudio] = useState(null);
 
   const fetchDocInfo = () => {
     if (doctors?.length > 0 && docId) {
@@ -57,9 +59,7 @@ const Appointment = () => {
   const fetchCompletedAppointments = () => {
     if (appointments && docId) {
       const completed = appointments.filter(
-
         app => app.docId === docId && app.isCompleted && !app.cancelled && !app.rating
-
       );
       setCompletedAppointments(completed);
       if (completed.length > 0) {
@@ -98,14 +98,12 @@ const Appointment = () => {
 
         const slotIsPaid = appointments
           ? appointments.some(
-
               app =>
                 app.docData._id === docInfo._id &&
                 app.slotDate === slotDate &&
                 app.slotTime === formattedTime &&
                 app.payment === true
             )
-
           : false;
 
         if (!slotIsPaid) {
@@ -118,7 +116,6 @@ const Appointment = () => {
       }
 
       availableSlots.push(daySlots);
-
     }
     
     setDocSlots(availableSlots);
@@ -152,21 +149,45 @@ const Appointment = () => {
       let year = date.getFullYear();
       const slotDate = `${day}_${month}_${year}`;
 
-      const { data } = await axios.post(
-        backendUrl + '/api/user/book-appointment',
-        { docId, slotDate, slotTime, patientDescription },
-        { headers: { token } }
-      );
+      if (recordedAudio) {
+        const formData = new FormData();
+        formData.append('docId', docId);
+        formData.append('slotDate', slotDate);
+        formData.append('slotTime', slotTime);
+        formData.append('patientDescription', patientDescription);
+        formData.append('audioMessage', recordedAudio, 'audioMessage.webm');
 
-      if (data.success) {
-        toast.success(data.message);
-        // Update the local appointments to reflect the new booking
-        await getDoctorsData();
-        // Refresh available slots to immediately reflect the booking
-        getAvailableSlot();
-        navigate('/my-appointments');
+        const { data } = await axios.post(
+          backendUrl + '/api/user/book-appointment',
+          formData,
+          { headers: { token, 'Content-Type': 'multipart/form-data' } }
+        );
+
+        if (data.success) {
+          toast.success(data.message);
+          await getDoctorsData();
+          getAvailableSlot();
+          navigate('/my-appointments');
+        } else {
+          toast.error(data.message);
+        }
       } else {
-        toast.error(data.message);
+        const { data } = await axios.post(
+          backendUrl + '/api/user/book-appointment',
+          { docId, slotDate, slotTime, patientDescription },
+          { headers: { token } }
+        );
+
+        if (data.success) {
+          toast.success(data.message);
+          // Update the local appointments to reflect the new booking
+          await getDoctorsData();
+          // Refresh available slots to immediately reflect the booking
+          getAvailableSlot();
+          navigate('/my-appointments');
+        } else {
+          toast.error(data.message);
+        }
       }
     } catch (error) {
       toast.error(error.message);
@@ -191,9 +212,7 @@ const Appointment = () => {
       return;
     }
     try {
-
       const userId = localStorage.getItem('userId');
-
       const { data } = await axios.post(
         `${backendUrl}/api/user/rate-doctor`,
         { appointmentId, rating, review, docId, userId },
@@ -249,19 +268,16 @@ const Appointment = () => {
   }, [appointments, docId]);
 
   if (!docInfo) {
-
     return (
       <div className="flex justify-center items-center min-h-screen bg-white">
         <div className="animate-pulse flex flex-col items-center">
           <div className="h-32 w-32 bg-gray-200 rounded-full mb-4"></div>
           <div className="h-6 w-48 bg-gray-200 rounded mb-4"></div>
           <div className="h-4 w-64 bg-gray-200 rounded"></div>
-
         </div>
       </div>
     );
   }
-
 
   // Star rating component
   const StarRating = ({ rating, size = "sm", interactive = false, onChange, hoverValue = 0, onHover }) => {
@@ -375,7 +391,6 @@ const Appointment = () => {
                     <span className="ml-2 text-sm font-medium text-gray-700">
                       {docInfo.rating?.toFixed(1) || "0.0"}
                     </span>
-
                   </div>
                   <span className="text-xs text-gray-500">({docInfo.ratingCount || 0} ratings)</span>
                   <span className="text-xs px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full border border-blue-100">
@@ -447,7 +462,6 @@ const Appointment = () => {
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
               {docSlots.length > 0 &&
                 docSlots[slotIndex].map((item, index) => (
-
                   <button
                     key={index}
                     onClick={() => setSlotTime(item.time)}
@@ -472,6 +486,8 @@ const Appointment = () => {
               className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none text-gray-700"
               rows="4"
             />
+            {/* Added AudioRecorder for voice description */}
+            <AudioRecorder onAudioRecorded={setRecordedAudio} />
             
             <div className="mt-6">
               <button
@@ -508,7 +524,6 @@ const Appointment = () => {
                 <span className="text-gray-500 ml-1">({docInfo.ratingCount || 0})</span>
               </span>
             </div>
-
           </div>
           
           {loading ? (

@@ -1,7 +1,7 @@
-import React, { useContext, useState } from 'react';
-import { assets } from '../assets/assets_frontend/assets';
-import { NavLink, useNavigate } from 'react-router-dom';
-import { AppContext } from '../context/AppContext';
+import React, { useContext, useState } from "react";
+import { assets } from "../assets/assets_frontend/assets";
+import { NavLink, useNavigate } from "react-router-dom";
+import { AppContext } from "../context/AppContext";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -10,21 +10,30 @@ const Navbar = () => {
 
   const logout = () => {
     setToken(false);
-    localStorage.removeItem('token');
-    navigate('/login');
+    localStorage.removeItem("token");
+    navigate("/login");
   };
 
   return (
-    <nav className="fixed top-0 left-0 w-full z-40 bg-white/90 backdrop-blur-sm shadow-[0_4px_8px_rgba(0,0,0,0.1)]
- py-2 px-4 md:px-8">
-      <div className="max-w-[1200px] mx-auto flex items-center justify-between">
-        {/* Logo */}
-        <img
-          onClick={() => navigate("/")}
-          className="w-44 cursor-pointer"
-          src={assets.logo}
-          alt="Logo"
-        />
+    <nav className="fixed top-0 left-0 w-full z-40 bg-white/90 backdrop-blur-sm shadow-[0_4px_8px_rgba(0,0,0,0.1)] h-16 px-4 md:px-8 flex items-center">
+      <div className="max-w-[1200px] w-full mx-auto flex items-center justify-between">
+        {/* Logo + Text Container with slight negative left margin */}
+        <div className="flex items-center -ml-16 h-12">
+          <img
+            onClick={() => navigate("/")}
+            style={{ transform: "scale(1.7)" }}
+            className="h-full w-auto cursor-pointer object-contain"
+            src={assets.logo}
+            alt="Logo"
+          />
+          <span
+            onClick={() => navigate("/")}
+            style={{ fontFamily: '"Computer Modern", serif' }}
+            className="text-2xl font-medium ml-2 cursor-pointer"
+          >
+            spiritus
+          </span>
+        </div>
 
         {/* Desktop Menu */}
         <ul className="hidden md:flex items-center gap-8 font-medium">
@@ -45,8 +54,8 @@ const Navbar = () => {
           ))}
         </ul>
 
-        {/* Right Side */}
-        <div className="flex items-center gap-4">
+        {/* Right Side Container with slight negative right margin */}
+        <div className="flex items-center gap-4 -mr-16">
           {token && userData ? (
             // Profile Dropdown
             <div className="relative group flex items-center gap-2 cursor-pointer">
@@ -100,23 +109,39 @@ const Navbar = () => {
         } transition-transform duration-300 z-50`}
       >
         <div className="flex items-center justify-between px-5 py-6 border-b border-gray-200">
-          <img className="w-36" src={assets.logo} alt="Logo" />
-          <button onClick={() => setShowMenu(false)}>
-            <img className="w-7 cursor-pointer" src={assets.cross_icon} alt="Close" />
-          </button>
-        </div>
-        <ul className="flex flex-col items-center gap-4 mt-6 text-lg font-medium">
-          {["/", "/doctors", "/about", "/contact"].map((path, index) => (
-            <NavLink
-              key={index}
-              to={path}
-              onClick={() => setShowMenu(false)}
-              className="px-4 py-2 rounded inline-block hover:bg-gray-100 w-full text-center"
-            >
-              {path === "/" ? "HOME" : path.slice(1).toUpperCase()}
-            </NavLink>
-          ))}
-        </ul>
+  <div className="flex items-center h-12">
+    <img
+      className="h-full w-auto object-contain transform scale-125"
+      src={assets.logo}
+      alt="Logo"
+    />
+    <span
+      style={{ fontFamily: '"Computer Modern", serif' }}
+      className="text-xl font-medium ml-2"
+    >
+      spiritus
+    </span>
+  </div>
+  <button 
+    onClick={() => setShowMenu(false)} 
+    className="flex items-center justify-center h-12"
+  >
+    <img className="w-7 cursor-pointer" src={assets.cross_icon} alt="Close" />
+  </button>
+</div>
+<ul className="flex flex-col items-center gap-4 mt-6 text-lg font-medium">
+  {["/", "/doctors", "/about", "/contact"].map((path, index) => (
+    <NavLink
+      key={index}
+      to={path}
+      onClick={() => setShowMenu(false)}
+      className="w-full text-center px-4 py-2 rounded hover:bg-gray-100"
+    >
+      {path === "/" ? "HOME" : path.slice(1).toUpperCase()}
+    </NavLink>
+  ))}
+</ul>
+
       </div>
 
       {/* Overlay when Mobile Menu is Open */}
