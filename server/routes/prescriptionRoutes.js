@@ -16,4 +16,7 @@ router.get('/admin/:appointmentId', authAdmin, getPrescription);
 // Get prescription by appointment ID for user
 router.get('/user/:appointmentId', authUser, getPrescription);
 
+// New route for doctor
+router.get('/doctor/:appointmentId', authDoctor, getPrescription);
+
 export default router;

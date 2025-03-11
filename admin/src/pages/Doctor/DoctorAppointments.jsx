@@ -13,7 +13,7 @@ import {
   FileText as LucideDescription,
   PlusCircle as LucideAddCircle,
   Video as LucideVideoCamera,
-} from "lucide-react"; // Import Lucide Icons
+} from "lucide-react";
 
 const DoctorAppointments = () => {
   const {
@@ -23,11 +23,13 @@ const DoctorAppointments = () => {
     completeAppointment,
     cancelAppointment,
     setVideoCallLink,
+    getDoctorPrescription, // new function from context
   } = useContext(DoctorContext);
   const { calculateAge, slotDateFormat, currency } = useContext(AppContext);
   const [videoCallLinks, setVideoCallLinks] = useState({});
   const [joinedMeetings, setJoinedMeetings] = useState({});
   const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [selectedPrescription, setSelectedPrescription] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -46,19 +48,58 @@ const DoctorAppointments = () => {
     }
   }, [appointments]);
 
+  // When an appointment is selected, fetch its prescription (if any)
+  useEffect(() => {
+    if (selectedAppointment && selectedAppointment._id) {
+      const fetchPrescription = async () => {
+        try {
+          const data = await getDoctorPrescription(selectedAppointment._id);
+          setSelectedPrescription(data);
+        } catch (err) {
+          console.error("Error fetching prescription:", err);
+          setSelectedPrescription(null);
+        }
+      };
+      fetchPrescription();
+    } else {
+      setSelectedPrescription(null);
+    }
+  }, [selectedAppointment, getDoctorPrescription]);
+
   const handleSetVideoCallLink = async (appointmentId) => {
-    const link = prompt("Enter video call link (e.g., https://meet.example.com):");
+    const link = prompt(
+      "Enter video call link (e.g., https://meet.example.com):"
+    );
     if (link) {
       const formattedLink =
-        link.startsWith("http://") || link.startsWith("https://") ? link : `https://${link}`;
+        link.startsWith("http://") || link.startsWith("https://")
+          ? link
+          : `https://${link}`;
       await setVideoCallLink(appointmentId, formattedLink);
-      setVideoCallLinks((prev) => ({ ...prev, [appointmentId]: formattedLink }));
+      setVideoCallLinks((prev) => ({
+        ...prev,
+        [appointmentId]: formattedLink,
+      }));
     }
   };
 
   const handleJoinMeetingClick = (appointmentId, link) => {
     setJoinedMeetings((prev) => ({ ...prev, [appointmentId]: true }));
     window.open(link, "_blank");
+  };
+
+  // Navigation function for creating a prescription.
+  // (When a prescription exists, view it; otherwise, create one.)
+  const handleCreatePrescription = (appointment) => {
+    navigate("/doctor-prescription", {
+      state: { appointment, prescription: selectedPrescription },
+    });
+  };
+
+  const handleViewPrescription = (appointment) => {
+    navigate("/doctor-view-prescription", {
+      state: { appointment, prescription: selectedPrescription },
+    });
   };
 
   const panelVariants = {
@@ -96,18 +137,28 @@ const DoctorAppointments = () => {
       {/* Desktop and Mobile Layout Container */}
       <div className="flex flex-col md:flex-row gap-6">
         {/* Appointments List */}
-        <div className={`w-full md:w-8/12 ${selectedAppointment ? "hidden md:block" : ""}`}>
+        <div
+          className={`w-full md:w-8/12 ${
+            selectedAppointment ? "hidden md:block" : ""
+          }`}
+        >
           <div className="bg-white shadow-md rounded-lg overflow-hidden">
             <div className="p-4 border-b border-gray-100">
-              <h2 className="text-lg font-semibold text-gray-800">Appointments</h2>
-              <p className="text-sm text-gray-500">{appointments.length} total appointments</p>
+              <h2 className="text-lg font-semibold text-gray-800">
+                Appointments
+              </h2>
+              <p className="text-sm text-gray-500">
+                {appointments.length} total appointments
+              </p>
             </div>
 
             <div className="overflow-y-auto max-h-[75vh]">
               {/* Mobile List */}
               <div className="sm:hidden">
                 {appointments.length === 0 ? (
-                  <div className="p-3 text-center text-gray-500">No appointments found.</div>
+                  <div className="p-3 text-center text-gray-500">
+                    No appointments found.
+                  </div>
                 ) : (
                   appointments
                     .slice()
@@ -118,7 +169,9 @@ const DoctorAppointments = () => {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         className={`p-3 border-b border-gray-100 last:border-0 hover:bg-gray-50 cursor-pointer transition-colors ${
-                          selectedAppointment?._id === item._id ? "bg-blue-50" : ""
+                          selectedAppointment?._id === item._id
+                            ? "bg-blue-50"
+                            : ""
                         }`}
                         onClick={() => setSelectedAppointment(item)}
                       >
@@ -154,7 +207,9 @@ const DoctorAppointments = () => {
                   <span>Status</span>
                 </div>
                 {appointments.length === 0 ? (
-                  <div className="p-3 text-center text-gray-500">No appointments found.</div>
+                  <div className="p-3 text-center text-gray-500">
+                    No appointments found.
+                  </div>
                 ) : (
                   appointments
                     .slice()
@@ -165,11 +220,15 @@ const DoctorAppointments = () => {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         className={`grid grid-cols-[40px_1fr_1fr_100px] gap-3 items-center px-4 py-3 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors ${
-                          selectedAppointment?._id === item._id ? "bg-blue-50" : ""
+                          selectedAppointment?._id === item._id
+                            ? "bg-blue-50"
+                            : ""
                         }`}
                         onClick={() => setSelectedAppointment(item)}
                       >
-                        <span className="text-gray-500 text-sm">{index + 1}</span>
+                        <span className="text-gray-500 text-sm">
+                          {index + 1}
+                        </span>
                         <div className="flex items-center gap-2">
                           <img
                             className="w-8 h-8 rounded-full object-cover shadow-sm"
@@ -181,8 +240,12 @@ const DoctorAppointments = () => {
                           </span>
                         </div>
                         <div>
-                          <p className="text-gray-800 text-sm">{slotDateFormat(item.slotDate)}</p>
-                          <p className="text-xs text-gray-500">{item.slotTime}</p>
+                          <p className="text-gray-800 text-sm">
+                            {slotDateFormat(item.slotDate)}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {item.slotTime}
+                          </p>
                         </div>
                         <StatusBadge item={item} />
                       </motion.div>
@@ -201,19 +264,25 @@ const DoctorAppointments = () => {
             initial="hidden"
             animate="visible"
             exit="exit"
-            className={`w-full md:w-6/12 ${!selectedAppointment ? "hidden md:block" : ""}`}
+            className={`w-full md:w-6/12 ${
+              !selectedAppointment ? "hidden md:block" : ""
+            }`}
           >
             <div className="bg-white shadow-md rounded-lg overflow-hidden h-full">
               {selectedAppointment ? (
                 <div className="p-4 md:p-5 overflow-y-auto max-h-[70vh]">
                   <div className="flex justify-between items-start mb-5">
-                    <h2 className="text-lg font-semibold text-gray-800">Appointment Details</h2>
+                    <h2 className="text-lg font-semibold text-gray-800">
+                      Appointment Details
+                    </h2>
                     <button
                       className="md:hidden flex items-center text-blue-500 hover:text-blue-600 transition-colors"
                       onClick={() => setSelectedAppointment(null)}
                     >
                       <LucideArrowLeft size={20} />
-                      <span className="ml-1 text-sm font-medium">Back to list</span>
+                      <span className="ml-1 text-sm font-medium">
+                        Back to list
+                      </span>
                     </button>
                   </div>
 
@@ -221,7 +290,10 @@ const DoctorAppointments = () => {
                   <div className="bg-gray-50 rounded-lg p-4 mb-5 shadow-sm">
                     <div className="flex items-start gap-3">
                       <img
-                        src={selectedAppointment.userData?.image || assets.defaultImage}
+                        src={
+                          selectedAppointment.userData?.image ||
+                          assets.defaultImage
+                        }
                         alt={selectedAppointment.userData?.name || "Patient"}
                         className="w-14 h-14 rounded-full object-cover shadow-sm"
                       />
@@ -232,7 +304,8 @@ const DoctorAppointments = () => {
                         <div className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-sm">
                           <div>
                             <span className="text-gray-500">Age:</span>{" "}
-                            {calculateAge(selectedAppointment.userData?.dob) || "–"}
+                            {calculateAge(selectedAppointment.userData?.dob) ||
+                              "–"}
                           </div>
                           <div>
                             <span className="text-gray-500">Gender:</span>{" "}
@@ -255,19 +328,27 @@ const DoctorAppointments = () => {
                   {/* Patient Description */}
                   {selectedAppointment.patientDescription && (
                     <div className="mb-5">
-                      <h4 className="text-sm font-semibold text-gray-700 mb-2">Patient Notes</h4>
+                      <h4 className="text-sm font-semibold text-gray-700 mb-2">
+                        Patient Notes
+                      </h4>
                       <div className="bg-white border border-gray-100 rounded-lg p-3 text-sm text-gray-600 leading-relaxed">
                         {selectedAppointment.patientDescription}
                       </div>
                     </div>
                   )}
 
-                  {/* Voice Message Section moved under Patient Notes */}
+                  {/* Voice Message Section */}
                   {selectedAppointment.audioMessage && (
                     <div className="mb-5">
-                      <h4 className="text-sm font-semibold text-gray-700 mb-2">Voice Message</h4>
+                      <h4 className="text-sm font-semibold text-gray-700 mb-2">
+                        Voice Message
+                      </h4>
                       <div className="bg-white border border-gray-100 rounded-lg p-3">
-                        <audio controls src={selectedAppointment.audioMessage} className="w-full" />
+                        <audio
+                          controls
+                          src={selectedAppointment.audioMessage}
+                          className="w-full"
+                        />
                       </div>
                     </div>
                   )}
@@ -277,12 +358,18 @@ const DoctorAppointments = () => {
                     <InfoCard
                       icon={<LucideCalendar size={20} />}
                       title="Date & Time"
-                      value={`${slotDateFormat(selectedAppointment.slotDate)}, ${selectedAppointment.slotTime}`}
+                      value={`${slotDateFormat(
+                        selectedAppointment.slotDate
+                      )}, ${selectedAppointment.slotTime}`}
                     />
                     <InfoCard
                       icon={<LucidePayment size={20} />}
                       title="Payment"
-                      value={selectedAppointment.payment ? "Paid Online" : "Cash Payment"}
+                      value={
+                        selectedAppointment.payment
+                          ? "Paid Online"
+                          : "Cash Payment"
+                      }
                     />
                     <InfoCard
                       icon={<LucideMoney size={20} />}
@@ -309,14 +396,18 @@ const DoctorAppointments = () => {
                             icon={assets.cancel_icon}
                             label="Cancel Appointment"
                             color="red"
-                            onClick={() => cancelAppointment(selectedAppointment._id)}
+                            onClick={() =>
+                              cancelAppointment(selectedAppointment._id)
+                            }
                             confirm
                           />
                           <ActionButton
                             icon={assets.tick_icon}
                             label="Mark Completed"
                             color="green"
-                            onClick={() => completeAppointment(selectedAppointment._id)}
+                            onClick={() =>
+                              completeAppointment(selectedAppointment._id)
+                            }
                           />
                         </div>
                       ) : (
@@ -326,7 +417,9 @@ const DoctorAppointments = () => {
                           handleSetVideoCallLink={handleSetVideoCallLink}
                           handleJoinMeetingClick={handleJoinMeetingClick}
                           joinedMeetings={joinedMeetings}
-                          navigate={navigate}
+                          handleCreatePrescription={handleCreatePrescription}
+                          handleViewPrescription={handleViewPrescription}
+                          prescription={selectedPrescription}
                         />
                       )}
                     </div>
@@ -334,7 +427,9 @@ const DoctorAppointments = () => {
                 </div>
               ) : (
                 <div className="h-full flex items-center justify-center p-6 text-gray-400 text-sm">
-                  <p className="text-center">Select an appointment from the list to view details</p>
+                  <p className="text-center">
+                    Select an appointment from the list to view details
+                  </p>
                 </div>
               )}
             </div>
@@ -426,13 +521,17 @@ const ActionButton = ({ icon, label, color, onClick, confirm }) => {
   );
 };
 
+// Updated VideoCallSection component - shows "Create Prescription" if no prescription exists,
+// otherwise it shows "View Prescription" immediately.
 const VideoCallSection = ({
   appointment,
   videoCallLinks,
   handleSetVideoCallLink,
   handleJoinMeetingClick,
   joinedMeetings,
-  navigate,
+  handleCreatePrescription,
+  handleViewPrescription,
+  prescription,
 }) => (
   <div className="space-y-3">
     {videoCallLinks[appointment._id] ? (
@@ -440,12 +539,17 @@ const VideoCallSection = ({
         <div className="bg-blue-50 rounded-lg p-3 shadow-sm">
           <div className="flex items-center justify-between gap-2">
             <div className="flex-1">
-              <h4 className="text-xs font-medium text-blue-800 mb-1">Video Call Link</h4>
+              <h4 className="text-xs font-medium text-blue-800 mb-1">
+                Video Call Link
+              </h4>
               <a
                 href={videoCallLinks[appointment._id]}
                 onClick={(e) => {
                   e.preventDefault();
-                  handleJoinMeetingClick(appointment._id, videoCallLinks[appointment._id]);
+                  handleJoinMeetingClick(
+                    appointment._id,
+                    videoCallLinks[appointment._id]
+                  );
                 }}
                 className="text-blue-500 hover:underline break-all text-sm"
               >
@@ -461,14 +565,11 @@ const VideoCallSection = ({
           </div>
         </div>
 
-        {/* Prescription Section */}
         <div className="flex flex-col sm:flex-row gap-3">
-          {appointment.prescription?.report ? (
+          {prescription ? (
             <button
               className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 text-sm"
-              onClick={() =>
-                navigate("/doctor-view-prescription", { state: { appointment } })
-              }
+              onClick={() => handleViewPrescription(appointment)}
             >
               <LucideDescription size={16} />
               View Prescription
@@ -476,9 +577,7 @@ const VideoCallSection = ({
           ) : (
             <button
               className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 text-sm"
-              onClick={() =>
-                navigate("/doctor-prescription", { state: { appointment } })
-              }
+              onClick={() => handleCreatePrescription(appointment)}
             >
               <LucideAddCircle size={16} />
               Create Prescription

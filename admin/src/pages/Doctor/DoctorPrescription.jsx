@@ -61,7 +61,7 @@ const DoctorPrescription = () => {
       toast.error("Please upload a prescription file.");
       return;
     }
-
+  
     if (window.confirm("Are you sure you want to add this prescription?")) {
       setIsLoading(true);
       const formData = new FormData();
@@ -69,8 +69,9 @@ const DoctorPrescription = () => {
       formData.append("report", report);
       if (file) formData.append("prescriptionFile", file);
       try {
+        // Remove "Content-Type" header so that Axios can set it automatically.
         await axios.post("http://localhost:4000/api/prescription/add", formData, {
-          headers: { "Content-Type": "multipart/form-data", dToken },
+          headers: { dToken },
         });
         toast.success("Prescription added successfully!");
         await getAppointments();
@@ -82,6 +83,7 @@ const DoctorPrescription = () => {
       }
     }
   };
+  
 
   // Word and character count
   const wordCount = report.trim().split(/\s+/).length;
