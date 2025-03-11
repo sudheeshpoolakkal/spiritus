@@ -147,6 +147,26 @@ const DoctorContextProvider = (props) => {
     }
   };
 
+  // Updated getDoctorPrescription: returns null if no prescription is found.
+  const getDoctorPrescription = async (appointmentId) => {
+    try {
+      const { data } = await axios.get(
+        `${backendUrl}/api/prescription/doctor/${appointmentId}`,
+        { headers: { dToken } }
+      );
+      if (data.success) {
+        return data.prescription; // Could be null if no prescription exists
+      } else {
+        toast.error(data.message);
+        return null;
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(error.message);
+      return null;
+    }
+  };
+
   const value = {
     dToken,
     setDToken,
@@ -164,6 +184,7 @@ const DoctorContextProvider = (props) => {
     getProfileData,
     setVideoCallLink,
     addPrescription,
+    getDoctorPrescription,
   };
 
   return (
