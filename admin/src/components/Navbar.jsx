@@ -22,7 +22,7 @@ const Navbar = () => {
     <div className='flex justify-between items-center px-4 sm:px-10 py-3 border-b bg-white'>
         <div className='flex items-center gap-2 text-xs'>
             {/* Logo + Text Container with slight negative left margin */}
-        <div className="flex items-center h-5">
+        <div className="flex items-center h-7">
           <img
             onClick={() => navigate("/")}
             style={{ transform: "scale(1.7)" }}
