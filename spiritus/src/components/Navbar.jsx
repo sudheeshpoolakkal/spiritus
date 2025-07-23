@@ -112,7 +112,7 @@ const Navbar = () => {
   <div className="flex items-center h-12">
     <img
       className="h-full w-auto object-contain transform scale-125"
-      src={assets.logo}
+      src={assets.admin_logo}
       alt="Logo"
     />
     <span

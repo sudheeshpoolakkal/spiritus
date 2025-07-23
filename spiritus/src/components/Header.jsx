@@ -3,18 +3,23 @@ import React, { useState, useEffect } from 'react';
 import bg1 from '@/assets/assets_frontend/bg1.jpg';
 import bg2 from '@/assets/assets_frontend/bg2.jpg';
 import bg3 from '@/assets/assets_frontend/bg3.jpg';
-import bg4 from '@/assets/assets_frontend/bg4.jpg';
+import bg4 from '@/assets/assets_frontend/bg10.jpg';
 import bg5 from '@/assets/assets_frontend/bg5.jpg';
 import bg6 from '@/assets/assets_frontend/bg6.jpg';
-import bg7 from '@/assets/assets_frontend/bg7.jpeg';
-import bg9 from '@/assets/assets_frontend/bg9.jpg';
+import bg7 from '@/assets/assets_frontend/bg7.jpg';
+import bg8 from '@/assets/assets_frontend/bg8.jpg';
+import bg9 from '@/assets/assets_frontend/bg12.jpg';
+import bg10 from '@/assets/assets_frontend/bg4.jpg';
+import bg11 from '@/assets/assets_frontend/bg11.jpg';
+
+
 
 function Header() {
   const [bgImage, setBgImage] = useState(bg1);
 
   // Dynamically switch background images every 7 seconds
   useEffect(() => {
-    const images = [bg1, bg2, bg4, bg3, bg5, bg6, bg7, bg9];
+    const images = [bg1, bg2, bg3, bg4, bg5, bg6, bg7, bg8, bg9, bg10, bg11];
     let index = 0;
     const interval = setInterval(() => {
       index = (index + 1) % images.length;
