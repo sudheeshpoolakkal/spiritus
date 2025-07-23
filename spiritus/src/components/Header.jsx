@@ -1,5 +1,6 @@
 import { assets } from '@/assets/assets_frontend/assets';
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import bg1 from '@/assets/assets_frontend/bg1.jpg';
 import bg2 from '@/assets/assets_frontend/bg2.jpg';
 import bg3 from '@/assets/assets_frontend/bg3.jpg';
@@ -61,12 +62,23 @@ function Header() {
       </div>
 
       {/* ------ Right Side ------ */}
-      <div className="relative z-10 md:w-1/2">
-        {/*<img
-          className="w-full md:absolute bottom-0 h-auto rounded-lg shadow-lg"
-          src={assets.header_img}
-          alt="Header Visual"
-        />*/}
+      <div className="relative z-10 md:w-1/2 mb-8">
+        <div className="relative group">
+          <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
+          <div className="relative bg-slate-800/80 backdrop-blur-xl p-10 rounded-2xl border border-slate-700/50 hover:border-cyan-400/50 transition-all duration-300">
+            <div className="text-center">
+              <div className="w-12 h-12 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full mx-auto mb-6 flex items-center justify-center">
+                <div className="w-6 h-6 bg-white rounded-full animate-ping"></div>
+              </div>
+              <p className="text-2xl md:text-3xl font-medium text-slate-100 leading-relaxed italic tracking-wide">
+                "Clean your mind and spirit with us"
+              </p>
+              <div className="mt-8 inline-block px-6 py-2 bg-cyan-500/20 rounded-full border border-cyan-400/30">
+                <Link to={'/login'}><span className="text-cyan-300 text-sm font-medium uppercase tracking-wider">Spiritus Journey</span></Link>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
