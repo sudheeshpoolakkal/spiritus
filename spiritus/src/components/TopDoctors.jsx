@@ -17,18 +17,18 @@ function TopDoctors() {
         Simply browse through our extensive list of trusted doctors.
       </p>
       
-      <div className="w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 px-3">
+      {/* Updated grid with mobile-first approach */}
+      <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 px-3">
         {sortedDoctors.slice(0, 10).map((item, index) => (
           <div 
             key={index}
             onClick={() => { navigate(`/appointment/${item._id}`); window.scrollTo(0, 0) }} 
-            className="bg-white rounded-md shadow-md overflow-hidden cursor-pointer transition-transform duration-300 ease-in-out hover:-translate-y-2 w-56 mx-auto"
-
+            className="bg-white rounded-md shadow-md overflow-hidden cursor-pointer transition-transform duration-300 ease-in-out hover:-translate-y-2 w-full max-w-sm mx-auto"
           >
             <div className="w-full aspect-square overflow-hidden">
               <img className="w-full h-full object-cover" src={item.image} alt={item.name} />
             </div>
-            {/* Updated Card Details */}
+            {/* Card Details */}
             <div className="p-4">
               <div className="flex items-center justify-between mb-2">
                 {/* Availability Badge */}
@@ -53,12 +53,6 @@ function TopDoctors() {
         ))}
       </div>
       
-      {/*<button 
-        onClick={() => { navigate('/doctors'); window.scrollTo(0, 0) }} 
-        className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-full transition-colors mt-8"
-      >
-        More
-      </button>*/}
       <button 
         onClick={() => { navigate('/doctors'); window.scrollTo(0, 0) }} 
         className="bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-full transition-colors mt-8"

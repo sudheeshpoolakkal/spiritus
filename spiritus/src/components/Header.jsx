@@ -12,7 +12,7 @@ import bg9 from '@/assets/assets_frontend/bg9.jpg';
 function Header() {
   const [bgImage, setBgImage] = useState(bg1);
 
-  // Dynamically switch background images every 7 seconds
+  // Dynamically switch background images every 3 seconds
   useEffect(() => {
     const images = [bg1, bg2, bg4, bg3, bg5, bg6, bg7, bg9];
     let index = 0;
@@ -26,8 +26,10 @@ function Header() {
   return (
     <div
       className="
-        relative min-h-[80vh] flex flex-col md:flex-row items-center justify-center
-        rounded-lg px-6 md:px-10 lg:px-20 bg-cover bg-center bg-no-repeat transition-all duration-1000 overflow-hidden
+        relative min-h-[70vh] sm:min-h-[75vh] md:min-h-[70vh] lg:min-h-[80vh] 
+        flex flex-col md:flex-row items-center justify-center
+        rounded-lg px-6 sm:px-8 md:px-10 lg:px-20 
+        bg-cover bg-center bg-no-repeat transition-all duration-1000 overflow-hidden
       "
       style={{
         backgroundImage: `url(${bgImage})`,
@@ -37,13 +39,13 @@ function Header() {
       <div className="absolute inset-0 bg-black opacity-10"></div>
 
       {/* ------ Left Side ------ */}
-      <div className="relative z-10 md:w-1/2 flex flex-col items-start justify-center gap-6 py-10 md:py-[10vw] text-white">
-        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">
+      <div className="relative z-10 md:w-1/2 flex flex-col items-center md:items-start justify-center gap-6 sm:gap-8 py-8 sm:py-10 md:py-[10vw] text-white text-center md:text-left">
+        <h1 className="text-3xl sm:text-4xl md:text-4xl lg:text-5xl font-bold leading-tight max-w-lg">
           Book Appointment<br />With Trusted Doctors
         </h1>
-        <div className="flex flex-col md:flex-row items-center gap-3 text-sm font-light">
-          <img className="w-28" src={assets.group_profiles} alt="Group Profiles" />
-          <p>
+        <div className="flex flex-col items-center md:items-start gap-4 text-sm sm:text-base md:text-sm font-light max-w-md">
+          <img className="w-28 sm:w-32 md:w-28" src={assets.group_profiles} alt="Group Profiles" />
+          <p className="text-center md:text-left leading-relaxed">
             Simply browse through our extensive list of trusted doctors,
             <br className="hidden sm:block" />
             and schedule your appointment hassle-free.
@@ -52,11 +54,11 @@ function Header() {
         <a
           href="#speciality"
           className="
-            inline-flex items-center gap-2 bg-white px-8 py-3 rounded-full text-gray-600 text-sm
-            shadow-md hover:scale-105 transition-transform duration-300
+            inline-flex items-center gap-2 bg-white px-8 sm:px-10 py-3 sm:py-4 rounded-full 
+            text-gray-600 text-sm sm:text-base font-medium shadow-lg hover:scale-105 transition-transform duration-300
           "
         >
-          Book Appointment <img className="w-3" src={assets.arrow_icon} alt="Arrow Icon" />
+          Book Appointment <img className="w-3 sm:w-4" src={assets.arrow_icon} alt="Arrow Icon" />
         </a>
       </div>
 
