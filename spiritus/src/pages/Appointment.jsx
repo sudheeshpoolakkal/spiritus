@@ -28,10 +28,29 @@ const Appointment = () => {
   const [activeTab, setActiveTab] = useState('booking'); // 'booking', 'reviews', 'rate'
   const [recordedAudio, setRecordedAudio] = useState(null);
 
-  const fetchDocInfo = () => {
+  const fetchDocInfo = async () => {
     if (doctors?.length > 0 && docId) {
       const foundDoc = doctors.find(doc => doc._id === docId);
       if (foundDoc) {
+        // Try to get fresh doctor data with custom_slots
+        try {
+          const { data } = await axios.get(`${backendUrl}/api/doctor/${docId}`);
+          if (data.success && data.doctor) {
+            console.log("Fresh doctor data:", data.doctor);
+            setDocInfo(data.doctor);
+            if (data.doctor.reviews?.length > 0) {
+              setDoctorReviews(data.doctor.reviews);
+            } else {
+              fetchDoctorReviews();
+            }
+            return;
+          }
+        } catch (error) {
+          console.log("Could not fetch fresh doctor data, using cached:", error);
+        }
+        
+        // Fallback to cached doctor data
+        console.log("Using cached doctor data:", foundDoc);
         setDocInfo(foundDoc);
         if (foundDoc.reviews?.length > 0) {
           setDoctorReviews(foundDoc.reviews);
@@ -68,39 +87,106 @@ const Appointment = () => {
     }
   };
 
-  const getAvailableSlot = () => {
-    if (!docInfo) return;
+ // Updated function to handle custom_slots format (DD_MM_YYYY and 12-hour AM/PM time)
+const getAvailableSlot = () => {
+  if (!docInfo) {
+    console.log("No docInfo available");
+    return;
+  }
 
-    const availableSlots = [];
-    const today = new Date();
+  console.log("DocInfo:", docInfo);
+  console.log("Custom slots:", docInfo.custom_slots);
 
-    for (let i = 0; i < 7; i++) {
-      let currentDate = new Date(today);
-      currentDate.setDate(today.getDate() + i);
+  const availableSlots = [];
+  const today = new Date();
+  const customSlots = docInfo.custom_slots || {};
+
+  // Check if custom_slots is empty, fallback to default slots for testing
+  const hasCustomSlots = Object.keys(customSlots).length > 0;
+  console.log("Has custom slots:", hasCustomSlots);
+
+  // Process for the next 7 days
+  for (let i = 0; i < 7; i++) {
+    let currentDate = new Date(today);
+    currentDate.setDate(today.getDate() + i);
+    
+    let day = currentDate.getDate();
+    let month = currentDate.getMonth() + 1;
+    let year = currentDate.getFullYear();
+    
+    // Format date to match slots_booked format (DD_MM_YYYY)
+    const slotDateKey = `${day}_${month}_${year}`;
+
+    let daySlots = [];
+
+    if (hasCustomSlots) {
+      // Use custom slots if available
+      if (customSlots[slotDateKey] && Array.isArray(customSlots[slotDateKey])) {
+        console.log(`Custom slots for ${slotDateKey}:`, customSlots[slotDateKey]);
+        
+        customSlots[slotDateKey].forEach(timeSlot => {
+          // timeSlot is already in 12-hour AM/PM format from custom_slots
+          
+          // Check if this slot is already booked
+          const slotIsPaid = appointments
+            ? appointments.some(
+                app =>
+                  app.docData._id === docInfo._id &&
+                  app.slotDate === slotDateKey &&
+                  app.slotTime === timeSlot &&
+                  app.payment === true
+              )
+            : false;
+
+          // Check if slot is in the past (for today only)
+          let isSlotInPast = false;
+          if (i === 0) { // Only check for today
+            try {
+              const slotDateTime = new Date(`${currentDate.toDateString()} ${timeSlot}`);
+              isSlotInPast = slotDateTime < new Date();
+            } catch (error) {
+              console.log("Error parsing time:", timeSlot, error);
+            }
+          }
+
+          daySlots.push({
+            datetime: new Date(currentDate),
+            time: timeSlot, // Already in 12-hour format
+            originalTime: timeSlot, // Keep same format
+            isBooked: slotIsPaid,
+            isPast: isSlotInPast
+          });
+        });
+      }
+    } else {
+      // Fallback: Generate default slots if no custom slots exist
+      console.log("Using fallback default slots");
+      
+      // Skip past dates for default slots
+      let startTime = new Date(currentDate);
       let endTime = new Date(currentDate);
       endTime.setHours(21, 0, 0, 0);
 
       if (today.getDate() === currentDate.getDate()) {
-        currentDate.setHours(currentDate.getHours() > 10 ? currentDate.getHours() + 1 : 10);
-        currentDate.setMinutes(currentDate.getMinutes() > 30 ? 30 : 0);
+        startTime.setHours(startTime.getHours() > 10 ? startTime.getHours() + 1 : 10);
+        startTime.setMinutes(startTime.getMinutes() > 30 ? 30 : 0);
       } else {
-        currentDate.setHours(10);
-        currentDate.setMinutes(0);
+        startTime.setHours(10);
+        startTime.setMinutes(0);
       }
 
-      let daySlots = [];
-      while (currentDate < endTime) {
-        let formattedTime = currentDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        let day = currentDate.getDate();
-        let month = currentDate.getMonth() + 1;
-        let year = currentDate.getFullYear();
-        const slotDate = `${day}_${month}_${year}`;
-
+      while (startTime < endTime) {
+        let formattedTime = startTime.toLocaleTimeString([], { 
+          hour: '2-digit', 
+          minute: '2-digit',
+          hour12: true 
+        });
+        
         const slotIsPaid = appointments
           ? appointments.some(
               app =>
                 app.docData._id === docInfo._id &&
-                app.slotDate === slotDate &&
+                app.slotDate === slotDateKey &&
                 app.slotTime === formattedTime &&
                 app.payment === true
             )
@@ -108,28 +194,35 @@ const Appointment = () => {
 
         if (!slotIsPaid) {
           daySlots.push({
-            datetime: new Date(currentDate),
+            datetime: new Date(startTime),
             time: formattedTime,
+            originalTime: formattedTime,
+            isBooked: false,
+            isPast: false
           });
         }
-        currentDate.setMinutes(currentDate.getMinutes() + 30);
+        startTime.setMinutes(startTime.getMinutes() + 30);
       }
+    }
 
-      availableSlots.push(daySlots);
-    }
-    
-    setDocSlots(availableSlots);
-    
-    // Reset slot selection if needed
-    if (availableSlots.length === 0) {
-      setSlotTime('');
-    } else if (slotIndex >= availableSlots.length) {
-      setSlotIndex(0);
-      setSlotTime('');
-    } else if (docSlots[slotIndex]?.length === 0 || !docSlots[slotIndex]) {
-      setSlotTime('');
-    }
-  };
+    availableSlots.push(daySlots);
+  }
+  
+  console.log("Available slots:", availableSlots);
+  setDocSlots(availableSlots);
+  
+  // Reset slot selection if needed
+  if (availableSlots.every(daySlots => daySlots.length === 0)) {
+    setSlotTime('');
+  } else if (slotIndex >= availableSlots.length) {
+    setSlotIndex(0);
+    setSlotTime('');
+  } else if (docSlots[slotIndex]?.length === 0 || !docSlots[slotIndex]) {
+    setSlotTime('');
+  }
+};
+
+// Remove the convertTo12Hour function as it's no longer needed since custom_slots now stores 12-hour format
 
   const bookAppointment = async () => {
     if (!token) {
@@ -147,7 +240,14 @@ const Appointment = () => {
       let day = date.getDate();
       let month = date.getMonth() + 1;
       let year = date.getFullYear();
-      const slotDate = `${day}_${month}_${year}`;
+      const slotDate = `${day}_${month}_${year}`; // Keep the old format for appointments
+
+      // Check if selected slot is booked or in the past
+      const selectedSlot = docSlots[slotIndex].find(slot => slot.time === slotTime);
+      if (selectedSlot && (selectedSlot.isBooked || selectedSlot.isPast)) {
+        toast.error('Selected slot is not available');
+        return;
+      }
 
       if (recordedAudio) {
         const formData = new FormData();
@@ -437,45 +537,70 @@ const Appointment = () => {
                   const day = daysOfWeek[date.getDay()];
                   const dateNum = date.getDate();
                   const month = date.toLocaleString('default', { month: 'short' });
+                  const hasAvailableSlots = item.some(slot => !slot.isBooked && !slot.isPast);
                   
                   return (
                     <button
                       key={index}
-                      onClick={() => setSlotIndex(index)}
+                      onClick={() => hasAvailableSlots && setSlotIndex(index)}
+                      disabled={!hasAvailableSlots}
                       className={`flex flex-col items-center justify-center p-3 rounded-lg transition-all ${
-                        slotIndex === index 
-                          ? 'bg-primary text-white shadow-md ring-2 ring-primary ring-opacity-50' 
-                          : 'bg-white border border-gray-200 hover:border-primary hover:text-primary'
+                        !hasAvailableSlots
+                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                          : slotIndex === index 
+                            ? 'bg-primary text-white shadow-md ring-2 ring-primary ring-opacity-50' 
+                            : 'bg-white border border-gray-200 hover:border-primary hover:text-primary'
                       }`}
                     >
                       <span className="text-xs font-medium">{day}</span>
                       <span className="text-lg font-bold">{dateNum}</span>
                       <span className="text-xs">{month}</span>
+                      {!hasAvailableSlots && (
+                        <span className="text-xs mt-1">No slots</span>
+                      )}
                     </button>
                   );
                 })}
             </div>
+            {docSlots.length === 0 && (
+              <div className="text-center py-8">
+                <p className="text-gray-500">No appointment slots available. Please contact the doctor directly.</p>
+              </div>
+            )}
           </div>
           
-          <div className="p-6">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">Select Time Slot</h2>
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
-              {docSlots.length > 0 &&
-                docSlots[slotIndex].map((item, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setSlotTime(item.time)}
-                    className={`px-3 py-2 rounded-lg text-center text-sm transition-all ${
-                      item.time === slotTime
-                        ? 'bg-primary text-white shadow-sm'
-                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200'
-                    }`}
-                  >
-                    {item.time.toLowerCase()}
-                  </button>
-                ))}
+          {docSlots.length > 0 && docSlots[slotIndex]?.length > 0 && (
+            <div className="p-6">
+              <h2 className="text-lg font-semibold text-gray-800 mb-4">Select Time Slot</h2>
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+                {docSlots[slotIndex].map((item, index) => {
+                  const isUnavailable = item.isBooked || item.isPast;
+                  return (
+                    <button
+                      key={index}
+                      onClick={() => !isUnavailable && setSlotTime(item.time)}
+                      disabled={isUnavailable}
+                      className={`px-3 py-2 rounded-lg text-center text-sm transition-all ${
+                        isUnavailable
+                          ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                          : item.time === slotTime
+                            ? 'bg-primary text-white shadow-sm'
+                            : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200'
+                      }`}
+                    >
+                      {item.time.toLowerCase()}
+                      {item.isBooked && (
+                        <div className="text-xs mt-1">Booked</div>
+                      )}
+                      {item.isPast && !item.isBooked && (
+                        <div className="text-xs mt-1">Past</div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          )}
           
           <div className="p-6">
             <h2 className="text-lg font-semibold text-gray-800 mb-4">Appointment Details</h2>
