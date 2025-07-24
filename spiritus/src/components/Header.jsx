@@ -1,5 +1,6 @@
 import { assets } from '@/assets/assets_frontend/assets';
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import bg1 from '@/assets/assets_frontend/bg1.jpg';
 import bg2 from '@/assets/assets_frontend/bg2.jpg';
 import bg3 from '@/assets/assets_frontend/bg3.jpg';
@@ -66,12 +67,8 @@ function Header() {
       </div>
 
       {/* ------ Right Side ------ */}
-      <div className="relative z-10 md:w-1/2">
-        {/*<img
-          className="w-full md:absolute bottom-0 h-auto rounded-lg shadow-lg"
-          src={assets.header_img}
-          alt="Header Visual"
-        />*/}
+      <div className="relative z-10 md:w-1/2 mb-8">
+        
       </div>
     </div>
   );

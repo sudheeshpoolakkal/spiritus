@@ -2,11 +2,13 @@ import { assets } from '@/assets/assets_frontend/assets';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import bg9 from '@/assets/assets_frontend/bg9.jpg'; // Import your background image
+import { Link } from 'react-router-dom';
 
 function Banner() {
   const navigate = useNavigate();
 
   return (
+    <>
     <div 
       className="flex flex-col md:flex-row rounded-lg px-6 sm:px-10 md:px-14 lg:px-12 my-20 md:mx-10 items-center bg-cover bg-center bg-no-repeat"
       style={{ backgroundImage: `url(${bg9})` }} // Correct usage of backgroundImage
@@ -35,6 +37,23 @@ function Banner() {
         />
       </div>
     </div>
+
+    {/* Tag  */}
+
+        <div className="w-full flex justify-center items-center my-6">
+      <div className="text-center px-4">
+        <p className="text-3xl md:text-3xl font-medium text-gray-800 italic tracking-wide">
+          "Clean your mind and spirit with us."
+        </p>
+      </div>
+    </div>
+
+        
+    </>
+
+    
+
+    
   );
 }
 
