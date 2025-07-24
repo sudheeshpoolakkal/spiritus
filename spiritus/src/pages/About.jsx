@@ -36,7 +36,7 @@ const AboutUs = () => {
       Transforming Mental Health Care
     </h1>
     <p className="text-lg md:text-xl max-w-2xl">
-      At Angelus, we believe therapy should be accessible, compassionate, and innovative.
+      At Spiritus, we believe therapy should be accessible, compassionate, and innovative.
     </p>
   </div>
 </section>

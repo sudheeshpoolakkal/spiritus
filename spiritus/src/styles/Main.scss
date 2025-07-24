@@ -4,6 +4,11 @@
 @tailwind utilities;
 
 /* src/styles/Main.scss */
+.gideon-roman-regular {
+  font-family: "Gideon Roman", serif;
+  font-weight: 400;
+  font-style: normal;
+}
 
 body {
     margin: 0;

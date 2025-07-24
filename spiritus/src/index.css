@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+.gideon-roman-regular {
+  font-family: "Gideon Roman", serif;
+  font-weight: 400;
+  font-style: normal;
+}
 
 @font-face {
     font-family: 'Computer Modern';
