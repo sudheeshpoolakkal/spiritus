@@ -42,7 +42,7 @@ const Footer = () => {
 
         <div className="border-t border-gray-200 pt-8">
           <p className="text-xs text-[#86868b] text-center">
-            Copyright © {new Date().getFullYear()} Angelus. All rights reserved.
+            Copyright © {new Date().getFullYear()} Spiritus. All rights reserved.
           </p>
         </div>
       </div>
