@@ -16,7 +16,7 @@ import BackgroundMusic from './components/BackgroundMusic'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import UserPrescription from './pages/UserPrescription'
-
+import SpiritusAwards from './pages/SpiritusAwards'
 const App = () => {
 
   const location = useLocation()
@@ -45,6 +45,8 @@ const App = () => {
           <Route path='/appointment/:docId' element={<Appointment />} />
           <Route path="/upload-profile" element={<UploadProfileImage />} />
           <Route path="/user-prescription" element={<UserPrescription />} />
+          <Route path="/awards" element={<SpiritusAwards />} />
+          {/* Add more routes as needed */}
         </Routes>
       </div>
       

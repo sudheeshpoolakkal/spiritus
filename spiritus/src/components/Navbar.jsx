@@ -46,7 +46,8 @@
 
          {/* Desktop Menu */}
 <ul className="hidden md:flex items-center gap-8 font-medium absolute left-1/2 -translate-x-1/2">
-  {["/", "/doctors", "/about", "/contact"].map((path, index) => (
+  {["/", "/doctors", "/awards", "/about", "/contact"].map((path, index) => (
+
     <li key={index} className="relative group">
       <NavLink
         to={path}
@@ -142,7 +143,8 @@
             </button>
           </div>
           <ul className="flex flex-col items-center gap-4 mt-6 text-lg font-medium">
-            {["/", "/doctors", "/about", "/contact"].map((path, index) => (
+            {["/", "/doctors", "/awards", "/about", "/contact"].map((path, index) => (
+
               <NavLink
                 key={index}
                 to={path}
