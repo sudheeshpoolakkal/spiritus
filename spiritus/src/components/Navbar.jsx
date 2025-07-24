@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState } from "react";
 import { assets } from "../assets/assets_frontend/assets";
 import { NavLink, useNavigate } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
@@ -7,32 +7,11 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { token, setToken, userData } = useContext(AppContext);
   const [showMenu, setShowMenu] = useState(false);
-  const [showLoginPopup, setShowLoginPopup] = useState(false);
 
   const logout = () => {
     setToken(false);
     localStorage.removeItem("token");
     navigate("/login");
-  };
-
-  // Show popup after 5 seconds if user is not logged in
-  useEffect(() => {
-    if (!token) {
-      const timer = setTimeout(() => {
-        setShowLoginPopup(true);
-      }, 5000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [token]);
-
-  const handleCreateAccount = () => {
-    setShowLoginPopup(false);
-    navigate("/login");
-  };
-
-  const closePopup = () => {
-    setShowLoginPopup(false);
   };
 
   return (
@@ -256,84 +235,6 @@ const Navbar = () => {
           ></div>
         )}
       </nav>
-
-      {/* Login Popup - Only shows for non-authenticated users */}
-      {showLoginPopup && !token && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden transform animate-pulse">
-            {/* Header */}
-            <div className="bg-gradient-to-r from-primary to-blue-600 px-6 py-4 text-white">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                    <span className="text-lg">🩺</span>
-                  </div>
-                  <h3 className="text-xl font-bold">Join Spiritus</h3>
-                </div>
-                <button
-                  onClick={closePopup}
-                  className="text-white/80 hover:text-white w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/20 transition-colors"
-                >
-                  ✕
-                </button>
-              </div>
-            </div>
-
-            {/* Content */}
-            <div className="p-6">
-              <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-gradient-to-r from-primary to-blue-600 rounded-full mx-auto mb-4 flex items-center justify-center">
-                  <span className="text-2xl text-white">👋</span>
-                </div>
-                <h4 className="text-xl font-semibold text-gray-800 mb-2">
-                  Welcome to Spiritus!
-                </h4>
-                <p className="text-gray-600 leading-relaxed">
-                  Create your account to book appointments with trusted doctors and manage your healthcare journey.
-                </p>
-              </div>
-
-              {/* Benefits */}
-              <div className="space-y-3 mb-6">
-                <div className="flex items-center gap-3 text-sm text-gray-700">
-                  <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
-                    <span className="text-green-600 text-xs">✓</span>
-                  </div>
-                  <span>Book appointments instantly</span>
-                </div>
-                <div className="flex items-center gap-3 text-sm text-gray-700">
-                  <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
-                    <span className="text-green-600 text-xs">✓</span>
-                  </div>
-                  <span>Access to 100+ trusted doctors</span>
-                </div>
-                <div className="flex items-center gap-3 text-sm text-gray-700">
-                  <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
-                    <span className="text-green-600 text-xs">✓</span>
-                  </div>
-                  <span>Manage your health records</span>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="space-y-3">
-                <button
-                  onClick={handleCreateAccount}
-                  className="w-full bg-gradient-to-r from-primary to-blue-600 text-white py-3 px-4 rounded-xl font-semibold hover:from-primary/90 hover:to-blue-600/90 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                >
-                  Create Free Account
-                </button>
-                <button
-                  onClick={closePopup}
-                  className="w-full text-gray-600 py-2 px-4 rounded-xl font-medium hover:bg-gray-100 transition-colors"
-                >
-                  Maybe Later
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 };
