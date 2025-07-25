@@ -38,7 +38,7 @@ const Navbar = () => {
 
           {/* Desktop Menu - Fixed capitalization */}
           <ul className="hidden md:flex items-center gap-8 font-medium">
-            {["/", "/Doctors", "/About", "/Contact"].map((path, index) => (
+            {["/", "/Doctors", "/Awards", "/About", "/Contact"].map((path, index) => (
               <li key={index} className="relative group">
                 <NavLink
                   to={path}
@@ -139,7 +139,7 @@ const Navbar = () => {
           {/* Navigation Links */}
           <div className="py-6">
             <ul className="flex flex-col gap-1 px-4">
-              {["/", "/Doctors", "/About", "/Contact"].map((path, index) => (
+              {["/", "/Doctors", "/Awards", "/About", "/Contact"].map((path, index) => (
                 <li key={index} className="w-full">
                   <NavLink
                     to={path}
