@@ -16,10 +16,10 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 w-full z-40 bg-white shadow-lg h-16 px-4 md:px-8 flex items-center">
-        <div className="max-w-[1200px] w-full mx-auto flex items-center justify-between">
-          {/* Logo + Text Container - responsive margins */}
-          <div className="flex items-center h-12 md:-ml-16">
+      <nav className="fixed top-0 left-0 w-full z-40 bg-white shadow-lg h-16 px-4 md:px-12 flex items-center">
+        <div className="max-w-[1400px] w-full mx-auto flex items-center justify-between">
+          {/* Logo + Text Container - Moved further left */}
+          <div className="flex items-center h-12 flex-shrink-0 -ml-4 md:-ml-8">
             <img
               onClick={() => navigate("/")}
               style={{ transform: "scale(1.7)" }}
@@ -36,8 +36,8 @@ const Navbar = () => {
             </span>
           </div>
 
-          {/* Desktop Menu - Fixed capitalization */}
-          <ul className="hidden md:flex items-center gap-8 font-medium">
+          {/* Desktop Menu - Centered with proper flex positioning */}
+          <ul className="hidden md:flex items-center gap-8 font-medium absolute left-1/2 transform -translate-x-1/2">
             {["/", "/Doctors", "/Awards", "/About", "/Contact"].map((path, index) => (
               <li key={index} className="relative group">
                 <NavLink
@@ -55,8 +55,8 @@ const Navbar = () => {
             ))}
           </ul>
 
-          {/* Right Side Container - responsive margins */}
-          <div className="flex items-center gap-2 md:gap-4 md:-mr-16">
+          {/* Right Side Container - Moved further right */}
+          <div className="flex items-center gap-2 md:gap-4 flex-shrink-0 -mr-4 md:-mr-8">
             {token && userData ? (
               // Profile Dropdown - Responsive sizing
               <div className="relative group flex items-center gap-1 md:gap-2 cursor-pointer">
@@ -91,7 +91,7 @@ const Navbar = () => {
               // Only show Create Account button if not logged in
               <button
                 onClick={() => navigate("/login")}
-                className="bg-primary text-white px-3 md:px-6 py-1.5 md:py-2 rounded-full font-light text-xs md:text-base hidden sm:block hover:scale-105 transition-transform duration-300 shadow-md"
+                className="bg-primary text-white px-4 md:px-8 py-1.5 md:py-2 rounded-full font-light text-xs md:text-base hidden sm:block hover:scale-105 transition-transform duration-300 shadow-md"
               >
                 Create Account
               </button>

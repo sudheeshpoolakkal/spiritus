@@ -168,7 +168,7 @@ const DoctorContextProvider = (props) => {
     }
   };
 
-  // Get doctor slots
+  // Get doctor slots - FIXED: Using POST request with body instead of GET
   const getDoctorSlots = async () => {
     try {
       const docId = localStorage.getItem("docId");
@@ -177,9 +177,10 @@ const DoctorContextProvider = (props) => {
         return;
       }
       
-      const { data } = await axios.get(
+      // FIXED: Changed from GET to POST request
+      const { data } = await axios.post(
         backendUrl + "/api/doctor/slots",
-        { docId },
+        { docId }, // Send docId in body
         { headers: { dToken } }
       );
       

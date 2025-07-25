@@ -177,7 +177,8 @@ const doctorProfile = async (req, res) => {
             profileData: {
                 ...profileData.toObject(),
                 rating: profileData.rating,
-                ratingCount: profileData.ratingCount
+                ratingCount: profileData.ratingCount,
+                custom_slots: profileData.custom_slots || {} // Include custom_slots
             }
         });
     } catch (error) {
@@ -291,10 +292,10 @@ const getReviews = async (req, res) => {
     }
 };
 
-// API to get doctor slots
+// API to get doctor slots - FIXED: Changed to handle POST request with body
 const getDoctorSlots = async (req, res) => {
     try {
-        const { docId } = req.body;
+        const { docId } = req.body; // Changed from req.params to req.body
         
         if (!docId) {
             return res.status(400).json({ success: false, message: "Doctor ID is required." });
