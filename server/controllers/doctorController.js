@@ -177,7 +177,8 @@ const doctorProfile = async (req, res) => {
             profileData: {
                 ...profileData.toObject(),
                 rating: profileData.rating,
-                ratingCount: profileData.ratingCount
+                ratingCount: profileData.ratingCount,
+                custom_slots: profileData.custom_slots || {} // Include custom_slots
             }
         });
     } catch (error) {
@@ -291,8 +292,117 @@ const getReviews = async (req, res) => {
     }
 };
 
+// API to get doctor slots - FIXED: Changed to handle POST request with body
+const getDoctorSlots = async (req, res) => {
+    try {
+        const { docId } = req.body; // Changed from req.params to req.body
+        
+        if (!docId) {
+            return res.status(400).json({ success: false, message: "Doctor ID is required." });
+        }
 
+        const doctor = await doctorModel.findById(docId).select('custom_slots');
+        if (!doctor) {
+            return res.status(404).json({ success: false, message: "Doctor not found." });
+        }
 
+        res.json({ 
+            success: true, 
+            slots: doctor.custom_slots || {} 
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// API to update doctor slots
+const updateDoctorSlots = async (req, res) => {
+    try {
+        const { docId, date, timeSlots } = req.body;
+        
+        if (!docId || !date) {
+            return res.status(400).json({ success: false, message: "Doctor ID and date are required." });
+        }
+
+        const doctor = await doctorModel.findById(docId);
+        if (!doctor) {
+            return res.status(404).json({ success: false, message: "Doctor not found." });
+        }
+
+        // Initialize custom_slots if it doesn't exist
+        if (!doctor.custom_slots) {
+            doctor.custom_slots = {};
+        }
+
+        // Update slots for the specific date
+        doctor.custom_slots[date] = timeSlots || [];
+        
+        // Mark the field as modified for nested objects
+        doctor.markModified('custom_slots');
+        
+        await doctor.save();
+
+        res.json({ 
+            success: true, 
+            message: "Slots updated successfully!",
+            slots: doctor.custom_slots
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// API to delete slots for a specific date
+const deleteDoctorSlots = async (req, res) => {
+    try {
+        const { docId, date } = req.body;
+        
+        if (!docId || !date) {
+            return res.status(400).json({ success: false, message: "Doctor ID and date are required." });
+        }
+
+        const doctor = await doctorModel.findById(docId);
+        if (!doctor) {
+            return res.status(404).json({ success: false, message: "Doctor not found." });
+        }
+
+        // Remove slots for the specific date
+        if (doctor.custom_slots && doctor.custom_slots[date]) {
+            delete doctor.custom_slots[date];
+            doctor.markModified('custom_slots');
+            await doctor.save();
+        }
+
+        res.json({ 
+            success: true, 
+            message: "Slots deleted successfully!",
+            slots: doctor.custom_slots
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// Get single doctor by ID with custom_slots
+const getDoctorById = async (req, res) => {
+  try {
+    const { docId } = req.params;
+    
+    const doctor = await doctorModel.findById(docId).select('-password');
+    
+    if (!doctor) {
+      return res.json({ success: false, message: 'Doctor not found' });
+    }
+    
+    res.json({ success: true, doctor });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
 
 export {
     changeAvailablity,
@@ -307,5 +417,8 @@ export {
     setVideoCallLink,
     submitRating,
     getReviews,
-
+    getDoctorSlots,
+    updateDoctorSlots,
+    deleteDoctorSlots,
+    getDoctorById,
 }

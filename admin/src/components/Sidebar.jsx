@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { NavLink } from 'react-router-dom';
 import { AdminContext } from '../context/AdminContext';
 import { DoctorContext } from '../context/DoctorContext';
-import { LayoutDashboard, Calendar, UserPlus, Users, MessageSquare, User } from 'lucide-react';
+import { LayoutDashboard, Calendar, UserPlus, Users, MessageSquare, User, Clock } from 'lucide-react';
 
 const Sidebar = () => {
   const { aToken } = useContext(AdminContext);
@@ -21,6 +21,7 @@ const Sidebar = () => {
   const doctorNavItems = [
     { to: '/doctor-dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { to: '/doctor-appointments', icon: Calendar, label: 'Appointments' },
+    { to: '/doctor-slots', icon: Clock, label: 'Manage Slots' },
     { to: '/doctor-profile', icon: User, label: 'Profile' },
   ];
 

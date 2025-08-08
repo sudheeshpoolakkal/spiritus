@@ -13,6 +13,7 @@ const DoctorContextProvider = (props) => {
   const [appointments, setAppointments] = useState([]);
   const [dashData, setDashData] = useState(false);
   const [profileData, setProfileData] = useState(false);
+  const [doctorSlots, setDoctorSlots] = useState({});
 
   const getAppointments = async () => {
     try {
@@ -167,6 +168,96 @@ const DoctorContextProvider = (props) => {
     }
   };
 
+  // Get doctor slots - FIXED: Using POST request with body instead of GET
+  const getDoctorSlots = async () => {
+    try {
+      const docId = localStorage.getItem("docId");
+      if (!docId) {
+        toast.error("Doctor id not found");
+        return;
+      }
+      
+      // FIXED: Changed from GET to POST request
+      const { data } = await axios.post(
+        backendUrl + "/api/doctor/slots",
+        { docId }, // Send docId in body
+        { headers: { dToken } }
+      );
+      
+      if (data.success) {
+        setDoctorSlots(data.slots);
+        return data.slots;
+      } else {
+        toast.error(data.message);
+        return {};
+      }
+    } catch (error) {
+      console.error("Error fetching doctor slots:", error);
+      toast.error(error.message);
+      return {};
+    }
+  };
+
+  // Update doctor slots for a specific date
+  const updateDoctorSlots = async (date, timeSlots) => {
+    try {
+      const docId = localStorage.getItem("docId");
+      if (!docId) {
+        toast.error("Doctor id not found");
+        return false;
+      }
+
+      const { data } = await axios.post(
+        backendUrl + "/api/doctor/update-slots",
+        { docId, date, timeSlots },
+        { headers: { dToken } }
+      );
+
+      if (data.success) {
+        toast.success(data.message);
+        setDoctorSlots(data.slots);
+        return true;
+      } else {
+        toast.error(data.message);
+        return false;
+      }
+    } catch (error) {
+      console.error("Error updating doctor slots:", error);
+      toast.error(error.message);
+      return false;
+    }
+  };
+
+  // Delete doctor slots for a specific date
+  const deleteDoctorSlots = async (date) => {
+    try {
+      const docId = localStorage.getItem("docId");
+      if (!docId) {
+        toast.error("Doctor id not found");
+        return false;
+      }
+
+      const { data } = await axios.post(
+        backendUrl + "/api/doctor/delete-slots",
+        { docId, date },
+        { headers: { dToken } }
+      );
+
+      if (data.success) {
+        toast.success(data.message);
+        setDoctorSlots(data.slots);
+        return true;
+      } else {
+        toast.error(data.message);
+        return false;
+      }
+    } catch (error) {
+      console.error("Error deleting doctor slots:", error);
+      toast.error(error.message);
+      return false;
+    }
+  };
+
   const value = {
     dToken,
     setDToken,
@@ -185,6 +276,11 @@ const DoctorContextProvider = (props) => {
     setVideoCallLink,
     addPrescription,
     getDoctorPrescription,
+    doctorSlots,
+    setDoctorSlots,
+    getDoctorSlots,
+    updateDoctorSlots,
+    deleteDoctorSlots,
   };
 
   return (

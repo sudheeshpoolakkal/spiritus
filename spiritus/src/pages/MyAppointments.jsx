@@ -35,6 +35,33 @@ const MyAppointments = () => {
     );
   };
 
+  // Helper function to parse appointment time correctly
+  const parseAppointmentTime = (slotDate, slotTime) => {
+    const [day, month, year] = slotDate.split("_").map(Number);
+    
+    // Parse AM/PM time format
+    const timeRegex = /^(\d{1,2}):(\d{2})\s*(AM|PM)$/i;
+    const match = slotTime.match(timeRegex);
+    
+    if (!match) {
+      console.error("Invalid time format:", slotTime);
+      return null;
+    }
+    
+    let [, hours, minutes, period] = match;
+    hours = parseInt(hours);
+    minutes = parseInt(minutes);
+    
+    // Convert to 24-hour format
+    if (period.toUpperCase() === 'PM' && hours !== 12) {
+      hours += 12;
+    } else if (period.toUpperCase() === 'AM' && hours === 12) {
+      hours = 0;
+    }
+    
+    return new Date(year, month - 1, day, hours, minutes);
+  };
+
   const getUserAppointments = async () => {
     setIsLoading(true);
     try {
@@ -80,37 +107,60 @@ const MyAppointments = () => {
     }
   }, [token]);
 
+  // Updated function to check if join button should be visible (15 minutes before to 1 hour after)
   const isJoinButtonVisible = (slotDate, slotTime) => {
-    const [day, month, year] = slotDate.split("_").map(Number);
-    const [hours, minutes] = slotTime.split(":").map(Number);
-    const appointmentTime = new Date(year, month - 1, day, hours, minutes);
+    const appointmentTime = parseAppointmentTime(slotDate, slotTime);
+    if (!appointmentTime) return false;
+    
     const currentTime = new Date();
-    const timeDifference = (appointmentTime - currentTime) / (1000 * 60);
-    return timeDifference <= 15 && timeDifference >= -15;
+    const timeDifference = (appointmentTime - currentTime) / (1000 * 60); // in minutes
+    
+    // Show join button from 15 minutes before to 60 minutes after appointment
+    return timeDifference <= 15 && timeDifference >= -60;
   };
 
+  // Updated function to show "meeting scheduled" message
   const shouldShowScheduledMessage = (slotDate, slotTime) => {
-    const [day, month, year] = slotDate.split("_").map(Number);
-    const [hours, minutes] = slotTime.split(":").map(Number);
-    const appointmentTime = new Date(year, month - 1, day, hours, minutes);
+    const appointmentTime = parseAppointmentTime(slotDate, slotTime);
+    if (!appointmentTime) return false;
+    
     const currentTime = new Date();
-    const timeDifference = (appointmentTime - currentTime) / (1000 * 60);
+    const timeDifference = (appointmentTime - currentTime) / (1000 * 60); // in minutes
+    
+    // Show scheduled message when more than 15 minutes before appointment
     return timeDifference > 15;
+  };
+
+  // Updated function to check if appointment should be marked as completed
+  const isAppointmentCompleted = (slotDate, slotTime) => {
+    const appointmentTime = parseAppointmentTime(slotDate, slotTime);
+    if (!appointmentTime) return false;
+    
+    const currentTime = new Date();
+    const timeDifference = (appointmentTime - currentTime) / (1000 * 60); // in minutes
+    
+    // Mark as completed if more than 60 minutes have passed after appointment time
+    return timeDifference < -60;
   };
 
   const getAppointmentStatus = (appointment) => {
     if (appointment.cancelled) return "cancelled";
+    
+    // Check if manually marked as completed in database
     if (appointment.isCompleted) return "completed";
 
-    const [day, month, year] = appointment.slotDate.split("_").map(Number);
-    const [hours, minutes] = appointment.slotTime.split(":").map(Number);
-    const appointmentTime = new Date(year, month - 1, day, hours, minutes);
+    const appointmentTime = parseAppointmentTime(appointment.slotDate, appointment.slotTime);
+    if (!appointmentTime) return "upcoming";
+    
     const currentTime = new Date();
+    const timeDifference = (appointmentTime - currentTime) / (1000 * 60); // in minutes
 
-    if (appointmentTime < currentTime && !appointment.isCompleted)
-      return "missed";
-    if (isJoinButtonVisible(appointment.slotDate, appointment.slotTime))
-      return "active";
+    // If appointment time has passed by more than 60 minutes and not manually marked as completed
+    if (timeDifference < -60) return "completed";
+    
+    // If within 15 minutes before to 60 minutes after
+    if (timeDifference <= 15 && timeDifference >= -60) return "active";
+    
     return "upcoming";
   };
 
@@ -349,13 +399,11 @@ const MyAppointments = () => {
                                   {item.payment ? "Paid" : "Unpaid"}
                                 </div>
                               </div>
-                              {status !== "completed" && (
-                                <div
-                                  className={`mt-2 px-3 py-1 text-xs font-medium rounded-md text-center uppercase ${statusStyles}`}
-                                >
-                                  {status}
-                                </div>
-                              )}
+                              <div
+                                className={`mt-2 px-3 py-1 text-xs font-medium rounded-md text-center uppercase ${statusStyles}`}
+                              >
+                                {status}
+                              </div>
                             </div>
                             <div>
                               <h2 className="text-lg font-bold text-gray-800">
@@ -429,20 +477,10 @@ const MyAppointments = () => {
                             </div>
                           </div>
                           <div className="flex flex-col lg:items-end gap-2 lg:w-40">
-                            {status === "completed" && (
-                              <div className="px-3 py-1 text-xs rounded-md font-medium bg-blue-50 text-blue-700 border border-blue-200 mb-2">
-                                Completed
-                              </div>
-                            )}
-                            {item.cancelled && (
-                              <div className="px-3 py-1 text-xs rounded-md font-medium bg-red-100 text-red-800 border border-red-200 mb-2">
-                                Cancelled
-                              </div>
-                            )}
                             <div className="flex flex-wrap gap-2 justify-end">
                               {!item.cancelled &&
                                 !item.payment &&
-                                !item.isCompleted && (
+                                status !== "completed" && (
                                   <button
                                     onClick={() => handlePayOnline(item)}
                                     className="flex items-center justify-center px-4 py-2 text-sm font-medium bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition shadow-sm"
@@ -450,7 +488,7 @@ const MyAppointments = () => {
                                     Pay Now
                                   </button>
                                 )}
-                              {!item.cancelled && !item.isCompleted && (
+                              {!item.cancelled && status !== "completed" && (
                                 <button
                                   onClick={() => cancelAppointment(item._id)}
                                   className="flex items-center justify-center px-4 py-2 text-sm font-medium border border-gray-300 bg-white text-gray-700 rounded-lg hover:bg-gray-50 transition"
@@ -473,8 +511,7 @@ const MyAppointments = () => {
                                   </a>
                                 )}
                               {item.payment &&
-                                item.isCompleted &&
-                                 (
+                                status === "completed" && (
                                   <button
                                     onClick={() =>
                                       navigate("/user-prescription", {
@@ -489,29 +526,57 @@ const MyAppointments = () => {
                             </div>
                           </div>
                         </div>
-                        {item.videoCallLink &&
-                          shouldShowScheduledMessage(
-                            item.slotDate,
-                            item.slotTime
-                          ) && (
-                            <div className="mt-4 px-4 py-3 bg-blue-50 border border-blue-200 text-blue-700 rounded-lg text-sm flex items-center">
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-5 w-5 mr-2 flex-shrink-0"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                                />
-                              </svg>
-                              Join link will be available 15 minutes before your scheduled appointment time
-                            </div>
-                          )}
+                        
+                        {/* Show different messages based on appointment status */}
+                        {item.videoCallLink && (
+                          <>
+                            {shouldShowScheduledMessage(item.slotDate, item.slotTime) && (
+                              <div className="mt-4 px-4 py-3 bg-blue-50 border border-blue-200 text-blue-700 rounded-lg text-sm flex items-center">
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-5 w-5 mr-2 flex-shrink-0"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                  />
+                                </svg>
+                                <div>
+                                  <p className="font-medium">Meeting Scheduled</p>
+                                  <p>Join link will be available 15 minutes before your scheduled appointment time</p>
+                                </div>
+                              </div>
+                            )}
+                            
+                            {isJoinButtonVisible(item.slotDate, item.slotTime) && (
+                              <div className="mt-4 px-4 py-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm flex items-center">
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-5 w-5 mr-2 flex-shrink-0"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+                                  />
+                                </svg>
+                                <div>
+                                  <p className="font-medium">Ready to Join</p>
+                                  <p>Your appointment is ready. Click "Join Meeting" to start your consultation.</p>
+                                </div>
+                              </div>
+                            )}
+                          </>
+                        )}
                       </div>
                     </div>
                   );

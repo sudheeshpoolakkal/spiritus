@@ -97,6 +97,19 @@ const AppContextProvider = (props) => {
     }
   };
 
+  // New function to get doctor with fresh custom_slots data
+  const getDoctorById = async (docId) => {
+    try {
+      const { data } = await axios.get(`${backendUrl}/api/doctor/${docId}`);
+      if (data.success) {
+        return data.doctor;
+      }
+    } catch (error) {
+      console.error("Error fetching doctor by ID:", error);
+    }
+    return null;
+  };
+
   useEffect(() => {
     getDoctorsData();
   }, []);
@@ -133,6 +146,7 @@ const AppContextProvider = (props) => {
     loadAppointments,
     logout, // expose logout
     getPrescription, // added getPrescription to context value
+    getDoctorById, // added getDoctorById to context value
   };
 
   return <AppContext.Provider value={value}>{props.children}</AppContext.Provider>;
