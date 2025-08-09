@@ -21,7 +21,7 @@ const Navbar = () => {
         <div className="flex items-center -ml-32 h-12">
           <img
             onClick={() => navigate("/")}
-            style={{ transform: "scale(1.7)" }}
+            style={{ transform: "scale(1.6)" }}
             className="h-full w-auto cursor-pointer object-contain"
             src={assets.logo}
             alt="Logo"
