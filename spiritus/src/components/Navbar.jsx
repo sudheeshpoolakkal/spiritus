@@ -21,7 +21,7 @@ const Navbar = () => {
         <div className="flex items-center -ml-32 h-12">
           <img
             onClick={() => navigate("/")}
-            style={{ transform: "scale(1.6)" }}
+            style={{ transform: "scale(1.3)" }}
             className="h-full w-auto cursor-pointer object-contain"
             src={assets.logo}
             alt="Logo"
@@ -33,7 +33,7 @@ const Navbar = () => {
               color: "black",
               fontWeight: 600,
               fontSize: "1.6rem",
-              transform: "translateY(-2.4px)", // moves upward by 2px
+              transform: "translateY(-2.4px) translateX(-8px)", // moves upward by 2px
             }}
             className="tracking-wide ml-3 cursor-pointer transition-all duration-300 hover:scale-105"
           >
