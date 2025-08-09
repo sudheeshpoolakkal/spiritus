@@ -185,7 +185,7 @@ const AddHospital = () => {
     <div className="m-5 w-full">
       <p className="mb-3 text-lg font-medium">Add Hospital</p>
       {/* Updated container with scrollable content similar to AddDoctor */}
-      <div className="bg-white px-8 py-8 border rounded w-full max-w-6xl max-h-[80vh] overflow-y-scroll">
+      <div className="bg-white px-8 py-8 border rounded w-full max-w-7xl max-h-[80vh] overflow-y-scroll">
         <form onSubmit={onSubmitHandler}>
           {/* File Upload Section */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">

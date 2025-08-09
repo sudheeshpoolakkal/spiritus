@@ -43,7 +43,7 @@ export const HospitalRegistrations = () => {
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
         </div>
       ) : (
-        <div className="bg-white px-8 py-8 border rounded w-full max-w-4xl max-h-[80vh] overflow-y-scroll">
+        <div className="bg-white px-8 py-8 border rounded w-full max-w-7xl max-h-[80vh] overflow-y-scroll">
           <div className="flex flex-col lg:flex-row items-start gap-10 text-gray-600">
             <div className="w-full lg:flex-1 flex flex-col gap-4">
               <p className="mb-3 text-lg font-medium flex items-center">

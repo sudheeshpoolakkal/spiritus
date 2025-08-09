@@ -25,17 +25,23 @@ const Navbar = () => {
         <div className="flex items-center h-7">
           <img
             onClick={() => navigate("/")}
-            style={{ transform: "scale(1.7)" }}
+            style={{ transform: "scale(2.2)" }}
             className="h-full w-auto cursor-pointer object-contain"
             src={assets.admin_logo}
             alt="Logo"
           />
           <span
             onClick={() => navigate("/")}
-            style={{ fontFamily: '"Computer Modern", serif' }}
-            className="text-2xl font-medium ml-2 cursor-pointer"
+            style={{
+              fontFamily: '"Cormorant Garamond", serif',
+              color: "black",
+              fontWeight: 600,
+              fontSize: "1.6rem",
+              transform: "translateY(-2.4px)", // moves upward by 2px
+            }}
+            className="tracking-wide ml-3 cursor-pointer transition-all duration-300 hover:scale-105"
           >
-            spiritus
+            Spiritus
           </span>
         </div>
             <p className='border px-2.5 py-0.5 rounded-full border-gray-500 text-gray-600'>{aToken ? 'Admin' : 'Doctor'}</p>
