@@ -198,7 +198,7 @@ const Application = () => {
   const renderStep = (currentStep) => {
     switch (currentStep) {
       case 1:
-        const spendOptions = ['Other online platforms like Spiritus', 'Clinic or hospital', 'Private practice', 'Community mental health agency', 'Teaching or counseling in an academic setting', 'Other clinical setting', 'Not currently practicing'];
+        const spendOptions = ['Clinic or hospital', 'Private practice', 'Community mental health agency', 'Teaching or counseling in an academic setting', 'Other clinical setting', 'Not currently practicing'];
         return (
           <div className="bg-white p-6 rounded-xl shadow-md space-y-4">
             <h3 className="text-lg font-bold text-gray-900">Where do you currently spend most of your time?</h3>
@@ -228,7 +228,7 @@ const Application = () => {
           </div>
         );
       case 2:
-        const adminOptions = ['Up to 10% of my time', '10 to 30% of my time', 'More than 30% of my time'];
+        const adminOptions = ['0% of my time','Up to 10% of my time', '10 to 30% of my time', 'More than 30% of my time'];
         return (
           <div className="bg-white p-6 rounded-xl shadow-md space-y-4">
             <h3 className="text-lg font-bold text-gray-900">How much of your time is currently spent on administrative and/or billing related tasks?</h3>
@@ -318,7 +318,7 @@ const Application = () => {
           </div>
         );
       case 5:
-        const hearOptions = ['Email Outreach', 'Podcast', 'Internet Research', 'Mail', 'Other', 'Friend or colleague'];
+        const hearOptions = ['Friend or colleague','Podcast', 'Internet Research', 'Email Outreach',  'Social Media', 'Other', ];
         return (
           <div className="bg-white p-6 rounded-xl shadow-md space-y-4">
             <h3 className="text-lg font-bold text-gray-900">How did you first hear about Spiritus?</h3>
@@ -349,7 +349,7 @@ const Application = () => {
         );
       case 6:
         return (
-          <div className="bg-white p-6 rounded-xl shadow-md space-y-4">
+          <div className="bg-white text-black p-6 rounded-xl shadow-md space-y-4">
             <h3 className="text-lg font-bold text-gray-900">Finally, provide your name, email, and the primary state you're licensed in.</h3>
             <input
               placeholder="First name"
