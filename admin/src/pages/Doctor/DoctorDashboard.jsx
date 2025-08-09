@@ -27,7 +27,7 @@ const SlotsIcon = () => (
   </svg>
 );
 
-export const DoctorDashboard = () => {
+const DoctorDashboard = () => {
   const { dToken, dashData, getDashData, cancelAppointment, completeAppointment, doctorSlots, getDoctorSlots } = useContext(DoctorContext);
   const { currency, slotDateFormat } = useContext(AppContext);
 
@@ -164,3 +164,5 @@ export const DoctorDashboard = () => {
     )
   );
 };
+
+export default DoctorDashboard;

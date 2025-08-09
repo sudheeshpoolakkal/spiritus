@@ -1,10 +1,12 @@
-import validator from 'validator'
-import bcrypt from 'bcrypt'
-import userModel from '../models/userModel.js'
-import jwt from 'jsonwebtoken'
-import doctorModel from '../models/doctorModel.js'
-import appointmentModel from '../models/appointmentModel.js'
-import feedbackModel from "../models/feedbackModel.js";
+import validator from 'validator';
+import bcrypt from 'bcrypt';
+import userModel from '../models/userModel.js';
+import jwt from 'jsonwebtoken';
+import doctorModel from '../models/doctorModel.js'; // Existing doctor model
+import appointmentModel from '../models/appointmentModel.js';
+import feedbackModel from '../models/feedbackModel.js';
+import hospitalModel from '../models/hospitalModel.js';
+import doctorRegistrationModel from '../models/doctorRegistrationModel.js'; // New registration model
 //import razorpay from 'razorpay'
 import { v2 as cloudinary } from 'cloudinary';
 // API to register user
@@ -498,6 +500,162 @@ const submitFeedback = async (req, res) => {
 };
 
   
+const submitHospitalRegistration = async (req, res) => {
+  try {
+    const {
+      hospitalName, type, yearEstablished, address, country, state, district, pinCode,
+      contactNumber, emailAddress, website, keyContact, mentalHealthProfessionals,
+      specializations, currentFees, teletherapy, operatingHours, emergencySupport,
+      averagePatientLoad, insuranceTies, accreditations, acknowledgement,
+    } = req.body;
+
+    const hospitalLicense = req.files?.hospitalLicense;
+    const hospitalLogo = req.files?.hospitalLogo;
+
+    // Validate required fields
+    if (!hospitalName || !type || !yearEstablished || !address || !country || !state ||
+        !district || !pinCode || !contactNumber || !emailAddress || !mentalHealthProfessionals ||
+        !specializations || !currentFees || !teletherapy || !averagePatientLoad ||
+        !accreditations || !acknowledgement || !hospitalLicense) {
+      return res.json({ success: false, message: 'Please fill all required fields' });
+    }
+
+    // Validate email
+    if (!validator.isEmail(emailAddress)) {
+      return res.json({ success: false, message: 'Please enter a valid email' });
+    }
+
+    // Upload files to Cloudinary
+    let hospitalLicenseUrl, hospitalLogoUrl;
+    if (hospitalLicense) {
+      hospitalLicenseUrl = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          { resource_type: 'auto' },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result.secure_url);
+          }
+        );
+        uploadStream.end(hospitalLicense.data);
+      });
+    }
+    if (hospitalLogo) {
+      hospitalLogoUrl = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          { resource_type: 'image', transformation: [{ crop: 'fill', aspect_ratio: '1.0', gravity: 'auto' }] },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result.secure_url);
+          }
+        );
+        uploadStream.end(hospitalLogo.data);
+      });
+    }
+
+    // Parse specializations if it's a string
+    const parsedSpecializations = Array.isArray(specializations) ? specializations : JSON.parse(specializations);
+
+    const hospitalData = {
+      hospitalName, type, yearEstablished, address, country, state, district, pinCode,
+      contactNumber, emailAddress, website, keyContact, mentalHealthProfessionals,
+      specializations: parsedSpecializations, currentFees, teletherapy, operatingHours,
+      emergencySupport, averagePatientLoad, insuranceTies, accreditations,
+      hospitalLicense: hospitalLicenseUrl, hospitalLogo: hospitalLogoUrl,
+      acknowledgement,
+    };
+
+    const newHospital = new hospitalModel(hospitalData);
+    await newHospital.save();
+
+    res.json({ success: true, message: 'Hospital registration submitted successfully' });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+const submitDoctorRegistration = async (req, res) => {
+  try {
+    const {
+      fullName, designation, qualification, experience, licenseNumber, address,
+      country, state, district, pinCode, contactNumber, emailAddress, website,
+      specializations, consultationFees, teletherapy, availableHours, languagesSpoken,
+      emergencyConsultation, averagePatientsPerDay, acceptedInsurance, certifications,
+      acknowledgement,
+    } = req.body;
+
+    const profilePhoto = req.files?.profilePhoto;
+    const licenseCertificate = req.files?.licenseCertificate;
+
+    // Validate required fields
+    if (!fullName || !designation || !qualification || !experience || !licenseNumber ||
+        !address || !country || !state || !district || !pinCode || !contactNumber ||
+        !emailAddress || !specializations || !consultationFees || !teletherapy ||
+        !languagesSpoken || !averagePatientsPerDay || !certifications ||
+        !acknowledgement || !licenseCertificate) {
+      return res.json({ success: false, message: 'Please fill all required fields' });
+    }
+
+    // Validate email
+    if (!validator.isEmail(emailAddress)) {
+      return res.json({ success: false, message: 'Please enter a valid email' });
+    }
+
+    // Upload files to Cloudinary
+    let profilePhotoUrl, licenseCertificateUrl;
+    if (profilePhoto) {
+      profilePhotoUrl = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          { resource_type: 'image', transformation: [{ crop: 'fill', aspect_ratio: '1.0', gravity: 'auto' }] },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result.secure_url);
+          }
+        );
+        uploadStream.end(profilePhoto.data);
+      });
+    }
+    if (licenseCertificate) {
+      licenseCertificateUrl = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          { resource_type: 'auto' },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result.secure_url);
+          }
+        );
+        uploadStream.end(licenseCertificate.data);
+      });
+    }
+
+    // Parse arrays if they're strings
+    const parsedSpecializations = Array.isArray(specializations) ? specializations : JSON.parse(specializations);
+    const parsedLanguages = Array.isArray(languagesSpoken) ? languagesSpoken : JSON.parse(languagesSpoken);
+
+    const doctorData = {
+      fullName, designation, qualification, experience, licenseNumber, address,
+      country, state, district, pinCode, contactNumber, emailAddress, website,
+      specializations: parsedSpecializations, consultationFees, teletherapy,
+      availableHours, languagesSpoken: parsedLanguages, emergencyConsultation,
+      averagePatientsPerDay, acceptedInsurance, certifications,
+      profilePhoto: profilePhotoUrl, licenseCertificate: licenseCertificateUrl,
+      acknowledgement,
+    };
+
+    const newDoctor = new doctorRegistrationModel(doctorData);
+    await newDoctor.save();
+
+    res.json({ success: true, message: 'Doctor registration submitted successfully' });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: error.message });
+  }
+};
        
 
-export { registerUser, loginUser, getProfile, uploadProfileImage, updateProfile, bookAppointment, listAppointment, cancelAppointment, getVideoCallLink, processPayment, rateDoctor, submitFeedback  };
+export {
+  registerUser, loginUser, getProfile, uploadProfileImage, updateProfile,
+  bookAppointment, listAppointment, cancelAppointment, getVideoCallLink,
+  processPayment, rateDoctor, submitFeedback, submitHospitalRegistration,
+  submitDoctorRegistration,
+};

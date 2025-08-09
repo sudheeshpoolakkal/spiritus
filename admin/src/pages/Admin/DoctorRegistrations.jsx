@@ -1,0 +1,190 @@
+import React, { useContext, useEffect, useState } from 'react';
+import { AdminContext } from '../../context/AdminContext';
+import { FiCheckCircle, FiTrash2, FiMail, FiEye } from 'react-icons/fi';
+
+export const DoctorRegistrations = () => {
+  const { doctorRegistrations, getAllDoctorRegistrations, markDoctorRegistrationAsReviewed, deleteDoctorRegistration } = useContext(AdminContext);
+  const [loading, setLoading] = useState(true);
+  const [selectedRegistration, setSelectedRegistration] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      await getAllDoctorRegistrations();
+      setLoading(false);
+    };
+    fetchData();
+  }, []);
+
+  const handleMarkAsReviewed = async (id) => {
+    await markDoctorRegistrationAsReviewed(id);
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this doctor registration?')) {
+      await deleteDoctorRegistration(id);
+      if (selectedRegistration && selectedRegistration._id === id) {
+        setSelectedRegistration(null);
+      }
+    }
+  };
+
+  const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+    return new Date(dateString).toLocaleDateString('en-US', options);
+  };
+
+  return (
+    <div className="m-5 w-full">
+      <p className="mb-3 text-lg font-medium">Doctor Registration Management</p>
+      
+      {loading ? (
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        </div>
+      ) : (
+        <div className="bg-white px-8 py-8 border rounded w-full max-w-7xl max-h-[82vh] overflow-y-scroll">
+          <div className="flex flex-col lg:flex-row items-start gap-10 text-gray-600">
+            <div className="w-full lg:flex-1 flex flex-col gap-4">
+              <p className="mb-3 text-lg font-medium flex items-center">
+                <FiMail className="mr-2" /> Doctor Registration List
+              </p>
+              
+              {doctorRegistrations.length === 0 ? (
+                <p className="text-gray-500 text-center py-8">No doctor registration submissions yet.</p>
+              ) : (
+                <ul className="flex flex-col gap-2">
+                  {doctorRegistrations.map((registration) => (
+                    <li 
+                      key={registration._id}
+                      className={`p-3 rounded cursor-pointer transition-all duration-200 ${
+                        selectedRegistration && selectedRegistration._id === registration._id
+                          ? 'bg-blue-100 border-l-4 border-primary'
+                          : registration.isReviewed 
+                            ? 'hover:bg-gray-100 bg-gray-50 border'
+                            : 'hover:bg-blue-50 bg-blue-50 border-l-4 border-primary'
+                      }`}
+                      onClick={() => setSelectedRegistration(registration)}
+                    >
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className={`font-medium ${!registration.isReviewed && 'font-medium'}`}>
+                            {registration.fullName}
+                          </h3>
+                          <p className="text-sm text-gray-500 mt-1">
+                            {formatDate(registration.createdAt)}
+                          </p>
+                        </div>
+                        <div className="flex space-x-1">
+                          {!registration.isReviewed && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleMarkAsReviewed(registration._id);
+                              }}
+                              className="text-green-500 hover:text-green-700 p-1"
+                              title="Mark as reviewed"
+                            >
+                              <FiCheckCircle />
+                            </button>
+                          )}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDelete(registration._id);
+                            }}
+                            className="text-red-500 hover:text-red-700 p-1"
+                            title="Delete registration"
+                          >
+                            <FiTrash2 />
+                          </button>
+                        </div>
+                      </div>
+                      <p className="text-sm text-gray-600 mt-1 truncate">
+                        {registration.designation} | {registration.qualification}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            
+            <div className="w-full lg:flex-1 flex flex-col gap-4">
+              {selectedRegistration ? (
+                <div>
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h2 className="text-lg font-medium">{selectedRegistration.fullName}</h2>
+                      <p className="text-primary">{selectedRegistration.emailAddress}</p>
+                      <p className="text-gray-500 text-sm mt-1">
+                        Submitted on {formatDate(selectedRegistration.createdAt)}
+                      </p>
+                    </div>
+                    <div className="flex space-x-2">
+                      {!selectedRegistration.isReviewed && (
+                        <button
+                          onClick={() => handleMarkAsReviewed(selectedRegistration._id)}
+                          className="flex items-center bg-green-100 text-green-600 px-3 py-1 rounded hover:bg-green-200 transition-colors"
+                        >
+                          <FiCheckCircle className="mr-1" /> Mark as reviewed
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleDelete(selectedRegistration._id)}
+                        className="flex items-center bg-red-100 text-red-600 px-3 py-1 rounded hover:bg-red-200 transition-colors"
+                      >
+                        <FiTrash2 className="mr-1" /> Delete
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="border rounded px-3 py-3 bg-gray-50">
+                    <p className="mb-2 font-medium flex items-center">
+                      <FiEye className="mr-2" /> Registration Details
+                    </p>
+                    <p className="text-gray-700"><strong>Designation:</strong> {selectedRegistration.designation}</p>
+                    <p className="text-gray-700"><strong>Qualification:</strong> {selectedRegistration.qualification}</p>
+                    <p className="text-gray-700"><strong>Experience:</strong> {selectedRegistration.experience} years</p>
+                    <p className="text-gray-700"><strong>License Number:</strong> {selectedRegistration.licenseNumber}</p>
+                    <p className="text-gray-700"><strong>Specializations:</strong> {selectedRegistration.specializations.join(', ')}</p>
+                    <p className="text-gray-700"><strong>Languages Spoken:</strong> {selectedRegistration.languagesSpoken.join(', ')}</p>
+                    <p className="text-gray-700"><strong>Address:</strong> {selectedRegistration.address}, {selectedRegistration.district}, {selectedRegistration.state}, {selectedRegistration.country} {selectedRegistration.pinCode}</p>
+                    <p className="text-gray-700"><strong>Contact:</strong> {selectedRegistration.contactNumber}</p>
+                    {selectedRegistration.profilePhoto && (
+                      <p className="text-gray-700">
+                        <strong>Profile Photo:</strong> <a href={selectedRegistration.profilePhoto} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">View Photo</a>
+                      </p>
+                    )}
+                    {selectedRegistration.licenseCertificate && (
+                      <p className="text-gray-700">
+                        <strong>License Certificate:</strong> <a href={selectedRegistration.licenseCertificate} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">View Certificate</a>
+                      </p>
+                    )}
+                  </div>
+                  
+                  {!selectedRegistration.isReviewed && (
+                    <div className="mt-4 bg-blue-50 border border-blue-100 p-3 rounded">
+                      <p className="text-primary text-sm">
+                        This registration is unreviewed. Mark it as reviewed once you've checked it.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center h-64 text-center border rounded px-3 py-3 bg-gray-50">
+                  <FiMail className="text-gray-400 text-6xl mb-4" />
+                  <h3 className="text-lg font-medium text-gray-500">Select a registration to view details</h3>
+                  <p className="text-gray-400 mt-2">
+                    Click on any registration from the list to view its contents
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default DoctorRegistrations;

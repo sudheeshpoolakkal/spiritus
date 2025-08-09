@@ -15,13 +15,13 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 w-full z-40 bg-white/90 backdrop-blur-sm shadow-[0_4px_8px_rgba(0,0,0,0.1)] h-16 px-4 md:px-8 flex items-center">
+    <nav className="fixed top-0 left-0 w-full z-40 bg-white/90 backdrop-blur-sm shadow-[0_4px_8px_rgba(0,0,0,0.1)] h-[3.25rem] px-4 md:px-8 flex items-center">
       <div className="max-w-[1200px] w-full mx-auto flex items-center justify-between">
         {/* Logo + Text Container with slight negative left margin */}
-        <div className="flex items-center -ml-52 h-12">
+        <div className="flex items-center -ml-32 h-12">
           <img
             onClick={() => navigate("/")}
-            style={{ transform: "scale(1.7)" }}
+            style={{ transform: "scale(1.3)" }}
             className="h-full w-auto cursor-pointer object-contain"
             src={assets.logo}
             alt="Logo"
@@ -33,7 +33,7 @@ const Navbar = () => {
               color: "black",
               fontWeight: 600,
               fontSize: "1.6rem",
-              transform: "translateY(-2.4px)", // moves upward by 2px
+              transform: "translateY(-2.4px) translateX(-8px)", // moves upward by 2px
             }}
             className="tracking-wide ml-3 cursor-pointer transition-all duration-300 hover:scale-105"
           >
@@ -43,7 +43,7 @@ const Navbar = () => {
 
         {/* Desktop Menu - Spiritus style + active green */}
 <ul className="hidden md:flex items-center gap-8 font-medium absolute left-1/2 transform -translate-x-1/2">
-  {["/", "/Doctors", "/Awards", "/About", "/Contact"].map((path, index) => (
+  {["/", "/Doctors", "/Awards", "/Application","/About", "/Contact"].map((path, index) => (
     <li key={index} className="relative group">
       <NavLink
         to={path}
@@ -70,7 +70,7 @@ const Navbar = () => {
 
 
         {/* Right Side Container with slight negative right margin */}
-        <div className="flex items-center gap-4 -mr-52">
+        <div className="flex items-center gap-4 -mr-32">
           {token && userData ? (
             // Profile Dropdown - Responsive sizing
             <div className="relative group flex items-center gap-1 md:gap-2 cursor-pointer">
@@ -153,7 +153,7 @@ const Navbar = () => {
         {/* Navigation Links */}
         <div className="py-6">
           <ul className="flex flex-col gap-1 px-4">
-            {["/", "/Doctors", "/Awards", "/About", "/Contact"].map(
+            {["/", "/Doctors", "/Awards", "/Application", "/About", "/Contact"].map(
               (path, index) => (
                 <li key={index} className="w-full">
                   <NavLink

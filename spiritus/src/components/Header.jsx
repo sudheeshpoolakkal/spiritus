@@ -31,16 +31,17 @@ function Header() {
 
   return (
     <div
-      className="
-        relative min-h-[70vh] sm:min-h-[75vh] md:min-h-[70vh] lg:min-h-[80vh] 
-        flex flex-col md:flex-row items-center justify-center
-        rounded-lg px-6 sm:px-8 md:px-10 lg:px-20 
-        bg-cover bg-center bg-no-repeat transition-all duration-1000 overflow-hidden
-      "
-      style={{
-        backgroundImage: `url(${bgImage})`,
-      }}
-    >
+  className="
+    relative min-h-[70vh] sm:min-h-[75vh] md:min-h-[70vh] lg:min-h-[80vh] 
+    flex flex-col md:flex-row items-center justify-center
+    rounded-lg px-6 sm:px-8 md:px-10 lg:px-20 
+    -mt-1 sm:-mt-1 md:-mt-2 lg:-mt-3  
+    bg-cover bg-center bg-no-repeat transition-all duration-1000 overflow-hidden
+  "
+  style={{
+    backgroundImage: `url(${bgImage})`,
+  }}
+>
       {/* Overlay */}
       <div className="absolute inset-0 bg-black opacity-10"></div>
 

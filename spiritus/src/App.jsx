@@ -17,6 +17,7 @@ import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import UserPrescription from './pages/UserPrescription'
 import SpiritusAwards from './pages/SpiritusAwards'
+import Application from './pages/Application'
 const App = () => {
 
   const location = useLocation()
@@ -46,6 +47,7 @@ const App = () => {
           <Route path="/upload-profile" element={<UploadProfileImage />} />
           <Route path="/user-prescription" element={<UserPrescription />} />
           <Route path="/awards" element={<SpiritusAwards />} />
+          <Route path="/application" element={<Application />} />
           {/* Add more routes as needed */}
         </Routes>
       </div>

@@ -14,7 +14,7 @@ import {
   FaUserMd 
 } from "react-icons/fa";
 
-export const DoctorProfile = () => {
+const DoctorProfile = () => {
   const { dToken, profileData, setProfileData, getProfileData, backendUrl } = useContext(DoctorContext);
   const { currency } = useContext(AppContext);
   const [isEdit, setIsEdit] = useState(false);
@@ -237,3 +237,5 @@ export const DoctorProfile = () => {
     </div>
   );
 };
+
+export default DoctorProfile;
