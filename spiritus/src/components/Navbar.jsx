@@ -15,10 +15,10 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 w-full z-40 bg-white/90 backdrop-blur-sm shadow-[0_4px_8px_rgba(0,0,0,0.1)] h-16 px-4 md:px-8 flex items-center">
+    <nav className="fixed top-0 left-0 w-full z-40 bg-white/90 backdrop-blur-sm shadow-[0_4px_8px_rgba(0,0,0,0.1)] h-[3.25rem] px-4 md:px-8 flex items-center">
       <div className="max-w-[1200px] w-full mx-auto flex items-center justify-between">
         {/* Logo + Text Container with slight negative left margin */}
-        <div className="flex items-center -ml-52 h-12">
+        <div className="flex items-center -ml-32 h-12">
           <img
             onClick={() => navigate("/")}
             style={{ transform: "scale(1.7)" }}
@@ -70,7 +70,7 @@ const Navbar = () => {
 
 
         {/* Right Side Container with slight negative right margin */}
-        <div className="flex items-center gap-4 -mr-52">
+        <div className="flex items-center gap-4 -mr-32">
           {token && userData ? (
             // Profile Dropdown - Responsive sizing
             <div className="relative group flex items-center gap-1 md:gap-2 cursor-pointer">
