@@ -2,13 +2,12 @@ import validator from "validator";
 import bcrypt from 'bcrypt';
 import { v2 as cloudinary } from 'cloudinary';
 import doctorModel from '../models/doctorModel.js';
-import jwt from 'jsonwebtoken'
-import appointmentModel from "../models/appointmentModel.js";
-import userModel from "../models/userModel.js";
-import feedbackModel from "../models/feedbackModel.js";
-// API for adding doctor
-// adminController.js
-// adminController.js
+import jwt from 'jsonwebtoken';
+import appointmentModel from '../models/appointmentModel.js';
+import userModel from '../models/userModel.js';
+import feedbackModel from '../models/feedbackModel.js';
+import hospitalModel from '../models/hospitalModel.js';
+import doctorRegistrationModel from '../models/doctorRegistrationModel.js';
 
 const addDoctor = async (req, res) => {
   try {
@@ -262,5 +261,176 @@ const deleteFeedback = async (req, res) => {
   }
 };
   
-export { addDoctor , loginAdmin , allDoctors, appointmentsAdmin, appointmentCancel, adminDashboard,deleteFeedback,markFeedbackAsRead,getAllFeedbacks };
 
+const getAllHospitals = async (req, res) => {
+  try {
+    const hospitals = await hospitalModel.find({}).sort({ createdAt: -1 });
+    res.json({ success: true, hospitals });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+const getAllDoctorRegistrations = async (req, res) => {
+  try {
+    const doctors = await doctorRegistrationModel.find({}).sort({ createdAt: -1 });
+    res.json({ success: true, doctors });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+const markHospitalAsReviewed = async (req, res) => {
+  try {
+    const { hospitalId } = req.body;
+    const hospital = await hospitalModel.findById(hospitalId);
+    if (!hospital) {
+      return res.json({ success: false, message: 'Hospital not found' });
+    }
+    hospital.isReviewed = true;
+    await hospital.save();
+    res.json({ success: true, message: 'Hospital marked as reviewed' });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+const markDoctorRegistrationAsReviewed = async (req, res) => {
+  try {
+    const { doctorId } = req.body;
+    const doctor = await doctorRegistrationModel.findById(doctorId);
+    if (!doctor) {
+      return res.json({ success: false, message: 'Doctor registration not found' });
+    }
+    doctor.isReviewed = true;
+    await doctor.save();
+    res.json({ success: true, message: 'Doctor registration marked as reviewed' });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+const deleteHospital = async (req, res) => {
+  try {
+    const { hospitalId } = req.body;
+    const result = await hospitalModel.findByIdAndDelete(hospitalId);
+    if (!result) {
+      return res.json({ success: false, message: 'Hospital not found' });
+    }
+    res.json({ success: true, message: 'Hospital deleted successfully' });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+const deleteDoctorRegistration = async (req, res) => {
+  try {
+    const { doctorId } = req.body;
+    const result = await doctorRegistrationModel.findByIdAndDelete(doctorId);
+    if (!result) {
+      return res.json({ success: false, message: 'Doctor registration not found' });
+    }
+    res.json({ success: true, message: 'Doctor registration deleted successfully' });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+const addHospital = async (req, res) => {
+  try {
+    const {
+      hospitalName,
+      type,
+      yearEstablished,
+      address,
+      country,
+      state,
+      district,
+      pinCode,
+      contactNumber,
+      emailAddress,
+      website,
+      keyContact,
+      mentalHealthProfessionals,
+      specializations,
+      currentFees,
+      teletherapy,
+      operatingHours,
+      emergencySupport,
+      averagePatientLoad,
+      insuranceTies,
+      accreditations,
+      acknowledgement
+    } = req.body;
+
+    const hospitalLogo = req.files?.hospitalLogo ? `/images/${req.files.hospitalLogo[0].filename}` : null;
+    const hospitalLicense = req.files?.hospitalLicense ? `/images/${req.files.hospitalLicense[0].filename}` : null;
+
+    if (!hospitalLogo || !hospitalLicense) {
+      return res.json({ success: false, message: 'Hospital logo and license are required' });
+    }
+
+    const existingHospital = await hospitalModel.findOne({ emailAddress });
+    if (existingHospital) {
+      return res.json({ success: false, message: 'Hospital with this email already exists' });
+    }
+
+    const newHospital = new hospitalModel({
+      hospitalName,
+      type,
+      yearEstablished,
+      address,
+      country,
+      state,
+      district,
+      pinCode,
+      contactNumber,
+      emailAddress,
+      website,
+      keyContact,
+      mentalHealthProfessionals,
+      specializations: JSON.parse(specializations),
+      currentFees,
+      teletherapy,
+      operatingHours,
+      emergencySupport,
+      averagePatientLoad,
+      insuranceTies,
+      accreditations,
+      hospitalLogo,
+      hospitalLicense,
+      acknowledgement: acknowledgement === 'true',
+      isReviewed: true // Mark as reviewed since added by admin
+    });
+
+    await newHospital.save();
+    res.json({ success: true, message: 'Hospital added successfully' });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
+
+// Updated export statement - add addHospital to the list
+export {
+  addDoctor, 
+  loginAdmin, 
+  allDoctors, 
+  appointmentsAdmin, 
+  appointmentCancel,
+  adminDashboard, 
+  deleteFeedback, 
+  markFeedbackAsRead, 
+  getAllFeedbacks,
+  getAllHospitals, 
+  getAllDoctorRegistrations, 
+  markHospitalAsReviewed,
+  markDoctorRegistrationAsReviewed, 
+  deleteHospital, 
+  deleteDoctorRegistration,
+  addHospital  // Add this to the export list
+};

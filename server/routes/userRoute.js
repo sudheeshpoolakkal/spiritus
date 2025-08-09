@@ -1,6 +1,10 @@
 import express from 'express';
-import { registerUser, loginUser, getProfile, updateProfile, uploadProfileImage, bookAppointment, listAppointment, cancelAppointment, getVideoCallLink, processPayment, rateDoctor, submitFeedback } from '../controllers/userController.js';
-
+import {
+  registerUser, loginUser, getProfile, updateProfile, uploadProfileImage,
+  bookAppointment, listAppointment, cancelAppointment, getVideoCallLink,
+  processPayment, rateDoctor, submitFeedback, submitHospitalRegistration,
+  submitDoctorRegistration,
+} from '../controllers/userController.js';
 import authUser from '../middlewares/authUser.js';
 import upload from '../middlewares/multer.js';
 
@@ -13,10 +17,18 @@ userRouter.get('/get-profile', authUser, getProfile);
 userRouter.post('/update-profile', upload.single('image'), authUser, updateProfile);
 userRouter.get('/appointments', authUser, listAppointment);
 userRouter.post('/cancel-appointment', authUser, cancelAppointment);
-userRouter.get("/video-call/:appointmentId", getVideoCallLink);
+userRouter.get('/video-call/:appointmentId', getVideoCallLink);
 userRouter.post('/process-payment', authUser, processPayment);
 userRouter.post('/upload-profile-image', authUser, upload.single('image'), uploadProfileImage);
 userRouter.post('/rate-doctor', authUser, rateDoctor);
 userRouter.post('/submit-feedback', submitFeedback);
+userRouter.post('/submit-hospital-registration', upload.fields([
+  { name: 'hospitalLicense', maxCount: 1 },
+  { name: 'hospitalLogo', maxCount: 1 },
+]), submitHospitalRegistration);
+userRouter.post('/submit-doctor-registration', upload.fields([
+  { name: 'profilePhoto', maxCount: 1 },
+  { name: 'licenseCertificate', maxCount: 1 },
+]), submitDoctorRegistration);
 
 export default userRouter;
