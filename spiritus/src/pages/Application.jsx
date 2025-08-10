@@ -75,11 +75,12 @@ const Application = () => {
   ];
 
   const comparisonData = [
-    { feature: 'Work from anywhere', spiritus: true, traditional: false },
+    { feature: 'Work online from anywhere', spiritus: true, traditional: false },
     { feature: 'Set your own hours', spiritus: true, traditional: 'partial' },
-    { feature: 'See clients in-person', spiritus: false, traditional: true },
+    { feature: 'See clients in-person (offline mode)', spiritus: true, traditional: true },
+    { feature: 'Client referrals', spiritus: true, traditional: false },
     { feature: 'Clinical autonomy', spiritus: true, traditional: false },
-    { feature: 'Free platform membership', spiritus: true, traditional: false },
+    { feature: 'Zero overhead expense', spiritus: true, traditional: false },
     { feature: 'Compensation for phone calls, messages, emails, and video sessions', spiritus: true, traditional: false },
     { feature: 'Access to the world\'s largest therapy network', spiritus: true, traditional: false }
   ];
