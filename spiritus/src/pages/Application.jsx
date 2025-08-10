@@ -82,7 +82,7 @@ const Application = () => {
     { feature: 'Clinical autonomy', spiritus: true, traditional: false },
     { feature: 'Zero overhead expense', spiritus: true, traditional: false },
     { feature: 'Compensation for phone calls, messages, emails, and video sessions', spiritus: true, traditional: false },
-    { feature: 'Access to the world\'s largest therapy network', spiritus: true, traditional: false }
+    { feature: 'Borderless practice, endless clients.', spiritus: true, traditional: false }
   ];
 
   const benefits = [
