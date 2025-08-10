@@ -3,6 +3,7 @@ import { Check, X, Play, ChevronDown, Star, Users, Clock, Shield, Globe, Info } 
 
 // Import your video and poster image
 import testimonialVideo from '@/assets/video/betterhelp.mp4';
+import AIvideo1 from '@/assets/video/invideo-ai-1080 The Secret Therapists Swear By_ Spiritus 2025-08-10.mp4';
 //import testimonialPoster from '/assets/images/testimonial-poster.jpg';
 
 const Application = () => {
@@ -82,7 +83,7 @@ const Application = () => {
     { feature: 'Clinical autonomy', spiritus: true, traditional: false },
     { feature: 'Zero overhead expense', spiritus: true, traditional: false },
     { feature: 'Compensation for phone calls, messages, emails, and video sessions', spiritus: true, traditional: false },
-    { feature: 'Borderless practice, endless clients.', spiritus: true, traditional: false }
+    { feature: 'Clients from across the globe', spiritus: true, traditional: false }
   ];
 
   const benefits = [
@@ -683,7 +684,7 @@ const Application = () => {
               className="w-full aspect-video"
               poster={posterPath}
             >
-              <source src={testimonialVideo} type="video/mp4" />
+              <source src={AIvideo1} type="video/mp4" />
               Your browser does not support the video tag.
             </video>
           </div>
