@@ -8,22 +8,56 @@ import bgImage from '../assets/aurora.webp';
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { setAToken, backendUrl } = useContext(AppContext); 
+  const [isLoading, setIsLoading] = useState(false);
+  const { setHToken, backendUrl } = useContext(AppContext);
   const navigate = useNavigate();
 
   const onSubmitHandler = async (event) => {
     event.preventDefault();
+    setIsLoading(true);
+    
     try {
-      const { data } = await axios.post(`${backendUrl}/api/hospital/login`, { email, password });
-      if (data.success) {
-        localStorage.setItem('hToken', data.token); 
-        setAToken(data.token); 
-        navigate('/hospital-dashboard'); 
+      console.log('Attempting login with:', { 
+        email: email.trim(), 
+        password: password ? '***hidden***' : 'empty',
+        backendUrl 
+      });
+      
+      const response = await axios.post(`${backendUrl}/api/hospital/login`, { 
+        email: email.trim(), 
+        password 
+      });
+      
+      console.log('Login response:', response.data);
+      
+      if (response.data.success) {
+        localStorage.setItem('hToken', response.data.token);
+        setHToken(response.data.token);
+        toast.success(response.data.message || 'Login successful!');
+        console.log('Token stored in localStorage:', localStorage.getItem('hToken'));
+        navigate('/hospital-dashboard');
       } else {
-        toast.error(data.message);
+        toast.error(response.data.message || 'Login failed');
       }
     } catch (error) {
-      toast.error('An error occurred. Please try again.');
+      console.error('Login error details:', {
+        message: error.message,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data
+      });
+      
+      if (error.response?.data?.message) {
+        toast.error(error.response.data.message);
+      } else if (error.response?.status === 400) {
+        toast.error('Invalid login credentials. Please check your email and password.');
+      } else if (error.response?.status === 500) {
+        toast.error('Server error. Please try again later.');
+      } else {
+        toast.error('Network error. Please check your connection and try again.');
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -59,7 +93,9 @@ function Login() {
             onChange={(e) => setEmail(e.target.value)}
             value={email}
             required
-            className="w-full p-2 rounded-lg border border-zinc-300 bg-[#333335] text-zinc-200"
+            disabled={isLoading}
+            className="w-full p-2 rounded-lg border border-zinc-300 bg-[#333335] text-zinc-200 disabled:opacity-50"
+            placeholder="Enter your hospital email"
           />
         </div>
 
@@ -70,16 +106,20 @@ function Login() {
             onChange={(e) => setPassword(e.target.value)}
             value={password}
             required
-            className="w-full p-2 rounded-lg border border-zinc-300 bg-[#333335] text-zinc-200"
+            disabled={isLoading}
+            className="w-full p-2 rounded-lg border border-zinc-300 bg-[#333335] text-zinc-200 disabled:opacity-50"
+            placeholder="Enter your password"
           />
         </div>
 
         <button
           type="submit"
-          className="w-full py-2 mb-4 rounded-full bg-[#0d8845] cursor-pointer text-white font-semibold hover:bg-black"
+          disabled={isLoading}
+          className="w-full py-2 mb-4 rounded-full bg-[#0d8845] cursor-pointer text-white font-semibold hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Login
+          {isLoading ? 'Logging in...' : 'Login'}
         </button>
+
       </form>
     </div>
   );

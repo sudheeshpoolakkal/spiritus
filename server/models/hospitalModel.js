@@ -1,6 +1,11 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
+// Clear the cached model if it exists
+if (mongoose.models.Hospital) {
+  delete mongoose.models.Hospital;
+}
+
 const hospitalSchema = new mongoose.Schema({
   // Basic hospital information
   hospitalName: {
@@ -13,7 +18,7 @@ const hospitalSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ['public', 'private', 'non-profit', 'specialty', 'rehabilitation', 'community', 'other'],
+    enum: ['public', 'private', 'non-profit', 'specialty', 'rehabilitation', 'community', 'clinic', 'other'],
     required: true,
   },
   yearEstablished: {

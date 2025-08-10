@@ -1,15 +1,24 @@
 import express from 'express';
-import { loginHospital } from '../controllers/hospitalController.js';
+import { 
+  loginHospital, 
+  getHospitalProfile, 
+  updateHospitalProfile,
+  testHospitals,
+  createTestHospital 
+} from '../controllers/hospitalController.js';
 import authHospital from '../middlewares/authHospital.js';
 
 const router = express.Router();
 
+// Test routes (remove these in production)
+router.get('/test', testHospitals);
+router.post('/create-test', createTestHospital);
+
 // Login route
 router.post('/login', loginHospital);
 
-// Example protected route (e.g., for dashboard access)
-router.get('/profile', authHospital, (req, res) => {
-  res.json({ success: true, hospital: req.hospital });
-});
+// Profile routes
+router.get('/profile', authHospital, getHospitalProfile);
+router.put('/profile', authHospital, updateHospitalProfile);
 
 export default router;

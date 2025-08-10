@@ -341,6 +341,8 @@ const deleteDoctorRegistration = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
+
+// Add Hospital functionality
 const addHospital = async (req, res) => {
   try {
     const {
@@ -365,8 +367,18 @@ const addHospital = async (req, res) => {
       averagePatientLoad,
       insuranceTies,
       accreditations,
-      acknowledgement
+      acknowledgement,
+      password  // New password field
     } = req.body;
+
+    // Validate hospital type against allowed enum values
+    const allowedTypes = ['public', 'private', 'non-profit', 'specialty', 'rehabilitation', 'community', 'clinic', 'other'];
+    if (!allowedTypes.includes(type)) {
+      return res.json({ 
+        success: false, 
+        message: `Invalid hospital type. Allowed types are: ${allowedTypes.join(', ')}` 
+      });
+    }
 
     const hospitalLogo = req.files?.hospitalLogo ? `/images/${req.files.hospitalLogo[0].filename}` : null;
     const hospitalLicense = req.files?.hospitalLicense ? `/images/${req.files.hospitalLicense[0].filename}` : null;
@@ -375,14 +387,26 @@ const addHospital = async (req, res) => {
       return res.json({ success: false, message: 'Hospital logo and license are required' });
     }
 
+    if (!password) {
+      return res.json({ success: false, message: 'Password is required' });
+    }
+
+    if (password.length < 8) {
+      return res.json({ success: false, message: 'Password must be at least 8 characters' });
+    }
+
     const existingHospital = await hospitalModel.findOne({ emailAddress });
     if (existingHospital) {
       return res.json({ success: false, message: 'Hospital with this email already exists' });
     }
 
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
     const newHospital = new hospitalModel({
       hospitalName,
-      type,
+      type, // This is now validated above
       yearEstablished,
       address,
       country,
@@ -405,12 +429,16 @@ const addHospital = async (req, res) => {
       hospitalLogo,
       hospitalLicense,
       acknowledgement: acknowledgement === 'true',
-      isReviewed: true // Mark as reviewed since added by admin
+      isReviewed: true, // Mark as reviewed since added by admin
+      password: hashedPassword,  // Store hashed password
+      email: emailAddress,  // Assuming email is same as emailAddress for login
+      name: hospitalName  // Set name if needed
     });
 
     await newHospital.save();
     res.json({ success: true, message: 'Hospital added successfully' });
   } catch (error) {
+    console.error(error);
     res.json({ success: false, message: error.message });
   }
 };
