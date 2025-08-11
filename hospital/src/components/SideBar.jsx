@@ -23,6 +23,7 @@ const Sidebar = () => {
   const hospitalNavItems = [
     { to: '/hospital-dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { to: '/all-appointments', icon: Calendar, label: 'Appointments' },
+    { to: '/hospital-profile', icon: User, label: 'Profile' },
   ];
 
 

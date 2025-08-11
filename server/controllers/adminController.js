@@ -94,7 +94,6 @@ const addDoctor = async (req, res) => {
 };
 
 
-
 //API FOR ADMIN LOGIN
 const loginAdmin = async (req,res) => {
     try {
@@ -400,10 +399,6 @@ const addHospital = async (req, res) => {
       return res.json({ success: false, message: 'Hospital with this email already exists' });
     }
 
-    // Hash password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
     const newHospital = new hospitalModel({
       hospitalName,
       type, // This is now validated above
@@ -430,8 +425,8 @@ const addHospital = async (req, res) => {
       hospitalLicense,
       acknowledgement: acknowledgement === 'true',
       isReviewed: true, // Mark as reviewed since added by admin
-      password: hashedPassword,  // Store hashed password
-      email: emailAddress,  // Assuming email is same as emailAddress for login
+      password,  // Raw password - model pre-save will hash it
+      email: emailAddress.toLowerCase(),  // Assuming email is same as emailAddress for login
       name: hospitalName  // Set name if needed
     });
 

@@ -1,3 +1,4 @@
+// pages/Login.jsx (hospital login frontend, no changes needed, but included for completeness)
 import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';

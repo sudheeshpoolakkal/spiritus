@@ -1,15 +1,14 @@
+// pages/HospitalProfile.jsx - Enhanced & Beautiful Design
 import React, { useContext, useEffect, useState, useCallback } from "react";
 import { AppContext } from "../context/AppContext";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { 
-  FaEdit, 
-  FaSave, 
-  FaTimes, 
-  FaSpinner, 
-  FaMapMarkerAlt, 
-  FaMoneyBillWave, 
-  FaClock,
+import {
+  FaEdit,
+  FaSave,
+  FaTimes,
+  FaSpinner,
+  FaMapMarkerAlt,
   FaBuilding,
   FaPhoneAlt,
   FaEnvelope,
@@ -21,7 +20,14 @@ import {
   FaCalendarCheck,
   FaAmbulance,
   FaUsersCog,
-  FaCertificate
+  FaCertificate,
+  FaClock,
+  FaDollarSign,
+  FaShieldAlt,
+  FaCheckCircle,
+  FaTimesCircle,
+  FaEye,
+  FaCamera
 } from "react-icons/fa";
 
 const HospitalProfile = () => {
@@ -30,10 +36,14 @@ const HospitalProfile = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [profileData, setProfileData] = useState(null);
   const [localProfileData, setLocalProfileData] = useState(null);
+  const [imageLoading, setImageLoading] = useState(true);
 
+  // Fetch profile data
   const getProfileData = useCallback(async () => {
     try {
-      const { data } = await axios.get(`${backendUrl}/api/hospital/profile`, { headers: { hToken } });
+      const { data } = await axios.get(`${backendUrl}/api/hospital/profile`, {
+        headers: { Authorization: `Bearer ${hToken}` }
+      });
       if (data.success) {
         setProfileData(data.hospital);
         setLocalProfileData(data.hospital);
@@ -51,28 +61,29 @@ const HospitalProfile = () => {
     }
   }, [hToken, getProfileData]);
 
+  // Update profile
   const updateProfile = async () => {
     setIsLoading(true);
     try {
       const updateData = {
         address: localProfileData.address,
-        currentFees: localProfileData.currentFees,
         operatingHours: localProfileData.operatingHours,
         contactNumber: localProfileData.contactNumber,
         website: localProfileData.website,
         keyContact: localProfileData.keyContact,
         mentalHealthProfessionals: localProfileData.mentalHealthProfessionals,
         specializations: localProfileData.specializations,
-        teletherapy: localProfileData.teletherapy,
-        emergencySupport: localProfileData.emergencySupport,
         averagePatientLoad: localProfileData.averagePatientLoad,
         insuranceTies: localProfileData.insuranceTies,
         accreditations: localProfileData.accreditations,
       };
 
-      const { data } = await axios.put(`${backendUrl}/api/hospital/profile`, updateData, { headers: { hToken } });
+      const { data } = await axios.put(`${backendUrl}/api/hospital/profile`, updateData, {
+        headers: { Authorization: `Bearer ${hToken}` }
+      });
+      
       if (data.success) {
-        toast.success(data.message);
+        toast.success("Profile updated successfully!");
         setProfileData(data.hospital);
         setLocalProfileData(data.hospital);
         setIsEdit(false);
@@ -91,343 +102,469 @@ const HospitalProfile = () => {
     setLocalProfileData(profileData);
   };
 
-  if (!localProfileData) return <div className="flex justify-center items-center h-screen"><FaSpinner className="animate-spin text-4xl text-blue-600" /></div>;
+  // Helper to safely build image src
+  const getLogoSrc = () => {
+    const logo = localProfileData?.hospitalLogo;
+    if (!logo) return '/images/default-logo.png';
+
+    if (typeof logo === 'string') {
+      if (logo.startsWith('http') || logo.startsWith('data:')) return logo;
+      const pathPart = logo.startsWith('/') ? logo : `/${logo}`;
+      return `${backendUrl}${pathPart}`;
+    }
+
+    try {
+      const contentType = logo.contentType || logo.mimetype || 'image/jpeg';
+      let byteArray = null;
+
+      if (logo.data) {
+        byteArray = logo.data.data ? logo.data.data : logo.data;
+      } else if (Array.isArray(logo)) {
+        byteArray = logo;
+      }
+
+      if (byteArray) {
+        const u8 = byteArray instanceof Uint8Array ? byteArray : new Uint8Array(byteArray);
+        const binary = Array.from(u8).map(byte => String.fromCharCode(byte)).join('');
+        const base64 = btoa(binary);
+        return `data:${contentType};base64,${base64}`;
+      }
+    } catch (err) {
+      console.warn('Failed to convert logo buffer to base64', err);
+    }
+
+    return '/images/default-logo.png';
+  };
+
+  // Loading state
+  if (!localProfileData) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent"></div>
+          <p className="text-lg text-gray-600 font-medium">Loading your profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const logoSrc = getLogoSrc();
+  const safeSpecializations = Array.isArray(localProfileData.specializations)
+    ? localProfileData.specializations.join(', ')
+    : (localProfileData.specializations || '');
+
+  const licenseHref = (() => {
+    const lic = localProfileData?.hospitalLicense;
+    if (!lic) return '#';
+    if (typeof lic === 'string') {
+      return (lic.startsWith('http') || lic.startsWith('data:')) ? lic : `${backendUrl}${lic.startsWith('/') ? '' : '/'}${lic}`;
+    }
+    return '#';
+  })();
 
   return (
-    <div className="w-full pl-4 md:pl-6 bg-gray-50 min-h-screen">
-      <div className="bg-white shadow-lg rounded-xl p-6 md:p-8 max-w-4xl">
-        {/* Profile Header */}
-        <div className="flex flex-col md:flex-row items-start gap-6 mb-8 pb-6 border-b">
-          <div className="relative">
-            <img
-              className="w-40 h-40 rounded-full object-cover shadow-md border-4 border-blue-100"
-              src={localProfileData.hospitalLogo}
-              alt={`${localProfileData.hospitalName} Logo`}
-            />
-            {isEdit && (
-              <div className="absolute bottom-0 right-0 bg-blue-600 text-white p-2 rounded-full">
-                <FaEdit />
-              </div>
-            )}
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      {/* Header Section */}
+      <div className="bg-white shadow-sm border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Hospital Profile</h1>
+              <p className="text-gray-600 mt-1">Manage your hospital information and settings</p>
+            </div>
+            <div className="flex space-x-3">
+              {isEdit ? (
+                <>
+                  <button
+                    onClick={handleCancel}
+                    className="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-medium transition-all duration-200 flex items-center gap-2 shadow-sm"
+                  >
+                    <FaTimes className="text-sm" />
+                    Cancel
+                  </button>
+                  <button
+                    onClick={updateProfile}
+                    disabled={isLoading}
+                    className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl font-medium transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isLoading ? (
+                      <FaSpinner className="animate-spin text-sm" />
+                    ) : (
+                      <FaSave className="text-sm" />
+                    )}
+                    {isLoading ? 'Saving...' : 'Save Changes'}
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => setIsEdit(true)}
+                  className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl font-medium transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl"
+                >
+                  <FaEdit className="text-sm" />
+                  Edit Profile
+                </button>
+              )}
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-              <FaBuilding className="text-blue-600" />
-              {localProfileData.hospitalName}
-            </h1>
-            <p className="text-md text-gray-600 mt-1 capitalize">
-              {localProfileData.type} Facility
-            </p>
-            <p className="text-sm text-gray-500">
-              Established in {localProfileData.yearEstablished}
-            </p>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Profile Header Card */}
+        <div className="bg-white rounded-2xl shadow-xl overflow-hidden mb-8">
+          <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 px-8 py-12 relative">
+            <div className="absolute inset-0 bg-black opacity-10"></div>
+            <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
+              <div className="relative">
+                <div className="w-40 h-40 rounded-full bg-white p-2 shadow-2xl">
+                  <img
+                    className="w-full h-full rounded-full object-cover"
+                    src={logoSrc}
+                    alt={`${localProfileData.hospitalName || 'Hospital'} Logo`}
+                    onLoad={() => setImageLoading(false)}
+                    onError={(e) => { 
+                      e.currentTarget.onerror = null; 
+                      e.currentTarget.src = '/images/default-logo.png';
+                      setImageLoading(false);
+                    }}
+                  />
+                  {imageLoading && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-gray-100 rounded-full">
+                      <FaSpinner className="animate-spin text-gray-400 text-2xl" />
+                    </div>
+                  )}
+                </div>
+                <div className="absolute -bottom-2 -right-2 bg-white rounded-full p-2 shadow-lg">
+                  <FaCamera className="text-gray-400 text-sm" />
+                </div>
+              </div>
+              
+              <div className="text-center md:text-left text-white">
+                <h2 className="text-4xl font-bold mb-2 flex items-center justify-center md:justify-start gap-3">
+                  <FaBuilding className="text-white/90" />
+                  {localProfileData.hospitalName || 'Unnamed Hospital'}
+                </h2>
+                <div className="flex flex-col md:flex-row gap-4 text-white/90">
+                  <span className="bg-white/20 px-4 py-2 rounded-full text-sm font-medium">
+                    {localProfileData.type ? `${localProfileData.type} Facility` : 'Healthcare Facility'}
+                  </span>
+                  {localProfileData.yearEstablished && (
+                    <span className="bg-white/20 px-4 py-2 rounded-full text-sm font-medium">
+                      Established {localProfileData.yearEstablished}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Profile Details Grid */}
-        <div className="grid md:grid-cols-2 gap-6">
-          {/* Accreditations Section */}
-          <div>
-            <h2 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
-              <FaCertificate className="text-blue-600" />
-              Accreditations & Certifications
-            </h2>
-            {isEdit ? (
-              <textarea
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-200 h-32"
-                value={localProfileData.accreditations}
-                onChange={(e) => setLocalProfileData(prev => ({ ...prev, accreditations: e.target.value }))}
-              />
-            ) : (
-              <p className="text-gray-600 leading-relaxed">
-                {localProfileData.accreditations}
-              </p>
-            )}
-          </div>
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Column - Contact & Location */}
+          <div className="space-y-6">
+            <ProfileCard
+              title="Contact Information"
+              icon={<FaPhoneAlt className="text-green-500" />}
+              className="bg-gradient-to-br from-green-50 to-blue-50"
+            >
+              <div className="space-y-4">
+                <ContactField
+                  icon={<FaMapMarkerAlt className="text-red-500" />}
+                  label="Address"
+                  value={`${localProfileData.address || ''}${localProfileData.district ? ', ' + localProfileData.district : ''}${localProfileData.state ? ', ' + localProfileData.state : ''}${localProfileData.country ? ', ' + localProfileData.country : ''}${localProfileData.pinCode ? ' - ' + localProfileData.pinCode : ''}` || 'N/A'}
+                  isEdit={isEdit}
+                  onChange={(value) => setLocalProfileData(prev => ({ ...prev, address: value }))}
+                  multiline
+                />
+                <ContactField
+                  icon={<FaPhoneAlt className="text-green-500" />}
+                  label="Phone"
+                  value={localProfileData.contactNumber || 'N/A'}
+                  isEdit={isEdit}
+                  onChange={(value) => setLocalProfileData(prev => ({ ...prev, contactNumber: value }))}
+                  type="tel"
+                />
+                <ContactField
+                  icon={<FaEnvelope className="text-blue-500" />}
+                  label="Email"
+                  value={localProfileData.emailAddress || 'N/A'}
+                  isEdit={false}
+                />
+                <ContactField
+                  icon={<FaGlobe className="text-purple-500" />}
+                  label="Website"
+                  value={localProfileData.website || 'Not provided'}
+                  isEdit={isEdit}
+                  onChange={(value) => setLocalProfileData(prev => ({ ...prev, website: value }))}
+                  type="url"
+                  isLink={!isEdit}
+                />
+              </div>
+            </ProfileCard>
 
-          {/* Contact & Location Details */}
-          <div className="space-y-4">
-            {/* Location Section */}
-            <div>
-              <h3 className="text-md font-semibold text-gray-800 mb-2 flex items-center gap-2">
-                <FaMapMarkerAlt className="text-red-600" />
-                Location
-              </h3>
+            <ProfileCard
+              title="Operating Hours"
+              icon={<FaClock className="text-blue-500" />}
+              className="bg-gradient-to-br from-blue-50 to-indigo-50"
+            >
               {isEdit ? (
                 <textarea
-                  className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-200"
-                  value={localProfileData.address}
-                  onChange={(e) => setLocalProfileData(prev => ({ ...prev, address: e.target.value }))}
-                />
-              ) : (
-                <p className="text-gray-600">
-                  {localProfileData.address}, {localProfileData.district}, {localProfileData.state}, {localProfileData.country} - {localProfileData.pinCode}
-                </p>
-              )}
-            </div>
-
-            {/* Contact Number */}
-            <div>
-              <h3 className="text-md font-semibold text-gray-800 mb-2 flex items-center gap-2">
-                <FaPhoneAlt className="text-green-600" />
-                Contact Number
-              </h3>
-              {isEdit ? (
-                <input
-                  type="tel"
-                  className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-200"
-                  value={localProfileData.contactNumber}
-                  onChange={(e) => setLocalProfileData(prev => ({ ...prev, contactNumber: e.target.value }))}
-                />
-              ) : (
-                <p className="text-gray-600">{localProfileData.contactNumber}</p>
-              )}
-            </div>
-
-            {/* Email Address */}
-            <div>
-              <h3 className="text-md font-semibold text-gray-800 mb-2 flex items-center gap-2">
-                <FaEnvelope className="text-blue-600" />
-                Email Address
-              </h3>
-              <p className="text-gray-600">{localProfileData.emailAddress}</p>
-            </div>
-
-            {/* Website */}
-            <div>
-              <h3 className="text-md font-semibold text-gray-800 mb-2 flex items-center gap-2">
-                <FaGlobe className="text-purple-600" />
-                Website
-              </h3>
-              {isEdit ? (
-                <input
-                  type="url"
-                  className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-200"
-                  value={localProfileData.website}
-                  onChange={(e) => setLocalProfileData(prev => ({ ...prev, website: e.target.value }))}
-                />
-              ) : (
-                <a href={localProfileData.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                  {localProfileData.website || 'Not provided'}
-                </a>
-              )}
-            </div>
-          </div>
-
-          {/* Staff & Services */}
-          <div>
-            <h2 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
-              <FaUsers className="text-indigo-600" />
-              Staff & Services
-            </h2>
-            <div className="space-y-2">
-              <p className="flex items-center gap-2">
-                <FaUserTie className="text-gray-600" />
-                <strong>Key Contact:</strong> 
-                {isEdit ? (
-                  <input
-                    type="text"
-                    className="ml-2 p-1 border border-gray-300 rounded"
-                    value={localProfileData.keyContact}
-                    onChange={(e) => setLocalProfileData(prev => ({ ...prev, keyContact: e.target.value }))}
-                  />
-                ) : (
-                  <span className="ml-2">{localProfileData.keyContact}</span>
-                )}
-              </p>
-              <p className="flex items-center gap-2">
-                <FaUsersCog className="text-gray-600" />
-                <strong>Mental Health Professionals:</strong> 
-                {isEdit ? (
-                  <input
-                    type="number"
-                    className="ml-2 p-1 border border-gray-300 rounded w-20"
-                    value={localProfileData.mentalHealthProfessionals}
-                    onChange={(e) => setLocalProfileData(prev => ({ ...prev, mentalHealthProfessionals: e.target.value }))}
-                  />
-                ) : (
-                  <span className="ml-2">{localProfileData.mentalHealthProfessionals}</span>
-                )}
-              </p>
-              <p className="flex items-center gap-2">
-                <FaHospitalUser className="text-gray-600" />
-                <strong>Average Daily Patients:</strong> 
-                {isEdit ? (
-                  <input
-                    type="number"
-                    className="ml-2 p-1 border border-gray-300 rounded w-20"
-                    value={localProfileData.averagePatientLoad}
-                    onChange={(e) => setLocalProfileData(prev => ({ ...prev, averagePatientLoad: e.target.value }))}
-                  />
-                ) : (
-                  <span className="ml-2">{localProfileData.averagePatientLoad}</span>
-                )}
-              </p>
-            </div>
-          </div>
-
-          {/* Specializations & Fees */}
-          <div className="space-y-4">
-            {/* Specializations */}
-            <div>
-              <h3 className="text-md font-semibold text-gray-800 mb-2 flex items-center gap-2">
-                <FaBrain className="text-orange-600" />
-                Specializations
-              </h3>
-              {isEdit ? (
-                <input
-                  type="text"
-                  className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-200"
-                  value={localProfileData.specializations.join(', ')}
-                  onChange={(e) => setLocalProfileData(prev => ({ ...prev, specializations: e.target.value.split(', ').map(s => s.trim()) }))}
-                />
-              ) : (
-                <p className="text-gray-600">{localProfileData.specializations.join(', ')}</p>
-              )}
-            </div>
-
-            {/* Fees Section */}
-            <div>
-              <h3 className="text-md font-semibold text-gray-800 mb-2 flex items-center gap-2">
-                <FaMoneyBillWave className="text-green-600" />
-                Current Fees
-              </h3>
-              {isEdit ? (
-                <input
-                  type="text"
-                  className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-200"
-                  value={localProfileData.currentFees}
-                  onChange={(e) => setLocalProfileData(prev => ({ ...prev, currentFees: e.target.value }))}
-                />
-              ) : (
-                <p className="text-gray-600">{localProfileData.currentFees}</p>
-              )}
-            </div>
-
-            {/* Operating Hours */}
-            <div>
-              <h3 className="text-md font-semibold text-gray-800 mb-2 flex items-center gap-2">
-                <FaClock className="text-purple-600" />
-                Operating Hours
-              </h3>
-              {isEdit ? (
-                <input
-                  type="text"
-                  className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-200"
-                  value={localProfileData.operatingHours}
+                  className="w-full p-3 border-2 border-blue-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all h-24 resize-none"
+                  value={localProfileData.operatingHours || ''}
                   onChange={(e) => setLocalProfileData(prev => ({ ...prev, operatingHours: e.target.value }))}
+                  placeholder="e.g., Monday - Friday: 9:00 AM - 6:00 PM"
                 />
               ) : (
-                <p className="text-gray-600">{localProfileData.operatingHours}</p>
-              )}
-            </div>
-          </div>
-
-          {/* Additional Services */}
-          <div className="md:col-span-2 grid md:grid-cols-2 gap-6">
-            <div>
-              <h3 className="text-md font-semibold text-gray-800 mb-2 flex items-center gap-2">
-                <FaCalendarCheck className="text-blue-600" />
-                Teletherapy
-              </h3>
-              {isEdit ? (
-                <select
-                  className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-200"
-                  value={localProfileData.teletherapy}
-                  onChange={(e) => setLocalProfileData(prev => ({ ...prev, teletherapy: e.target.value }))}
-                >
-                  <option value="yes">Yes</option>
-                  <option value="no">No</option>
-                </select>
-              ) : (
-                <p className={`text-sm ${localProfileData.teletherapy === 'yes' ? 'text-green-600' : 'text-gray-500'}`}>
-                  {localProfileData.teletherapy === 'yes' ? 'Available' : 'Not Available'}
+                <p className="text-gray-700 leading-relaxed">
+                  {localProfileData.operatingHours || 'Not specified'}
                 </p>
               )}
-            </div>
-
-            <div>
-              <h3 className="text-md font-semibold text-gray-800 mb-2 flex items-center gap-2">
-                <FaAmbulance className="text-red-600" />
-                Emergency Support
-              </h3>
-              {isEdit ? (
-                <select
-                  className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-200"
-                  value={localProfileData.emergencySupport}
-                  onChange={(e) => setLocalProfileData(prev => ({ ...prev, emergencySupport: e.target.value }))}
-                >
-                  <option value="yes">Yes</option>
-                  <option value="no">No</option>
-                </select>
-              ) : (
-                <p className={`text-sm ${localProfileData.emergencySupport === 'yes' ? 'text-green-600' : 'text-gray-500'}`}>
-                  {localProfileData.emergencySupport === 'yes' ? 'Available' : 'Not Available'}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <h3 className="text-md font-semibold text-gray-800 mb-2 flex items-center gap-2">
-                <FaUsers className="text-indigo-600" />
-                Insurance Ties
-              </h3>
-              {isEdit ? (
-                <input
-                  type="text"
-                  className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-200"
-                  value={localProfileData.insuranceTies}
-                  onChange={(e) => setLocalProfileData(prev => ({ ...prev, insuranceTies: e.target.value }))}
-                />
-              ) : (
-                <p className="text-gray-600">{localProfileData.insuranceTies || 'None'}</p>
-              )}
-            </div>
+            </ProfileCard>
           </div>
-        </div>
 
-        {/* License Document */}
-        <div className="mt-8">
-          <h3 className="text-md font-semibold text-gray-800 mb-2 flex items-center gap-2">
-            <FaCertificate className="text-yellow-600" />
-            Hospital License
-          </h3>
-          <a href={localProfileData.hospitalLicense} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-            View License Document
-          </a>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="mt-8 flex justify-end gap-3">
-          {isEdit ? (
-            <>
-              <button
-                onClick={handleCancel}
-                className="px-4 py-2 border border-gray-300 text-sm rounded text-gray-700 flex items-center gap-2 hover:bg-gray-100 transition"
-              >
-                <FaTimes /> Cancel
-              </button>
-              <button
-                onClick={updateProfile}
-                className="px-4 py-2 bg-blue-600 text-white text-sm rounded flex items-center gap-2 hover:bg-blue-700 transition disabled:opacity-50"
-                disabled={isLoading}
-              >
-                {isLoading ? <FaSpinner className="animate-spin" /> : <FaSave />}
-                Save Changes
-              </button>
-            </>
-          ) : (
-            <button
-              onClick={() => setIsEdit(true)}
-              className="px-4 py-2 border border-blue-600 text-blue-600 text-sm rounded flex items-center gap-2 hover:bg-blue-50 transition"
+          {/* Middle Column - Services & Staff */}
+          <div className="space-y-6">
+            <ProfileCard
+              title="Staff & Capacity"
+              icon={<FaUsers className="text-indigo-500" />}
+              className="bg-gradient-to-br from-indigo-50 to-purple-50"
             >
-              <FaEdit /> Edit Profile
-            </button>
-          )}
+              <div className="space-y-4">
+                <StaffField
+                  icon={<FaUserTie className="text-gray-600" />}
+                  label="Key Contact"
+                  value={localProfileData.keyContact || 'N/A'}
+                  isEdit={isEdit}
+                  onChange={(value) => setLocalProfileData(prev => ({ ...prev, keyContact: value }))}
+                />
+                <StaffField
+                  icon={<FaUsersCog className="text-blue-600" />}
+                  label="Mental Health Professionals"
+                  value={localProfileData.mentalHealthProfessionals || '0'}
+                  isEdit={isEdit}
+                  onChange={(value) => setLocalProfileData(prev => ({ ...prev, mentalHealthProfessionals: value }))}
+                  type="number"
+                />
+                <StaffField
+                  icon={<FaHospitalUser className="text-green-600" />}
+                  label="Average Daily Patients"
+                  value={localProfileData.averagePatientLoad || 'N/A'}
+                  isEdit={isEdit}
+                  onChange={(value) => setLocalProfileData(prev => ({ ...prev, averagePatientLoad: value }))}
+                  type="number"
+                />
+              </div>
+            </ProfileCard>
+
+            <ProfileCard
+              title="Services Available"
+              icon={<FaAmbulance className="text-red-500" />}
+              className="bg-gradient-to-br from-red-50 to-orange-50"
+            >
+              <div className="space-y-4">
+                <ServiceStatus
+                  label="Teletherapy"
+                  available={localProfileData.teletherapy === 'yes'}
+                  icon={<FaCalendarCheck />}
+                />
+                <ServiceStatus
+                  label="Emergency Support"
+                  available={localProfileData.emergencySupport === 'yes'}
+                  icon={<FaAmbulance />}
+                />
+                <div className="pt-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Insurance Partnerships</label>
+                  {isEdit ? (
+                    <input
+                      type="text"
+                      className="w-full p-3 border-2 border-red-200 rounded-xl focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none transition-all"
+                      value={localProfileData.insuranceTies || ''}
+                      onChange={(e) => setLocalProfileData(prev => ({ ...prev, insuranceTies: e.target.value }))}
+                      placeholder="Enter insurance partnerships"
+                    />
+                  ) : (
+                    <p className="text-gray-700">{localProfileData.insuranceTies || 'None specified'}</p>
+                  )}
+                </div>
+              </div>
+            </ProfileCard>
+          </div>
+
+          {/* Right Column - Specializations & Credentials */}
+          <div className="space-y-6">
+            <ProfileCard
+              title="Specializations"
+              icon={<FaBrain className="text-orange-500" />}
+              className="bg-gradient-to-br from-orange-50 to-yellow-50"
+            >
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Medical Specialties</label>
+                  {isEdit ? (
+                    <textarea
+                      className="w-full p-3 border-2 border-orange-200 rounded-xl focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition-all h-24 resize-none"
+                      value={safeSpecializations}
+                      onChange={(e) => setLocalProfileData(prev => ({ ...prev, specializations: e.target.value.split(',').map(s => s.trim()) }))}
+                      placeholder="e.g., Cardiology, Neurology, Pediatrics"
+                    />
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      {safeSpecializations ? (
+                        safeSpecializations.split(',').map((spec, index) => (
+                          <span key={index} className="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm font-medium">
+                            {spec.trim()}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-gray-500 italic">No specializations listed</span>
+                      )}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                    <FaDollarSign className="text-green-500" />
+                    Current Fees
+                  </label>
+                  <p className="text-gray-700 bg-gray-50 p-3 rounded-xl">
+                    {localProfileData.currentFees || 'Contact for pricing information'}
+                  </p>
+                </div>
+              </div>
+            </ProfileCard>
+
+            <ProfileCard
+              title="Accreditations & License"
+              icon={<FaCertificate className="text-yellow-500" />}
+              className="bg-gradient-to-br from-yellow-50 to-green-50"
+            >
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Certifications</label>
+                  {isEdit ? (
+                    <textarea
+                      className="w-full p-3 border-2 border-yellow-200 rounded-xl focus:border-yellow-500 focus:ring-2 focus:ring-yellow-200 outline-none transition-all h-32 resize-none"
+                      value={localProfileData.accreditations || ''}
+                      onChange={(e) => setLocalProfileData(prev => ({ ...prev, accreditations: e.target.value }))}
+                      placeholder="Enter accreditations and certifications"
+                    />
+                  ) : (
+                    <p className="text-gray-700 leading-relaxed">
+                      {localProfileData.accreditations || 'No accreditations listed'}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">License Document</label>
+                  <a
+                    href={licenseHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 hover:bg-green-200 text-green-800 rounded-xl transition-all font-medium"
+                  >
+                    <FaEye className="text-sm" />
+                    View License
+                  </a>
+                </div>
+              </div>
+            </ProfileCard>
+          </div>
         </div>
       </div>
     </div>
   );
 };
+
+// Reusable Components
+const ProfileCard = ({ title, icon, children, className = "" }) => (
+  <div className={`bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden ${className}`}>
+    <div className="p-6 border-b border-gray-100">
+      <h3 className="text-xl font-bold text-gray-800 flex items-center gap-3">
+        {icon}
+        {title}
+      </h3>
+    </div>
+    <div className="p-6">
+      {children}
+    </div>
+  </div>
+);
+
+const ContactField = ({ icon, label, value, isEdit, onChange, type = "text", multiline = false, isLink = false }) => (
+  <div className="flex items-start gap-3">
+    <div className="mt-1">{icon}</div>
+    <div className="flex-1">
+      <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+      {isEdit ? (
+        multiline ? (
+          <textarea
+            className="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all h-20 resize-none"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+          />
+        ) : (
+          <input
+            type={type}
+            className="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+          />
+        )
+      ) : (
+        isLink && value !== 'Not provided' ? (
+          <a href={value} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
+            {value}
+          </a>
+        ) : (
+          <p className="text-gray-700">{value}</p>
+        )
+      )}
+    </div>
+  </div>
+);
+
+const StaffField = ({ icon, label, value, isEdit, onChange, type = "text" }) => (
+  <div className="flex items-center justify-between p-3 bg-white rounded-xl border border-gray-100">
+    <div className="flex items-center gap-3">
+      {icon}
+      <span className="font-medium text-gray-700">{label}</span>
+    </div>
+    <div>
+      {isEdit ? (
+        <input
+          type={type}
+          className="w-20 p-2 border-2 border-gray-200 rounded-lg focus:border-indigo-500 outline-none text-center"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      ) : (
+        <span className="font-semibold text-gray-800">{value}</span>
+      )}
+    </div>
+  </div>
+);
+
+const ServiceStatus = ({ label, available, icon }) => (
+  <div className="flex items-center justify-between p-3 bg-white rounded-xl border border-gray-100">
+    <div className="flex items-center gap-3">
+      <span className={available ? "text-green-500" : "text-gray-400"}>{icon}</span>
+      <span className="font-medium text-gray-700">{label}</span>
+    </div>
+    <div className="flex items-center gap-2">
+      {available ? (
+        <>
+          <FaCheckCircle className="text-green-500" />
+          <span className="text-green-600 font-medium">Available</span>
+        </>
+      ) : (
+        <>
+          <FaTimesCircle className="text-gray-400" />
+          <span className="text-gray-500">Not Available</span>
+        </>
+      )}
+    </div>
+  </div>
+);
 
 export default HospitalProfile;

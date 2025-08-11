@@ -1,6 +1,6 @@
 // pages/HospitalDashboard.jsx (example similar file for dashboard)
 import React from 'react';
-import { FaBuilding, FaUsers, FaCalendarCheck, FaMoneyBillWave } from 'react-icons/fa';
+import { FaBuilding, FaUsers, FaCalendarCheck, FaMoneyBillWave, FaUsersCog } from 'react-icons/fa';
 
 const HospitalDashboard = () => {
   // Placeholder data - in real implementation, fetch from backend
