@@ -215,3 +215,23 @@ export const updateHospitalProfile = async (req, res) => {
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };
+
+export const getHospitalAppointments = async (req, res) => {
+  try {
+    const appointments = await appointmentModel.find({}); 
+    res.json({ success: true, appointments });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+export const listHospitals = async (req, res) => {
+  try {
+    const hospitals = await Hospital.find({ isReviewed: true }).select('-password');
+    res.json({ success: true, hospitals });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

@@ -186,6 +186,8 @@ const adminDashboard = async (req, res) => {
     const users = await userModel.find({});
     const appointments = await appointmentModel.find({});
     const unreadFeedbacks = await feedbackModel.countDocuments({ isRead: false });
+    const patients = await userModel.find({});
+    const hospitals = await hospitalModel.countDocuments({ isReviewed: true });
   
     let adminEarnings = 0;
     // For each paid appointment, admin earns 16% of the base fee.
@@ -201,6 +203,7 @@ const adminDashboard = async (req, res) => {
       patients: users.length,
       earnings: adminEarnings.toFixed(2), // 2 decimal places
       unreadFeedbacks,
+      hospitals: hospitals,
       latestAppointments: appointments.reverse().slice(0, 5)
     };
   

@@ -4,11 +4,14 @@ import './index.css'
 import App from './App.jsx'
 import {BrowserRouter} from 'react-router-dom'
 import AppContextProvider from './context/AppContext.jsx'
+import HospitalContextProvider from './context/HospitalContext.jsx'
 
 createRoot(document.getElementById('root')).render(
   <BrowserRouter>
-  <AppContextProvider>
-      <App />
-  </AppContextProvider>
+  <HospitalContextProvider>
+    <AppContextProvider>
+        <App />
+    </AppContextProvider>
+  </HospitalContextProvider>
   </BrowserRouter>
 )

@@ -6,6 +6,7 @@ import TopDoctors from "@/components/TopDoctors";
 import Banner from "@/components/Banner";
 
 import PromoVideo from "../components/PromoVideo";
+import TopHospitals from "@/components/TopHospitals";
 
 
 function Home() {
@@ -17,6 +18,7 @@ function Home() {
       {/* <PromoVideo /> */}
 
       <TopDoctors />
+      <TopHospitals />
       <Banner />
       
 

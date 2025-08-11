@@ -11,6 +11,7 @@ const AppContextProvider = (props) => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   const [doctors, setDoctors] = useState([]);
+  const [hospitals, setHospitals] = useState([]); // NEW: State for hospitals
   const [token, setToken] = useState(
     localStorage.getItem("token") ? localStorage.getItem("token") : false
   );
@@ -22,6 +23,21 @@ const AppContextProvider = (props) => {
       const { data } = await axios.get(backendUrl + "/api/doctor/list");
       if (data.success) {
         setDoctors(data.doctors);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(error.message);
+    }
+  };
+
+  // NEW: Function to fetch hospitals
+  const getHospitalsData = async () => {
+    try {
+      const { data } = await axios.get(backendUrl + "/api/hospital/list");
+      if (data.success) {
+        setHospitals(data.hospitals);
       } else {
         toast.error(data.message);
       }
@@ -112,6 +128,7 @@ const AppContextProvider = (props) => {
 
   useEffect(() => {
     getDoctorsData();
+    getHospitalsData(); // NEW: Fetch hospitals on mount
   }, []);
 
   useEffect(() => {
@@ -135,6 +152,8 @@ const AppContextProvider = (props) => {
   const value = {
     doctors,
     getDoctorsData,
+    hospitals, // NEW
+    getHospitalsData, // NEW
     currencySymbol,
     token,
     setToken,

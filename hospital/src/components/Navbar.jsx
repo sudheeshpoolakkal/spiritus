@@ -1,17 +1,18 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { assets } from '../assets/assets';
 import { useNavigate } from 'react-router-dom';
-import { AppContext } from '../context/AppContext';
-
+import { HospitalContext } from '../context/HospitalContext';
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const { setHToken } = useContext(HospitalContext);
 
   const userRole = 'Hospital';
 
   const logout = () => {
+    setHToken('');
     localStorage.removeItem('hToken');
-    navigate('/');
+    navigate('/hospital-login');
   };
 
   return (

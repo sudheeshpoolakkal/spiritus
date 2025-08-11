@@ -13,6 +13,7 @@ import {
   Eye
 } from 'lucide-react';
 import { AppContext } from '../context/AppContext';
+import { FaUserDoctor } from "react-icons/fa6";
 
 const Sidebar = () => {
   // Detect role based on localStorage tokens
@@ -24,6 +25,7 @@ const Sidebar = () => {
     { to: '/hospital-dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { to: '/all-appointments', icon: Calendar, label: 'Appointments' },
     { to: '/hospital-profile', icon: User, label: 'Profile' },
+    { to: '/doctors', icon: FaUserDoctor, label: 'Doctors' },
   ];
 
 

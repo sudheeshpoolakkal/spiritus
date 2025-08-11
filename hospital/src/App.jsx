@@ -11,6 +11,7 @@ import HospitalDashboard from "./pages/HospitalDashboard";
 import AllAppointments from "./pages/AllAppointments";
 import Home from "./pages/Home";
 import HospitalProfile from "./pages/HospitalProfile";
+import Doctors from "./pages/Doctors";
 
 const ProtectedHospitalRoute = ({ children }) => {
   const { hToken } = useContext(AppContext);
@@ -54,6 +55,14 @@ const App = () => {
                 element={
                   <ProtectedHospitalRoute>
                     <HospitalProfile />
+                  </ProtectedHospitalRoute>
+                }
+              />
+              <Route
+                path="/doctors"
+                element={
+                  <ProtectedHospitalRoute>
+                    <Doctors />
                   </ProtectedHospitalRoute>
                 }
               />
