@@ -12,7 +12,7 @@ const Navbar = () => {
   const logout = () => {
     setHToken('');
     localStorage.removeItem('hToken');
-    navigate('/hospital-login');
+    window.location.replace('/hospital-login');
   };
 
   return (

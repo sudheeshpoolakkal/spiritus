@@ -1,4 +1,3 @@
-// pages/HospitalProfile.jsx - Enhanced & Beautiful Design
 import React, { useContext, useEffect, useState, useCallback } from "react";
 import { AppContext } from "../context/AppContext";
 import axios from "axios";
@@ -48,10 +47,16 @@ const HospitalProfile = () => {
         setProfileData(data.hospital);
         setLocalProfileData(data.hospital);
       } else {
+        setProfileData(false);
         toast.error(data.message);
       }
     } catch (error) {
+      setProfileData(false);
       toast.error(error.message || "Failed to fetch profile data");
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem('hToken');
+        toast.error('Session expired. Please login again.');
+      }
     }
   }, [backendUrl, hToken]);
 
@@ -137,13 +142,29 @@ const HospitalProfile = () => {
   };
 
   // Loading state
-  if (!localProfileData) {
+  if (profileData === null) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
-        <div className="flex flex-col items-center space-y-4">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent"></div>
-          <p className="text-lg text-gray-600 font-medium">Loading your profile...</p>
+      <div className="p-6 text-center">
+        <div className="flex items-center justify-center space-x-2">
+          <div className="w-4 h-4 bg-blue-600 rounded-full animate-pulse"></div>
+          <div className="w-4 h-4 bg-blue-600 rounded-full animate-pulse" style={{ animationDelay: "0.1s" }}></div>
+          <div className="w-4 h-4 bg-blue-600 rounded-full animate-pulse" style={{ animationDelay: "0.2s" }}></div>
         </div>
+        <p className="mt-2 text-gray-500">Loading hospital data...</p>
+      </div>
+    );
+  }
+
+  if (profileData === false) {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-red-500 font-medium">Error loading hospital data. Please try again or login again.</p>
+        <button 
+          onClick={getProfileData} 
+          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          Retry
+        </button>
       </div>
     );
   }

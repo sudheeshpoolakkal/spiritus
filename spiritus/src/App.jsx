@@ -50,6 +50,8 @@ const App = () => {
           <Route path="/awards" element={<SpiritusAwards />} />
           <Route path="/application" element={<Application />} />
           <Route path='/hospitals' element={<Hospitals />}/>
+          <Route path='/hospitals/:speciality' element={<Hospitals />}/>
+
           {/* Add more routes as needed */}
         </Routes>
       </div>

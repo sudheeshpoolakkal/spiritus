@@ -8,7 +8,7 @@ const HospitalContextProvider = (props) => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   const [hToken, setHToken] = useState(localStorage.getItem("hToken") ? localStorage.getItem("hToken") : "");
-  const [profileData, setProfileData] = useState(false);
+  const [profileData, setProfileData] = useState(null);
   const [dashData, setDashData] = useState(false); // For future dashboard stats if needed
 
   const getProfileData = async () => {
@@ -19,10 +19,17 @@ const HospitalContextProvider = (props) => {
       if (data.success) {
         setProfileData(data.hospital);
       } else {
+        setProfileData(false);
         toast.error(data.message);
       }
     } catch (error) {
+      setProfileData(false);
       toast.error(error.message);
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem('hToken');
+        setHToken('');
+        toast.error('Session expired. Please login again.');
+      }
     }
   };
 

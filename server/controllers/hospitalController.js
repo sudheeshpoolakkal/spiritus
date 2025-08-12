@@ -1,5 +1,6 @@
 import Hospital from '../models/hospitalModel.js';
 import jwt from 'jsonwebtoken';
+import appointmentModel from '../models/appointmentModel.js';
 import bcrypt from 'bcryptjs';
 
 // Test route to check hospitals in database

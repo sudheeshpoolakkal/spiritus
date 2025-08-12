@@ -33,7 +33,7 @@ const HospitalDashboard = () => {
     getProfileData();
   }, []);
 
-  if (!profileData) {
+  if (profileData === null) {
     return (
       <div className="p-6 text-center">
         <div className="flex items-center justify-center space-x-2">
@@ -42,6 +42,20 @@ const HospitalDashboard = () => {
           <div className="w-4 h-4 bg-blue-600 rounded-full animate-pulse" style={{ animationDelay: "0.2s" }}></div>
         </div>
         <p className="mt-2 text-gray-500">Loading hospital data...</p>
+      </div>
+    );
+  }
+
+  if (profileData === false) {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-red-500 font-medium">Error loading hospital data. Please try again or login again.</p>
+        <button 
+          onClick={getProfileData} 
+          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          Retry
+        </button>
       </div>
     );
   }
