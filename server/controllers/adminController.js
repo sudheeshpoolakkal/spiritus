@@ -382,10 +382,47 @@ const addHospital = async (req, res) => {
       });
     }
 
-    const hospitalLogo = req.files?.hospitalLogo ? `/images/${req.files.hospitalLogo[0].filename}` : null;
-    const hospitalLicense = req.files?.hospitalLicense ? `/images/${req.files.hospitalLicense[0].filename}` : null;
+    // Upload logo to Cloudinary
+    let hospitalLogoUrl;
+    if (req.files?.hospitalLogo) {
+      hospitalLogoUrl = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            resource_type: "image",
+            transformation: [
+              { crop: "fill", aspect_ratio: "1.0", gravity: "auto" }
+            ]
+          },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result.secure_url);
+          }
+        );
+        uploadStream.end(req.files.hospitalLogo[0].buffer);
+      });
+    }
 
-    if (!hospitalLogo || !hospitalLicense) {
+    // Upload license to Cloudinary (assuming image; if PDF, change resource_type to "raw")
+    let hospitalLicenseUrl;
+    if (req.files?.hospitalLicense) {
+      hospitalLicenseUrl = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            resource_type: "image",  // Change to "raw" if licenses are PDFs
+            transformation: [
+              { crop: "fill", gravity: "auto" }
+            ]
+          },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result.secure_url);
+          }
+        );
+        uploadStream.end(req.files.hospitalLicense[0].buffer);
+      });
+    }
+
+    if (!hospitalLogoUrl || !hospitalLicenseUrl) {
       return res.json({ success: false, message: 'Hospital logo and license are required' });
     }
 
@@ -404,7 +441,7 @@ const addHospital = async (req, res) => {
 
     const newHospital = new hospitalModel({
       hospitalName,
-      type, // This is now validated above
+      type,
       yearEstablished,
       address,
       country,
@@ -424,8 +461,8 @@ const addHospital = async (req, res) => {
       averagePatientLoad,
       insuranceTies,
       accreditations,
-      hospitalLogo,
-      hospitalLicense,
+      hospitalLogo: hospitalLogoUrl,
+      hospitalLicense: hospitalLicenseUrl,
       acknowledgement: acknowledgement === 'true',
       isReviewed: true, // Mark as reviewed since added by admin
       password,  // Raw password - model pre-save will hash it

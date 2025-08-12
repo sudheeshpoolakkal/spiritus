@@ -44,8 +44,8 @@ export const createTestHospital = async (req, res) => {
       averagePatientLoad: 100,
       insuranceTies: "Test Insurance",
       accreditations: "Test Accreditation",
-      hospitalLicense: "/test-license.jpg",
-      hospitalLogo: "/test-logo.jpg",
+      hospitalLicense: "https://res.cloudinary.com/demo/image/upload/v1234567890/test-license.jpg", // Use a valid Cloudinary URL or placeholder
+      hospitalLogo: "https://res.cloudinary.com/demo/image/upload/v1234567890/test-logo.jpg", // Use a valid Cloudinary URL or placeholder
       acknowledgement: true,
       isReviewed: true
     });
