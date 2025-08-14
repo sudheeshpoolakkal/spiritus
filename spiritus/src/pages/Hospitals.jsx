@@ -18,6 +18,7 @@ const Hospitals = () => {
     'Specialty',
     'Rehabilitation',
     'Community',
+    'Government',
     'Clinic',
     'Other'
   ];

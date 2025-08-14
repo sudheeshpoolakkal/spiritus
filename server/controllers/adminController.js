@@ -370,75 +370,74 @@ const addHospital = async (req, res) => {
       insuranceTies,
       accreditations,
       acknowledgement,
-      password  // New password field
+      password
     } = req.body;
 
-    // Validate hospital type against allowed enum values
-    const allowedTypes = ['public', 'private', 'non-profit', 'specialty', 'rehabilitation', 'community', 'clinic', 'other'];
+    // ✅ All field Allowed
+    const allowedTypes = [
+  'public', 'private', 'non-profit', 'specialty',
+  'government', 'rehabilitation', 'community', 'clinic', 'other'
+];
+
     if (!allowedTypes.includes(type)) {
-      return res.json({ 
-        success: false, 
-        message: `Invalid hospital type. Allowed types are: ${allowedTypes.join(', ')}` 
+      return res.json({
+        success: false,
+        message: `Invalid hospital type.`
       });
     }
 
-    // Upload logo to Cloudinary
-    let hospitalLogoUrl;
-    if (req.files?.hospitalLogo) {
-      hospitalLogoUrl = await new Promise((resolve, reject) => {
-        const uploadStream = cloudinary.uploader.upload_stream(
-          {
-            resource_type: "image",
-            transformation: [
-              { crop: "fill", aspect_ratio: "1.0", gravity: "auto" }
-            ]
-          },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result.secure_url);
-          }
-        );
-        uploadStream.end(req.files.hospitalLogo[0].buffer);
-      });
-    }
-
-    // Upload license to Cloudinary (assuming image; if PDF, change resource_type to "raw")
-    let hospitalLicenseUrl;
-    if (req.files?.hospitalLicense) {
-      hospitalLicenseUrl = await new Promise((resolve, reject) => {
-        const uploadStream = cloudinary.uploader.upload_stream(
-          {
-            resource_type: "image",  // Change to "raw" if licenses are PDFs
-            transformation: [
-              { crop: "fill", gravity: "auto" }
-            ]
-          },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result.secure_url);
-          }
-        );
-        uploadStream.end(req.files.hospitalLicense[0].buffer);
-      });
-    }
-
-    if (!hospitalLogoUrl || !hospitalLicenseUrl) {
+    // ✅ Validate required uploads
+    if (!req.files?.hospitalLogo || !req.files?.hospitalLicense) {
       return res.json({ success: false, message: 'Hospital logo and license are required' });
     }
 
-    if (!password) {
-      return res.json({ success: false, message: 'Password is required' });
-    }
-
-    if (password.length < 8) {
+    // ✅ Validate Password
+    if (!password || password.length < 8) {
       return res.json({ success: false, message: 'Password must be at least 8 characters' });
     }
 
-    const existingHospital = await hospitalModel.findOne({ emailAddress });
+    // ✅ Normalize email
+    const normalizedEmail = emailAddress.trim().toLowerCase();
+
+    // ✅ Check duplicate hospital by email in both possible fields
+    const existingHospital = await hospitalModel.findOne({
+      $or: [{ email: normalizedEmail }, { emailAddress: normalizedEmail }]
+    });
     if (existingHospital) {
       return res.json({ success: false, message: 'Hospital with this email already exists' });
     }
 
+    // ✅ Upload Logo to Cloudinary
+    const hospitalLogoUrl = await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          resource_type: "image",
+          transformation: [{ crop: "fill", aspect_ratio: "1.0", gravity: "auto" }]
+        },
+        (error, result) => {
+          if (error) return reject(error);
+          resolve(result.secure_url);
+        }
+      );
+      uploadStream.end(req.files.hospitalLogo[0].buffer);
+    });
+
+    // ✅ Upload License to Cloudinary
+    const hospitalLicenseUrl = await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          resource_type: "image", // If PDF, change this to 'raw'
+          transformation: [{ crop: "fill", gravity: "auto" }]
+        },
+        (error, result) => {
+          if (error) return reject(error);
+          resolve(result.secure_url);
+        }
+      );
+      uploadStream.end(req.files.hospitalLicense[0].buffer);
+    });
+
+    // ✅ Save new hospital
     const newHospital = new hospitalModel({
       hospitalName,
       type,
@@ -449,7 +448,7 @@ const addHospital = async (req, res) => {
       district,
       pinCode,
       contactNumber,
-      emailAddress,
+      emailAddress: normalizedEmail,
       website,
       keyContact,
       mentalHealthProfessionals,
@@ -463,20 +462,23 @@ const addHospital = async (req, res) => {
       accreditations,
       hospitalLogo: hospitalLogoUrl,
       hospitalLicense: hospitalLicenseUrl,
-      acknowledgement: acknowledgement === 'true',
-      isReviewed: true, // Mark as reviewed since added by admin
-      password,  // Raw password - model pre-save will hash it
-      email: emailAddress.toLowerCase(),  // Assuming email is same as emailAddress for login
-      name: hospitalName  // Set name if needed
+      acknowledgement: acknowledgement === 'true' || acknowledgement === true,
+      isReviewed: true,
+      password,
+      email: normalizedEmail,
+      name: hospitalName
     });
 
     await newHospital.save();
-    res.json({ success: true, message: 'Hospital added successfully' });
+
+    return res.json({ success: true, message: 'Hospital added successfully' });
+
   } catch (error) {
     console.error(error);
-    res.json({ success: false, message: error.message });
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
+
 
 // Updated export statement - add addHospital to the list
 export {
