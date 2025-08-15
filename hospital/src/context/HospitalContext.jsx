@@ -1,3 +1,5 @@
+// Modified HospitalContextProvider in HospitalContext.js
+// Updated getDashData to fetch from new endpoint
 import { createContext, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -9,7 +11,7 @@ const HospitalContextProvider = (props) => {
 
   const [hToken, setHToken] = useState(localStorage.getItem("hToken") ? localStorage.getItem("hToken") : "");
   const [profileData, setProfileData] = useState(null);
-  const [dashData, setDashData] = useState(false); // For future dashboard stats if needed
+  const [dashData, setDashData] = useState({ earnings: '0.00', appointments: 0, hospitals: 0, latestAppointments: [] }); // Initialize with defaults
 
   const getProfileData = async () => {
     try {
@@ -33,7 +35,6 @@ const HospitalContextProvider = (props) => {
     }
   };
 
-  // Optional: If you add a dashboard endpoint later, fetch stats here
   const getDashData = async () => {
     try {
       const { data } = await axios.get(backendUrl + "/api/hospital/dashboard", {

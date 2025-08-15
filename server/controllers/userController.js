@@ -503,7 +503,7 @@ const submitFeedback = async (req, res) => {
 const submitHospitalRegistration = async (req, res) => {
   try {
     const {
-      hospitalName, type, yearEstablished, address, country, state, district, pinCode,
+      hospitalName, type: rawType, yearEstablished, address, country, state, district, pinCode,
       contactNumber, emailAddress, website, keyContact, mentalHealthProfessionals,
       specializations, currentFees, teletherapy, operatingHours, emergencySupport,
       averagePatientLoad, insuranceTies, accreditations, acknowledgement,
@@ -513,7 +513,7 @@ const submitHospitalRegistration = async (req, res) => {
     const hospitalLogo = req.files?.hospitalLogo;
 
     // Validate required fields
-    if (!hospitalName || !type || !yearEstablished || !address || !country || !state ||
+    if (!hospitalName || !rawType || !yearEstablished || !address || !country || !state ||
         !district || !pinCode || !contactNumber || !emailAddress || !mentalHealthProfessionals ||
         !specializations || !currentFees || !teletherapy || !averagePatientLoad ||
         !accreditations || !acknowledgement || !hospitalLicense) {
@@ -523,6 +523,31 @@ const submitHospitalRegistration = async (req, res) => {
     // Validate email
     if (!validator.isEmail(emailAddress)) {
       return res.json({ success: false, message: 'Please enter a valid email' });
+    }
+
+    // Normalize type same as admin
+    let type = rawType.toLowerCase().replace(/\s+/g, '-');
+
+    const counselingVariations = [
+      'councelling-center', 'councellingcenter',
+      'counselling-center', 'counsellingcenter',
+      'counseling-center', 'counselingcenter',
+      'councelling centre', 'counselling centre', 'counseling centre'
+    ];
+
+    if (counselingVariations.includes(type)) {
+      type = 'counseling-center';
+    } else {
+      type = type.replace(/[^\w-]/g, '-').replace(/-+/g, '-');
+    }
+
+    // Validate against allowed types
+    const allowedTypes = ['public', 'private', 'non-profit', 'specialty', 'government', 'rehabilitation', 'community', 'clinic', 'other', 'counseling-center'];
+    if (!allowedTypes.includes(type)) {
+      return res.json({ 
+        success: false, 
+        message: `Invalid hospital type. Allowed types are: ${allowedTypes.join(', ')}` 
+      });
     }
 
     // Upload files to Cloudinary
@@ -556,7 +581,9 @@ const submitHospitalRegistration = async (req, res) => {
     const parsedSpecializations = Array.isArray(specializations) ? specializations : JSON.parse(specializations);
 
     const hospitalData = {
-      hospitalName, type, yearEstablished, address, country, state, district, pinCode,
+      hospitalName, 
+      type,
+      yearEstablished, address, country, state, district, pinCode,
       contactNumber, emailAddress, website, keyContact, mentalHealthProfessionals,
       specializations: parsedSpecializations, currentFees, teletherapy, operatingHours,
       emergencySupport, averagePatientLoad, insuranceTies, accreditations,
