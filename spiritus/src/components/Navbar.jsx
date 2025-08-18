@@ -16,9 +16,9 @@ const Navbar = () => {
 
   return (
     <nav className="fixed top-0 left-0 w-full z-40 bg-white/90 backdrop-blur-sm shadow-[0_4px_8px_rgba(0,0,0,0.1)] h-[3.25rem] px-4 md:px-8 flex items-center">
-      <div className="max-w-[1200px] w-full mx-auto flex items-center justify-between">
-        {/* Logo + Text Container with slight negative left margin */}
-        <div className="flex items-center -ml-32 h-12">
+      <div className="w-full mx-auto flex items-center justify-between">
+        {/* Logo + Text Container */}
+        <div className="flex items-center h-12">
           <img
             onClick={() => navigate("/")}
             style={{ transform: "scale(1.3)" }}
@@ -42,7 +42,7 @@ const Navbar = () => {
         </div>
 
         {/* Desktop Menu - Spiritus style + active green */}
-<ul className="hidden md:flex items-center gap-8 font-medium absolute left-1/2 transform -translate-x-1/2">
+<ul className="hidden md:flex items-center gap-8 font-medium">
   {["/", "/Doctors", "/Awards", "/Application","/About", "/Contact"].map((path, index) => (
     <li key={index} className="relative group">
       <NavLink
@@ -69,8 +69,8 @@ const Navbar = () => {
 
 
 
-        {/* Right Side Container with slight negative right margin */}
-        <div className="flex items-center gap-4 -mr-32">
+        {/* Right Side Container */}
+        <div className="flex items-center gap-4">
           {token && userData ? (
             // Profile Dropdown - Responsive sizing
             <div className="relative group flex items-center gap-1 md:gap-2 cursor-pointer">
@@ -123,7 +123,7 @@ const Navbar = () => {
 
       {/* Mobile Menu - Fully opaque white with strong shadow */}
       <div
-        className={`fixed top-0 right-0 h-full w-72 sm:w-80 bg-white shadow-2xl transform ${
+        className={`fixed top-0 right-0 h-full w-full max-w-sm bg-white shadow-2xl transform ${
           showMenu ? "translate-x-0" : "translate-x-full"
         } transition-transform duration-300 ease-in-out z-50 md:hidden border-l border-gray-200`}
       >

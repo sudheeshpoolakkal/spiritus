@@ -9,6 +9,7 @@ const Doctors = () => {
   const [filterDoc, setFilterDoc] = useState([]);
   const [showFilter, setShowFilter] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedLanguage, setSelectedLanguage] = useState('');
   const navigate = useNavigate();
 
   const specialties = [
@@ -18,36 +19,38 @@ const Doctors = () => {
     'Neuropsychologist',
     'Psychoanalyst',
     'SocialWorker',
-
   ];
+
+  const languages = ['English', 'Spanish', 'French', 'German', 'Mandarin', 'Hindi', 'Bengali', 'Telugu', 'Marathi', 'Tamil'];
 
   // Apply filter based on selected speciality
   const applyFilter = () => {
+    let filteredDoctors = doctors;
+
     if (speciality) {
-      setFilterDoc(doctors.filter((doc) => doc.speciality === speciality));
-    } else {
-      setFilterDoc(doctors);
+      filteredDoctors = filteredDoctors.filter((doc) => doc.speciality === speciality);
     }
+
+    if (selectedLanguage) {
+      filteredDoctors = filteredDoctors.filter((doc) =>
+        doc.languages.includes(selectedLanguage)
+      );
+    }
+
+    if (searchTerm.trim() !== '') {
+      filteredDoctors = filteredDoctors.filter(
+        (doc) =>
+          doc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          doc.speciality.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    setFilterDoc(filteredDoctors);
   };
 
   useEffect(() => {
     applyFilter();
-  }, [doctors, speciality]);
-
-  // Filter doctors based on search term
-  useEffect(() => {
-    if (searchTerm.trim() === '') {
-      applyFilter();
-      return;
-    }
-    
-    const filtered = doctors.filter(
-      (doc) => 
-        doc.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        doc.speciality.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    setFilterDoc(filtered);
-  }, [searchTerm]);
+  }, [doctors, speciality, selectedLanguage, searchTerm]);
 
   return (
     <div className="min-h-screen bg-white">
@@ -85,35 +88,52 @@ const Doctors = () => {
                 {showFilter ? 'Hide Filters' : 'Show Filters'}
               </button>
               
-              <div className={`space-y-1 ${showFilter ? 'block' : 'hidden sm:block'}`}>
-                <p className="text-xs text-gray-500 uppercase tracking-wider mb-2 font-medium">Specialties</p>
-                {specialties.map((spec, index) => (
+              <div className={`space-y-4 ${showFilter ? 'block' : 'hidden sm:block'}`}>
+                <div>
+                  <p className="text-xs text-gray-500 uppercase tracking-wider mb-2 font-medium">Specialties</p>
+                  {specialties.map((spec, index) => (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        navigate(`/doctors/${spec}`);
+                        setSelectedLanguage('');
+                        setSearchTerm('');
+                      }}
+                      className={`w-full px-3 py-2 text-left text-sm rounded transition-colors ${
+                        speciality === spec && !searchTerm
+                          ? 'bg-primary text-white font-medium'
+                          : 'hover:bg-gray-100 text-gray-700'
+                      }`}
+                    >
+                      {spec}
+                    </button>
+                  ))}
                   <button
-                    key={index}
                     onClick={() => {
-                      setFilterDoc(doctors.filter((doc) => doc.speciality === spec));
+                      navigate('/doctors');
+                      setSelectedLanguage('');
                       setSearchTerm('');
                     }}
-                    className={`w-full px-3 py-2 text-left text-sm rounded transition-colors ${
-                      filterDoc.length > 0 && 
-                      filterDoc[0].speciality === spec && 
-                      !searchTerm ? 
-                      'bg-primary text-white font-medium' : 
-                      'hover:bg-gray-100 text-gray-700'
-                    }`}
+                    className="w-full px-3 py-2 text-left text-sm text-primary hover:bg-gray-50 rounded transition-colors"
                   >
-                    {spec}
+                    All Doctors
                   </button>
-                ))}
-                <button
-                  onClick={() => {
-                    setFilterDoc(doctors);
-                    setSearchTerm('');
-                  }}
-                  className="w-full px-3 py-2 text-left text-sm text-primary hover:bg-gray-50 rounded transition-colors"
-                >
-                  All Doctors
-                </button>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 uppercase tracking-wider mb-2 font-medium">Language</p>
+                  <select
+                    value={selectedLanguage}
+                    onChange={(e) => setSelectedLanguage(e.target.value)}
+                    className="w-full px-3 py-2 text-left text-sm rounded transition-colors border border-gray-200"
+                  >
+                    <option value="">All Languages</option>
+                    {languages.map((lang) => (
+                      <option key={lang} value={lang}>
+                        {lang}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
           </aside>
