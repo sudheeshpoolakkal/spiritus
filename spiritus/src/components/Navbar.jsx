@@ -43,7 +43,7 @@ const Navbar = () => {
 
         {/* Desktop Menu - Spiritus style + active green */}
 <ul className="hidden md:flex items-center gap-8 font-medium absolute left-1/2 transform -translate-x-1/2">
-  {["/", "/Doctors", "/plans", "/Awards", "/Application","/About", "/Contact"].map((path, index) => (
+  {["/", "/Doctors", "/Plans", "/Awards", "/Application","/About", "/Contact"].map((path, index) => (
     <li key={index} className="relative group">
       <NavLink
         to={path}
@@ -153,7 +153,7 @@ const Navbar = () => {
         {/* Navigation Links */}
         <div className="py-6">
           <ul className="flex flex-col gap-1 px-4">
-            {["/", "/Doctors", "/plans", "/Awards", "/Application", "/About", "/Contact"].map(
+            {["/", "/Doctors", "/Plans", "/Awards", "/Application", "/About", "/Contact"].map(
               (path, index) => (
                 <li key={index} className="w-full">
                   <NavLink
