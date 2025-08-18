@@ -43,7 +43,7 @@ const Navbar = () => {
 
         {/* Desktop Menu - Spiritus style + active green */}
 <ul className="hidden md:flex items-center gap-8 font-medium absolute left-1/2 transform -translate-x-1/2">
-  {["/", "/Doctors", "/Plans", "/Awards", "/Application","/About", "/Contact"].map((path, index) => (
+  {["/", "/Doctors", "/Awards", "/Application","/Plans", "/About", "/Contact"].map((path, index) => (
     <li key={index} className="relative group">
       <NavLink
         to={path}
