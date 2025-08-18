@@ -201,7 +201,7 @@ const uploadProfileImage = async (req, res) => {
 // API to Book Appointment
 const bookAppointment = async (req, res) => {
   try {
-      const { userId, docId, slotDate, slotTime, patientDescription } = req.body;
+      const { userId, docId, slotDate, slotTime, patientDescription, consultationMode } = req.body;
       const docData = await doctorModel.findById(docId).select('-password');
       if (!docData || !docData.available) {
           return res.json({ success: false, message: 'Doctor not Available' });
@@ -225,6 +225,7 @@ const bookAppointment = async (req, res) => {
       const appointmentData = {
           userId,
           docId,
+          consultationMode,
           userData,
           docData,
           amount: docData.fees,
@@ -653,9 +654,26 @@ const submitDoctorRegistration = async (req, res) => {
 };
        
 
+const submitQuestionnaire = async (req, res) => {
+  try {
+    const { userId, answers } = req.body;
+
+    if (!answers) {
+      return res.json({ success: false, message: 'No answers provided' });
+    }
+
+    await userModel.findByIdAndUpdate(userId, { questionnaire: answers });
+
+    res.json({ success: true, message: 'Questionnaire submitted successfully' });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
 export {
   registerUser, loginUser, getProfile, uploadProfileImage, updateProfile,
   bookAppointment, listAppointment, cancelAppointment, getVideoCallLink,
   processPayment, rateDoctor, submitFeedback, submitHospitalRegistration,
-  submitDoctorRegistration,
+  submitDoctorRegistration, submitQuestionnaire,
 };

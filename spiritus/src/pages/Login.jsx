@@ -28,7 +28,7 @@ const Login = () => {
         if (data.success) {
           localStorage.setItem("token", data.token);
           setToken(data.token);
-          navigate("/upload-profile");
+          navigate("/questionnaire");
         } else {
           toast.error(data.message);
         }

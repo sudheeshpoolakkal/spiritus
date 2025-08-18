@@ -3,7 +3,7 @@ import {
   registerUser, loginUser, getProfile, updateProfile, uploadProfileImage,
   bookAppointment, listAppointment, cancelAppointment, getVideoCallLink,
   processPayment, rateDoctor, submitFeedback, submitHospitalRegistration,
-  submitDoctorRegistration,
+  submitDoctorRegistration, submitQuestionnaire,
 } from '../controllers/userController.js';
 import authUser from '../middlewares/authUser.js';
 import upload from '../middlewares/multer.js';
@@ -30,5 +30,6 @@ userRouter.post('/submit-doctor-registration', upload.fields([
   { name: 'profilePhoto', maxCount: 1 },
   { name: 'licenseCertificate', maxCount: 1 },
 ]), submitDoctorRegistration);
+userRouter.post('/submit-questionnaire', authUser, submitQuestionnaire);
 
 export default userRouter;
