@@ -15,7 +15,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 w-full z-40 bg-white/90 backdrop-blur-sm shadow-[0_4px_8px_rgba(0,0,0,0.1)] h-[3.25rem] px-4 md:px-8 flex items-center">
+    <nav className="fixed top-0 left-0 w-full z-40 bg-white backdrop-blur-sm shadow-[0_4px_8px_rgba(0,0,0,0.1)] h-[3.25rem] px-4 md:px-8 flex items-center">
       <div className="max-w-[1200px] w-full mx-auto flex items-center justify-between">
         {/* Logo + Text Container with slight negative left margin */}
         <div className="flex items-center -ml-32 h-12">
