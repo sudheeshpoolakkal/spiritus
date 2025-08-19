@@ -280,7 +280,7 @@ const Plans = () => {
       `}</style>
 
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 text-white overflow-hidden">
+      <section className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-blue-900 text-white overflow-hidden">
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-black opacity-10"></div>
           <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-blue-900 to-transparent"></div>
