@@ -3,7 +3,7 @@ import { Check, X, Play, ChevronDown, Star, Users, Clock, Shield, Globe, Info } 
 
 // Import your video and poster image
 import testimonialVideo from '@/assets/video/betterhelp.mp4';
-import AIvideo1 from '@/assets/video/invideo-ai-1080 The Secret Therapists Swear By_ Spiritus 2025-08-10.mp4';
+import AIvideo1 from '@/assets/video/Malayali_Psychologist_Promotes_Online_Therapy.mp4';
 //import testimonialPoster from '/assets/images/testimonial-poster.jpg';
 
 const Application = () => {

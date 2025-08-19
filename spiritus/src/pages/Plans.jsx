@@ -500,7 +500,7 @@ const Plans = () => {
           </div>
           
           <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl text-white p-8 text-center hover:from-blue-700 hover:to-blue-800 transition-all duration-300 ">
-            <h3 className="text-2xl font-bold mb-3">Immediate Intervention Saves Lives</h3>
+            <h3 className="text-2xl font-bold mb-3">When support is near, potential is limitless.</h3>
             <p className="text-blue-100 text-lg mb-4">
               Every day of delay in mental health support increases risks. Our platform provides instant access to licensed professionals who specialize in modern mental health challenges.
             </p>
