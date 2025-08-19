@@ -11,9 +11,9 @@ const Plans = () => {
   const corporatePlans = [
     {
       name: "Starter",
-      price: { monthly: 15000, annual: 150000 },
-      sessions: 50,
-      employees: "Up to 25",
+      price: { monthly: 5000, annual: 50000 },
+      sessions: 5,
+      employees: "Up to 5",
       features: [
         "Individual therapy sessions",
         "Basic mental health assessments",
@@ -26,9 +26,9 @@ const Plans = () => {
     },
     {
       name: "Professional",
-      price: { monthly: 35000, annual: 350000 },
-      sessions: 150,
-      employees: "Up to 100",
+      price: { monthly: 10000, annual: 100000 },
+      sessions: 10,
+      employees: "Up to 10",
       features: [
         "Individual & group therapy",
         "Comprehensive assessments",
@@ -43,9 +43,9 @@ const Plans = () => {
     },
     {
       name: "Enterprise",
-      price: { monthly: 75000, annual: 750000 },
-      sessions: 400,
-      employees: "Up to 500",
+      price: { monthly: 30000, annual: 300000 },
+      sessions: 35,
+      employees: "Up to 35",
       features: [
         "Unlimited therapy modalities",
         "Advanced analytics dashboard",
@@ -64,9 +64,9 @@ const Plans = () => {
   const universityPlans = [
     {
       name: "Campus Basic",
-      price: { monthly: 25000, annual: 250000 },
-      sessions: 100,
-      students: "Up to 500",
+      price: { monthly: 10000, annual: 100000 },
+      sessions: 10,
+      students: "Up to 10",
       features: [
         "Student counseling services",
         "Group therapy sessions",
@@ -79,9 +79,9 @@ const Plans = () => {
     },
     {
       name: "Campus Premium",
-      price: { monthly: 55000, annual: 550000 },
-      sessions: 300,
-      students: "Up to 2000",
+      price: { monthly: 30000, annual: 300000 },
+      sessions: 30,
+      students: "Up to 30",
       features: [
         "Comprehensive student support",
         "Faculty wellness programs",
@@ -96,8 +96,8 @@ const Plans = () => {
     },
     {
       name: "University Wide",
-      price: { monthly: 125000, annual: 1250000 },
-      sessions: 800,
+      price: { monthly: 55000, annual: 600000 },
+      sessions: 55,
       students: "Unlimited",
       features: [
         "Campus-wide mental health",
@@ -297,7 +297,7 @@ const Plans = () => {
             </div>
             <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
               Mental Health<br />
-              <span className="bg-gradient-to-r from-blue-200 via-white to-blue-200 bg-clip-text text-transparent animate-gradient">Support Plans</span>
+              <span className="bg-gradient-to-r from-blue-300 via-white to-blue-500 bg-clip-text text-transparent animate-gradient">Support Plans</span>
             </h1>
             <p className="text-xl text-blue-100 mb-8 max-w-4xl mx-auto leading-relaxed opacity-0 animate-fade-in-up" style={{animationDelay: '0.3s', animationFillMode: 'both'}}>
               In today's demanding world, mental health challenges are at an all-time high. From exam stress and academic pressure to workplace burnout and digital overwhelm - we provide comprehensive therapy solutions to help your people thrive.
