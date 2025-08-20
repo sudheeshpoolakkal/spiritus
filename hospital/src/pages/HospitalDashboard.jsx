@@ -110,18 +110,6 @@ const HospitalDashboard = () => {
           </div>
         </div>
 
-        {/* Earning Load Card */}
-        <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-yellow-50 rounded-lg">
-                <EarningsIcon />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-gray-800">Earning</p>
-                <p className="text-sm text-gray-500">Hospital Earnings</p>
-              </div>
-            </div>
-          </div>
 
         {/* Patient Load Card */}
         <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">

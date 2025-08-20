@@ -2,14 +2,14 @@ import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { AppContext } from '../context/AppContext';
+import { HospitalContext } from '../context/HospitalContext';
 import bgImage from '../assets/aurora.webp';
 
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { setHToken, backendUrl } = useContext(AppContext);
+  const { setHToken, backendUrl } = useContext(HospitalContext);
   const navigate = useNavigate();
 
   const onSubmitHandler = async (event) => {

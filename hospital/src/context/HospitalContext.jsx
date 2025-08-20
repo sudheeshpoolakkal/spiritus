@@ -33,22 +33,6 @@ const HospitalContextProvider = (props) => {
     }
   };
 
-  // Optional: If you add a dashboard endpoint later, fetch stats here
-  const getDashData = async () => {
-    try {
-      const { data } = await axios.get(backendUrl + "/api/hospital/dashboard", {
-        headers: { Authorization: `Bearer ${hToken}` },
-      });
-      if (data.success) {
-        setDashData(data.dashData);
-      } else {
-        toast.error(data.message);
-      }
-    } catch (error) {
-      toast.error(error.message);
-    }
-  };
-
   const value = {
     hToken,
     setHToken,
@@ -56,7 +40,6 @@ const HospitalContextProvider = (props) => {
     profileData,
     getProfileData,
     dashData,
-    getDashData,
   };
 
   return <HospitalContext.Provider value={value}>{props.children}</HospitalContext.Provider>;
