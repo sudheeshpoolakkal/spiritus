@@ -219,7 +219,10 @@ export const updateHospitalProfile = async (req, res) => {
 
 export const getHospitalAppointments = async (req, res) => {
   try {
-    const appointments = await appointmentModel.find({}); 
+    // This is a placeholder function.
+    // The current database schema does not allow for linking appointments to hospitals.
+    // To implement this feature, the doctorModel needs to be updated to include a hospitalId.
+    const appointments = [];
     res.json({ success: true, appointments });
   } catch (error) {
     console.error(error);

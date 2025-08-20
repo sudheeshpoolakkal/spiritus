@@ -39,7 +39,7 @@ const HospitalDashboard = () => {
 
   useEffect(() => {
     getProfileData();
-    getDashData(); // Fetch dashboard data including earnings
+    // getDashData(); // Fetch dashboard data including earnings
   }, []);
 
   if (profileData === null) {
@@ -147,7 +147,7 @@ const HospitalDashboard = () => {
             </div>
             <div>
               <p className="text-2xl font-bold text-gray-800">{dashData.earnings}</p>
-              <p className="text-sm text-gray-500">Earnings</p>
+              <p className="text-sm text-gray-500">Hospital Earnings</p>
             </div>
           </div>
         </div>

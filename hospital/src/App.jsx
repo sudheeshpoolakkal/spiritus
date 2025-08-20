@@ -3,7 +3,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import { AppContext } from "./context/AppContext";
+import { HospitalContext } from "./context/HospitalContext";
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/SideBar";
 import Login from "./pages/Login";
@@ -14,12 +14,12 @@ import HospitalProfile from "./pages/HospitalProfile";
 import Doctors from "./pages/Doctors";
 
 const ProtectedHospitalRoute = ({ children }) => {
-  const { hToken } = useContext(AppContext);
+  const { hToken } = useContext(HospitalContext);
   return hToken ? children : <Navigate to="/hospital-login" replace />;
 };
 
 const App = () => {
-  const { hToken } = useContext(AppContext);
+  const { hToken } = useContext(HospitalContext);
 
   return (
     <div className="bg-[#F8F9FD] min-h-screen">
