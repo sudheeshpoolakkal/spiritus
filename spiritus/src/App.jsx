@@ -19,6 +19,7 @@ import UserPrescription from './pages/UserPrescription'
 import SpiritusAwards from './pages/SpiritusAwards'
 import Application from './pages/Application'
 import Hospitals from './pages/Hospitals'
+import HospitalDetails from './pages/HospitalDetails'
 const App = () => {
 
   const location = useLocation()
@@ -51,6 +52,7 @@ const App = () => {
           <Route path="/application" element={<Application />} />
           <Route path='/hospitals' element={<Hospitals />}/>
           <Route path='/hospitals/:speciality' element={<Hospitals />}/>
+          <Route path='/hospital/:hospitalId' element={<HospitalDetails />}/>
 
           {/* Add more routes as needed */}
         </Routes>

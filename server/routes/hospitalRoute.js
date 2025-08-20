@@ -7,8 +7,11 @@ import {
   createTestHospital,
   getHospitalAppointments,
   listHospitals,
+  addDoctorToHospital,
+  getHospitalDoctors,
 } from '../controllers/hospitalController.js';
 import authHospital from '../middlewares/authHospital.js';
+import upload from '../middlewares/multer.js';
 
 const router = express.Router();
 
@@ -29,5 +32,8 @@ router.get('/appointments', authHospital, getHospitalAppointments);
 // List hospitals
 router.get('/list', listHospitals);
 
+// Doctor management
+router.post('/add-doctor', authHospital, upload.single('image'), addDoctorToHospital);
+router.get('/doctors', authHospital, getHospitalDoctors);
 
 export default router;

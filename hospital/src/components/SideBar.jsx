@@ -26,6 +26,7 @@ const Sidebar = () => {
     { to: '/all-appointments', icon: Calendar, label: 'Appointments' },
     { to: '/hospital-profile', icon: User, label: 'Profile' },
     { to: '/doctors', icon: FaUserDoctor, label: 'Doctors' },
+    { to: '/add-doctor', icon: UserPlus, label: 'Add Doctor' },
   ];
 
 

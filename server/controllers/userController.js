@@ -225,6 +225,7 @@ const bookAppointment = async (req, res) => {
       const appointmentData = {
           userId,
           docId,
+          hospitalId: docData.hospitalId,
           userData,
           docData,
           amount: docData.fees,
@@ -503,7 +504,7 @@ const submitFeedback = async (req, res) => {
 const submitHospitalRegistration = async (req, res) => {
   try {
     const {
-      hospitalName, type: rawType, yearEstablished, address, country, state, district, pinCode,
+      hospitalName, type, yearEstablished, address, country, state, district, pinCode,
       contactNumber, emailAddress, website, keyContact, mentalHealthProfessionals,
       specializations, currentFees, teletherapy, operatingHours, emergencySupport,
       averagePatientLoad, insuranceTies, accreditations, acknowledgement,
@@ -513,7 +514,7 @@ const submitHospitalRegistration = async (req, res) => {
     const hospitalLogo = req.files?.hospitalLogo;
 
     // Validate required fields
-    if (!hospitalName || !rawType || !yearEstablished || !address || !country || !state ||
+    if (!hospitalName || !type || !yearEstablished || !address || !country || !state ||
         !district || !pinCode || !contactNumber || !emailAddress || !mentalHealthProfessionals ||
         !specializations || !currentFees || !teletherapy || !averagePatientLoad ||
         !accreditations || !acknowledgement || !hospitalLicense) {
@@ -523,31 +524,6 @@ const submitHospitalRegistration = async (req, res) => {
     // Validate email
     if (!validator.isEmail(emailAddress)) {
       return res.json({ success: false, message: 'Please enter a valid email' });
-    }
-
-    // Normalize type same as admin
-    let type = rawType.toLowerCase().replace(/\s+/g, '-');
-
-    const counselingVariations = [
-      'councelling-center', 'councellingcenter',
-      'counselling-center', 'counsellingcenter',
-      'counseling-center', 'counselingcenter',
-      'councelling centre', 'counselling centre', 'counseling centre'
-    ];
-
-    if (counselingVariations.includes(type)) {
-      type = 'counseling-center';
-    } else {
-      type = type.replace(/[^\w-]/g, '-').replace(/-+/g, '-');
-    }
-
-    // Validate against allowed types
-    const allowedTypes = ['public', 'private', 'non-profit', 'specialty', 'government', 'rehabilitation', 'community', 'clinic', 'other', 'counseling-center'];
-    if (!allowedTypes.includes(type)) {
-      return res.json({ 
-        success: false, 
-        message: `Invalid hospital type. Allowed types are: ${allowedTypes.join(', ')}` 
-      });
     }
 
     // Upload files to Cloudinary
@@ -581,9 +557,7 @@ const submitHospitalRegistration = async (req, res) => {
     const parsedSpecializations = Array.isArray(specializations) ? specializations : JSON.parse(specializations);
 
     const hospitalData = {
-      hospitalName, 
-      type,
-      yearEstablished, address, country, state, district, pinCode,
+      hospitalName, type, yearEstablished, address, country, state, district, pinCode,
       contactNumber, emailAddress, website, keyContact, mentalHealthProfessionals,
       specializations: parsedSpecializations, currentFees, teletherapy, operatingHours,
       emergencySupport, averagePatientLoad, insuranceTies, accreditations,
@@ -680,9 +654,36 @@ const submitDoctorRegistration = async (req, res) => {
 };
        
 
+const getHospitalDetails = async (req, res) => {
+  try {
+    const { hospitalId } = req.params;
+    const hospital = await hospitalModel.findById(hospitalId).select('-password');
+    if (!hospital) {
+      return res.status(404).json({ success: false, message: 'Hospital not found' });
+    }
+    res.json({ success: true, hospital });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+const getHospitalDoctors = async (req, res) => {
+  try {
+    const { hospitalId } = req.params;
+    const doctors = await doctorModel.find({ hospitalId }).select('-password');
+    res.json({ success: true, doctors });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 export {
   registerUser, loginUser, getProfile, uploadProfileImage, updateProfile,
   bookAppointment, listAppointment, cancelAppointment, getVideoCallLink,
   processPayment, rateDoctor, submitFeedback, submitHospitalRegistration,
   submitDoctorRegistration,
+  getHospitalDetails,
+  getHospitalDoctors,
 };

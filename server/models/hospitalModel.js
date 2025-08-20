@@ -18,7 +18,7 @@ const hospitalSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ['public', 'private', 'non-profit', 'specialty', 'rehabilitation', 'government', 'community', 'clinic', 'counseling-center', 'other'],
+    enum: ['public', 'private', 'non-profit', 'specialty', 'rehabilitation', 'government', 'community', 'clinic', 'other'],
     required: true,
   },
   yearEstablished: {
@@ -134,6 +134,10 @@ const hospitalSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  doctors: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Doctor',
+  }],
   createdAt: {
     type: Date,
     default: Date.now,

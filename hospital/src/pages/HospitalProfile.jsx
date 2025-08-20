@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState, useCallback } from "react";
 import { AppContext } from "../context/AppContext";
-import { HospitalContext } from "../context/HospitalContext";
 import axios from "axios";
 import { toast } from "react-toastify";
 import {
@@ -31,7 +30,7 @@ import {
 } from "react-icons/fa";
 
 const HospitalProfile = () => {
-  const { backendUrl, hToken } = useContext(HospitalContext);
+  const { backendUrl, hToken } = useContext(AppContext);
   const [isEdit, setIsEdit] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [profileData, setProfileData] = useState(null);

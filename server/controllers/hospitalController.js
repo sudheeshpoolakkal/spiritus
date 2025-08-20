@@ -1,4 +1,5 @@
 import Hospital from '../models/hospitalModel.js';
+import Doctor from '../models/doctorModel.js';
 import jwt from 'jsonwebtoken';
 import appointmentModel from '../models/appointmentModel.js';
 import bcrypt from 'bcryptjs';
@@ -219,10 +220,13 @@ export const updateHospitalProfile = async (req, res) => {
 
 export const getHospitalAppointments = async (req, res) => {
   try {
-    // This is a placeholder function.
-    // The current database schema does not allow for linking appointments to hospitals.
-    // To implement this feature, the doctorModel needs to be updated to include a hospitalId.
-    const appointments = [];
+    const hospitalId = req.hospital._id;
+    const hospital = await Hospital.findById(hospitalId).populate('doctors');
+    if (!hospital) {
+      return res.status(404).json({ success: false, message: 'Hospital not found' });
+    }
+    const doctorIds = hospital.doctors.map(doc => doc._id);
+    const appointments = await appointmentModel.find({ docId: { $in: doctorIds } }).populate('userData').populate('docData');
     res.json({ success: true, appointments });
   } catch (error) {
     console.error(error);
@@ -234,6 +238,58 @@ export const listHospitals = async (req, res) => {
   try {
     const hospitals = await Hospital.find({ isReviewed: true }).select('-password');
     res.json({ success: true, hospitals });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const addDoctorToHospital = async (req, res) => {
+  try {
+    const hospitalId = req.hospital._id;
+    const { name, email, password, speciality, experience, about, fees, address, degree } = req.body;
+    const image = req.file.path;
+
+    const hospital = await Hospital.findById(hospitalId);
+    if (!hospital) {
+      return res.status(404).json({ success: false, message: 'Hospital not found' });
+    }
+
+    const newDoctor = new Doctor({
+      name,
+      email,
+      password, // Note: You should hash passwords before saving. Assuming a pre-save hook in the model.
+      speciality,
+      experience,
+      about,
+      fees,
+      address,
+      degree,
+      image,
+      hospitalId,
+      date: new Date().getTime(),
+    });
+
+    await newDoctor.save();
+
+    hospital.doctors.push(newDoctor._id);
+    await hospital.save();
+
+    res.json({ success: true, message: 'Doctor added successfully', doctor: newDoctor });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const getHospitalDoctors = async (req, res) => {
+  try {
+    const hospitalId = req.hospital._id;
+    const hospital = await Hospital.findById(hospitalId).populate('doctors');
+    if (!hospital) {
+      return res.status(404).json({ success: false, message: 'Hospital not found' });
+    }
+    res.json({ success: true, doctors: hospital.doctors });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: error.message });

@@ -4,6 +4,8 @@ import {
   bookAppointment, listAppointment, cancelAppointment, getVideoCallLink,
   processPayment, rateDoctor, submitFeedback, submitHospitalRegistration,
   submitDoctorRegistration,
+  getHospitalDetails,
+  getHospitalDoctors,
 } from '../controllers/userController.js';
 import authUser from '../middlewares/authUser.js';
 import upload from '../middlewares/multer.js';
@@ -30,5 +32,8 @@ userRouter.post('/submit-doctor-registration', upload.fields([
   { name: 'profilePhoto', maxCount: 1 },
   { name: 'licenseCertificate', maxCount: 1 },
 ]), submitDoctorRegistration);
+
+userRouter.get('/hospital/:hospitalId', getHospitalDetails);
+userRouter.get('/hospital/:hospitalId/doctors', getHospitalDoctors);
 
 export default userRouter;

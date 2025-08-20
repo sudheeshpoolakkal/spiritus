@@ -1,5 +1,3 @@
-// Modified HospitalDashboard.jsx
-// Added useEffect to fetch dashData and new Earnings card
 import React, { useContext, useEffect } from "react";
 import { HospitalContext } from "../context/HospitalContext";
 
@@ -16,6 +14,12 @@ const ProfessionalsIcon = () => (
   </svg>
 );
 
+const EarningsIcon = () => (
+  <svg className="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+  </svg>
+);
+
 const PatientLoadIcon = () => (
   <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -28,18 +32,11 @@ const SpecializationsIcon = () => (
   </svg>
 );
 
-const EarningsIcon = () => (
-  <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-  </svg>
-);
-
 const HospitalDashboard = () => {
-  const { profileData, getProfileData, dashData, getDashData } = useContext(HospitalContext);
+  const { profileData, getProfileData } = useContext(HospitalContext);
 
   useEffect(() => {
     getProfileData();
-    // getDashData(); // Fetch dashboard data including earnings
   }, []);
 
   if (profileData === null) {
@@ -86,7 +83,7 @@ const HospitalDashboard = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Hospital Type Card */}
         <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
           <div className="flex items-center gap-4">
@@ -113,6 +110,7 @@ const HospitalDashboard = () => {
           </div>
         </div>
 
+
         {/* Patient Load Card */}
         <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
           <div className="flex items-center gap-4">
@@ -135,19 +133,6 @@ const HospitalDashboard = () => {
             <div>
               <p className="text-2xl font-bold text-gray-800">{profileData.specializations?.length || 0}</p>
               <p className="text-sm text-gray-500">Specializations</p>
-            </div>
-          </div>
-        </div>
-
-        {/* New Earnings Card */}
-        <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-green-50 rounded-lg">
-              <EarningsIcon />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-800">{dashData.earnings}</p>
-              <p className="text-sm text-gray-500">Hospital Earnings</p>
             </div>
           </div>
         </div>
