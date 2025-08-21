@@ -18,7 +18,7 @@ const hospitalSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ['public', 'private', 'non-profit', 'specialty', 'rehabilitation', 'government', 'community', 'clinic', 'other'],
+    enum: ['hospital', 'clinic', 'government', 'rehab', 'counseling', 'community', 'other'],
     required: true,
   },
   yearEstablished: {
