@@ -3,6 +3,7 @@ import Doctor from '../models/doctorModel.js';
 import jwt from 'jsonwebtoken';
 import appointmentModel from '../models/appointmentModel.js';
 import bcrypt from 'bcryptjs';
+import { v2 as cloudinary } from 'cloudinary';
 
 // Test route to check hospitals in database
 export const testHospitals = async (req, res) => {
@@ -248,12 +249,25 @@ export const addDoctorToHospital = async (req, res) => {
   try {
     const hospitalId = req.hospital._id;
     const { name, email, password, speciality, experience, about, fees, address, degree } = req.body;
-    const image = req.file.path;
+
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'Image is required' });
+    }
 
     const hospital = await Hospital.findById(hospitalId);
     if (!hospital) {
       return res.status(404).json({ success: false, message: 'Hospital not found' });
     }
+
+    // Convert buffer to data URI
+    const b64 = Buffer.from(req.file.buffer).toString('base64');
+    let dataURI = 'data:' + req.file.mimetype + ';base64,' + b64;
+
+    // Upload to Cloudinary
+    const result = await cloudinary.uploader.upload(dataURI, {
+      folder: 'doctors',
+      public_id: `${name.replace(/\s+/g, '_')}_${Date.now()}`
+    });
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -268,7 +282,7 @@ export const addDoctorToHospital = async (req, res) => {
       fees,
       address: JSON.parse(address),
       degree,
-      image,
+      image: result.secure_url, // Use the Cloudinary URL
       hospitalId,
       date: new Date().getTime(),
     });
