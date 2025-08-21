@@ -48,7 +48,7 @@ const AddDoctor = () => {
         console.log(`${key}: ${value}`);
       });
 
-      const { data } = await axios.post(backendUrl + '/api/hospital/add-doctor', formData, { headers: { hToken } });
+      const { data } = await axios.post(backendUrl + '/api/hospital/add-doctor', formData, { headers: { Authorization: `Bearer ${hToken}` } });
 
       if (data.success) {
         toast.success(data.message);
