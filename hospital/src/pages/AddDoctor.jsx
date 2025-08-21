@@ -7,6 +7,7 @@ import axios from "axios";
 const AddDoctor = () => {
   const [docFile, setDocFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,9 +23,12 @@ const AddDoctor = () => {
 
   const onSubmitHandler = async (event) => {
     event.preventDefault();
+    setIsLoading(true);
     try {
       if (!docFile) {
-        return toast.error('Please select an image');
+        toast.error('Please select an image');
+        setIsLoading(false);
+        return;
       }
 
       const formData = new FormData();
@@ -39,8 +43,8 @@ const AddDoctor = () => {
       formData.append('degree', degree);
       formData.append('address', JSON.stringify({ line1: address1, line2: address2 }));
 
-      const { data } = await axios.post(`${backendUrl}/api/hospital/add-doctor`, formData, { 
-        headers: { Authorization: `Bearer ${hToken}` } 
+      const { data } = await axios.post(`${backendUrl}/api/hospital/add-doctor`, formData, {
+        headers: { Authorization: `Bearer ${hToken}` }
       });
 
       if (data.success) {
@@ -64,6 +68,8 @@ const AddDoctor = () => {
     } catch (error) {
       console.error(error);
       toast.error(error.response?.data?.message || error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -152,7 +158,13 @@ const AddDoctor = () => {
         </div>
 
         <div className="text-center mt-8">
-          <button type='submit' className="bg-blue-600 hover:bg-blue-700 cursor-pointer px-12 py-4 text-white font-semibold rounded-full transition-colors duration-300 shadow-lg">Add Doctor</button>
+          <button
+            type='submit'
+            disabled={isLoading}
+            className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed cursor-pointer px-12 py-4 text-white font-semibold rounded-full transition-colors duration-300 shadow-lg"
+          >
+            {isLoading ? 'Adding Doctor...' : 'Add Doctor'}
+          </button>
         </div>
       </form>
     </div>
