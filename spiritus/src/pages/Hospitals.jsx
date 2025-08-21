@@ -12,45 +12,42 @@ const Hospitals = () => {
   const navigate = useNavigate();
 
   const hospitalTypes = [
-    'Public',
-    'Private',
-    'Non-profit',
-    'Specialty',
-    'Rehabilitation',
-    'Community',
-    'Government',
-    'Clinic',
-    'Other'
+    { value: 'hospital', label: 'Hospital' },
+    { value: 'clinic', label: 'Clinic' },
+    { value: 'government', label: 'Government' },
+    { value: 'rehab', label: 'Rehabilitation Center' },
+    { value: 'counseling', label: 'Counseling Center' },
+    { value: 'community', label: 'Community Mental Health Center' },
+    { value: 'other', label: 'Other' },
   ];
+
+  const [selectedType, setSelectedType] = useState(hospitalType || 'all');
 
   // Apply filter based on selected hospital type
   const applyFilter = () => {
-    if (hospitalType) {
-      setFilterHospitals(hospitals.filter((hospital) => hospital.type === hospitalType));
-    } else {
-      setFilterHospitals(hospitals);
+    let filteredHospitals = hospitals;
+
+    if (selectedType && selectedType !== 'all') {
+      filteredHospitals = hospitals.filter((hospital) => hospital.type === selectedType);
     }
+
+    if (searchTerm.trim() !== '') {
+      filteredHospitals = filteredHospitals.filter(
+        (hospital) =>
+          hospital.hospitalName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          hospital.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          hospital.specializations.some((spec) =>
+            spec.toLowerCase().includes(searchTerm.toLowerCase())
+          )
+      );
+    }
+
+    setFilterHospitals(filteredHospitals);
   };
 
   useEffect(() => {
     applyFilter();
-  }, [hospitals, hospitalType]);
-
-  // Filter hospitals based on search term
-  useEffect(() => {
-    if (searchTerm.trim() === '') {
-      applyFilter();
-      return;
-    }
-    
-    const filtered = hospitals.filter(
-      (hospital) => 
-        hospital.hospitalName.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        hospital.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        hospital.specializations.some(spec => spec.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
-    setFilterHospitals(filtered);
-  }, [searchTerm]);
+  }, [hospitals, hospitalType, searchTerm, selectedType]);
 
   return (
     <div className="min-h-screen bg-white">
@@ -90,27 +87,25 @@ const Hospitals = () => {
               
               <div className={`space-y-1 ${showFilter ? 'block' : 'hidden sm:block'}`}>
                 <p className="text-xs text-gray-500 uppercase tracking-wider mb-2 font-medium">Hospital Types</p>
-                {hospitalTypes.map((type, index) => (
+                {hospitalTypes.map((type) => (
                   <button
-                    key={index}
+                    key={type.value}
                     onClick={() => {
-                      setFilterHospitals(hospitals.filter((hospital) => hospital.type === type.toLowerCase()));
+                      setSelectedType(type.value);
                       setSearchTerm('');
                     }}
                     className={`w-full px-3 py-2 text-left text-sm rounded transition-colors ${
-                      filterHospitals.length > 0 && 
-                      filterHospitals[0].type === type.toLowerCase() && 
-                      !searchTerm ? 
-                      'bg-primary text-white font-medium' : 
-                      'hover:bg-gray-100 text-gray-700'
+                      selectedType === type.value
+                        ? 'bg-primary text-white font-medium'
+                        : 'hover:bg-gray-100 text-gray-700'
                     }`}
                   >
-                    {type}
+                    {type.label}
                   </button>
                 ))}
                 <button
                   onClick={() => {
-                    setFilterHospitals(hospitals);
+                    setSelectedType('all');
                     setSearchTerm('');
                   }}
                   className="w-full px-3 py-2 text-left text-sm text-primary hover:bg-gray-50 rounded transition-colors"

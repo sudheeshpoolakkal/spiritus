@@ -375,9 +375,8 @@ const addHospital = async (req, res) => {
 
     // ✅ All field Allowed
     const allowedTypes = [
-  'public', 'private', 'non-profit', 'specialty',
-  'government', 'rehabilitation', 'community', 'clinic', 'other'
-];
+      'hospital', 'clinic', 'government', 'rehab', 'counseling', 'community', 'other'
+    ];
 
     if (!allowedTypes.includes(type)) {
       return res.json({

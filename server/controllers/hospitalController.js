@@ -263,7 +263,7 @@ export const addDoctorToHospital = async (req, res) => {
       experience,
       about,
       fees,
-      address,
+      address: JSON.parse(address),
       degree,
       image,
       hospitalId,
