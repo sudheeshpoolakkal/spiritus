@@ -255,10 +255,13 @@ export const addDoctorToHospital = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Hospital not found' });
     }
 
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
     const newDoctor = new Doctor({
       name,
       email,
-      password, // Note: You should hash passwords before saving. Assuming a pre-save hook in the model.
+      password: hashedPassword,
       speciality,
       experience,
       about,
