@@ -6,7 +6,7 @@ import axios from 'axios';
 import bg3 from '@/assets/assets_frontend/aurora.webp';
 
 const CompleteProfile = () => {
-  const { backendUrl, token, loadUserProfileData } = useContext(AppContext);
+  const { backendUrl, token, loadUserProfileData, userData } = useContext(AppContext);
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     phone: '',
@@ -44,9 +44,14 @@ const CompleteProfile = () => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
+      const payload = {
+        ...formData,
+        name: userData.name,
+        address: JSON.stringify(formData.address),
+      };
       const { data } = await axios.put(
         `${backendUrl}/api/user/update-profile`,
-        { ...formData, address: JSON.stringify(formData.address) }, // Stringify address for backend
+        payload,
         { headers: { token } }
       );
 
