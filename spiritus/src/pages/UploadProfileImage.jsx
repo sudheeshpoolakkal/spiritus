@@ -40,9 +40,9 @@ const UploadProfileImage = () => {
       
 
       if (data.success) {
-        toast.success(data.message);
+        toast.success("Account created successfully!");
         await loadUserProfileData();
-        navigate('/');
+        navigate('/complete-profile');
       } else {
         toast.error(data.message);
       }
@@ -80,7 +80,7 @@ const UploadProfileImage = () => {
                 </div>
               </div>
             </div>
-            <input type="file" id="profile-img" onChange={handleFileChange} className="hidden" />
+            <input type="file" id="profile-img" onChange={handleFileChange} className="hidden" required />
           </label>
           <button
             onClick={uploadUserImage}

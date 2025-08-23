@@ -1,24 +1,18 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { NavLink } from 'react-router-dom';
+import { HospitalContext } from '../context/HospitalContext';
 import { 
   LayoutDashboard, 
   Calendar, 
   UserPlus, 
   Users, 
-  MessageSquare, 
-  User, 
-  Clock, 
+  User,
   Building2,
-  UserCheck,
-  Eye
 } from 'lucide-react';
-import { AppContext } from '../context/AppContext';
 import { FaUserDoctor } from "react-icons/fa6";
 
 const Sidebar = () => {
-  // Detect role based on localStorage tokens
-  const hToken = localStorage.getItem('hToken');
-
+  const { hToken } = useContext(HospitalContext);
 
   // Hospital navigation items
   const hospitalNavItems = [
@@ -28,7 +22,6 @@ const Sidebar = () => {
     { to: '/doctors', icon: FaUserDoctor, label: 'Doctors' },
     { to: '/add-doctor', icon: UserPlus, label: 'Add Doctor' },
   ];
-
 
   // Reusable function to render each navigation item
   const renderNavItem = (item) => (
