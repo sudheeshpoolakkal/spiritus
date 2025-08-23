@@ -42,7 +42,7 @@ const UploadProfileImage = () => {
       if (data.success) {
         toast.success("Account created successfully!");
         await loadUserProfileData();
-        navigate('/questionnaire');
+        navigate('/complete-profile');
       } else {
         toast.error(data.message);
       }
