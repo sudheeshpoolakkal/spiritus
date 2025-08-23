@@ -17,10 +17,9 @@ const appointmentSchema = new mongoose.Schema({
     videoCallLink: String, // Store the video call link
     rating: { type: Number, min: 1, max: 5 }, // Rating given by the user
     review: { type: String, default: '' }, // Optional review
-    patientDescription: { type: String, required: true }, // Text description
+    patientDescription: { type: String, default: '' }, // Text description
     meetingCompleted: { type: Boolean, default: false },
-    audioMessage: { type: String, default: '' }, // New field for audio message URL
-    image: { type: String, required: true }
+    audioMessage: { type: String, default: '' } // New field for audio message URL
 });
 
 const appointmentModel = mongoose.models.appointment || mongoose.model('appointment', appointmentSchema);
