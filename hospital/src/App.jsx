@@ -5,7 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 import { HospitalContext } from "./context/HospitalContext";
 import Navbar from "./components/Navbar";
-import Sidebar from "./components/SideBar";
+import Sidebar from "./components/Sidebar";
 import Login from "./pages/Login";
 import HospitalDashboard from "./pages/HospitalDashboard";
 import AllAppointments from "./pages/AllAppointments";
