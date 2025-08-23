@@ -16,6 +16,7 @@ import AdminPrescription from "./pages/Admin/AdminPrescription";
 import FeedBack from "./pages/Admin/FeedBack";
 import DoctorRegistrations from "./pages/Admin/DoctorRegistrations";
 import HospitalRegistrations from "./pages/Admin/HospitalRegistrations";
+import AssignDoctor from "./pages/Admin/AssignDoctor";
 import DoctorDashboard from "./pages/Doctor/DoctorDashboard";
 import DoctorAppointments from "./pages/Doctor/DoctorAppointments";
 import DoctorProfile from "./pages/Doctor/DoctorProfile";
@@ -119,6 +120,14 @@ const App = () => {
                 element={
                   <ProtectedAdminRoute>
                     <HospitalRegistrations />
+                  </ProtectedAdminRoute>
+                }
+              />
+              <Route
+                path="/assign-doctor"
+                element={
+                  <ProtectedAdminRoute>
+                    <AssignDoctor />
                   </ProtectedAdminRoute>
                 }
               />

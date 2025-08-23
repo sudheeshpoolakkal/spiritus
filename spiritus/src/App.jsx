@@ -22,6 +22,8 @@ import Questionnaire from './pages/Questionnaire'
 import CorporateWellness from './pages/CorporateWellness'
 import UniversityPartnerships from './pages/UniversityPartnerships'
 import Plans from './pages/Plans'
+import Hospitals from './pages/Hospitals'
+import HospitalDetails from './pages/HospitalDetails'
 const App = () => {
 
   const location = useLocation()
@@ -56,6 +58,10 @@ const App = () => {
           <Route path="/corporate-wellness" element={<CorporateWellness />} />
           <Route path="/university-partnerships" element={<UniversityPartnerships />} />
           <Route path="/plans" element={<Plans />} />
+          <Route path='/hospitals' element={<Hospitals />}/>
+          <Route path='/hospitals/:speciality' element={<Hospitals />}/>
+          <Route path='/hospital/:hospitalId' element={<HospitalDetails />}/>
+
           {/* Add more routes as needed */}
         </Routes>
       </div>

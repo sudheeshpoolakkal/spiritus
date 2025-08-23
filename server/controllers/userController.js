@@ -226,6 +226,7 @@ const bookAppointment = async (req, res) => {
           userId,
           docId,
           consultationMode,
+          hospitalId: docData.hospitalId,
           userData,
           docData,
           amount: docData.fees,
@@ -671,9 +672,36 @@ const submitQuestionnaire = async (req, res) => {
   }
 };
 
+const getHospitalDetails = async (req, res) => {
+  try {
+    const { hospitalId } = req.params;
+    const hospital = await hospitalModel.findById(hospitalId).select('-password');
+    if (!hospital) {
+      return res.status(404).json({ success: false, message: 'Hospital not found' });
+    }
+    res.json({ success: true, hospital });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+const getHospitalDoctors = async (req, res) => {
+  try {
+    const { hospitalId } = req.params;
+    const doctors = await doctorModel.find({ hospitalId }).select('-password');
+    res.json({ success: true, doctors });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 export {
   registerUser, loginUser, getProfile, uploadProfileImage, updateProfile,
   bookAppointment, listAppointment, cancelAppointment, getVideoCallLink,
   processPayment, rateDoctor, submitFeedback, submitHospitalRegistration,
   submitDoctorRegistration, submitQuestionnaire,
+  getHospitalDetails,
+  getHospitalDoctors,
 };

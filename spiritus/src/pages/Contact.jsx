@@ -1183,6 +1183,7 @@ const Contact = () => {
                         <option value="">Select type</option>
                         <option value="hospital">Hospital</option>
                         <option value="clinic">Clinic</option>
+                        <option value="government">Government</option>
                         <option value="rehab">Rehabilitation Center</option>
                         <option value="counseling">Counseling Center</option>
                         <option value="other">Other</option>

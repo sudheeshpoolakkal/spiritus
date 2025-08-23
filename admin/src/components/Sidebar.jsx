@@ -30,6 +30,7 @@ const Sidebar = () => {
     { to: '/feedback', icon: MessageSquare, label: 'Feedback' },
     { to: '/doctor-registrations', icon: UserCheck, label: 'Doctor Registrations' },
     { to: '/hospital-registrations', icon: Building2, label: 'Hospital Registrations' },
+    { to: '/assign-doctor', icon: UserCheck, label: 'Assign Doctor' },
   ];
 
   // Doctor navigation items

@@ -12,6 +12,7 @@ const doctorSchema = new mongoose.Schema({
   fees: { type: Number, required: true },
   address: { type: Object, required: true },
   languages: { type: [String], default: [] },
+  degree: { type: String, required: true },
   date: { type: Number, required: true },
   slots_booked: { type: Object, default: {} },
   custom_slots: { type: Object, default: {} }, // New field for custom slots
@@ -23,7 +24,8 @@ const doctorSchema = new mongoose.Schema({
         rating: { type: Number, min: 1, max: 5 },
         review: { type: String, default: '' } // Review is optional
     }
-]
+],
+  hospitalId: { type: mongoose.Schema.Types.ObjectId, ref: 'hospital' }
 }, { minimize: false });
 
 const doctorModel = mongoose.models.doctor || mongoose.model('doctor', doctorSchema);

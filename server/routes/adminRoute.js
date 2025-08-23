@@ -15,7 +15,8 @@ import {
   markDoctorRegistrationAsReviewed,
   deleteHospital,
   deleteDoctorRegistration,
-  addHospital  // Add this to your import
+  addHospital,  // Add this to your import
+  assignDoctorToHospital,
 } from '../controllers/adminController.js';
 import { changeAvailablity } from '../controllers/doctorController.js';
 import authAdmin from '../middlewares/authAdmin.js';
@@ -40,5 +41,6 @@ adminRouter.post('/mark-hospital-reviewed', authAdmin, markHospitalAsReviewed);
 adminRouter.post('/mark-doctor-registration-reviewed', authAdmin, markDoctorRegistrationAsReviewed);
 adminRouter.post('/delete-hospital', authAdmin, deleteHospital);
 adminRouter.post('/delete-doctor-registration', authAdmin, deleteDoctorRegistration);
+adminRouter.post('/hospitals/:hospitalId/assign-doctor', authAdmin, assignDoctorToHospital);
 
 export default adminRouter;

@@ -1,9 +1,10 @@
+// components/AddHospital.jsx (updated with password field)
 import React, { useContext, useState } from "react";
 import { assets } from "../../assets/assets_admin/assets";
 import { AdminContext } from "../../context/AdminContext";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { Building2, Upload } from "lucide-react";
+import { Building2, Upload, Eye, EyeOff } from "lucide-react";
 
 const AddHospital = () => {
   const [hospitalLogo, setHospitalLogo] = useState(null);
@@ -11,8 +12,9 @@ const AddHospital = () => {
   const [logoPreview, setLogoPreview] = useState(null);
   const [licensePreview, setLicensePreview] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
-  // Form data state
+  // Form data state with password
   const [formData, setFormData] = useState({
     hospitalName: '',
     type: 'hospital',
@@ -35,7 +37,8 @@ const AddHospital = () => {
     averagePatientLoad: '',
     insuranceTies: '',
     accreditations: '',
-    acknowledgement: false
+    acknowledgement: false,
+    password: ''  // New password field
   });
 
   const { backendUrl, aToken } = useContext(AdminContext);
@@ -122,6 +125,11 @@ const AddHospital = () => {
         return;
       }
 
+      if (!formData.password || formData.password.length < 8) {
+        toast.error('Password must be at least 8 characters');
+        return;
+      }
+
       const submitData = new FormData();
       submitData.append('hospitalLogo', hospitalLogo);
       submitData.append('hospitalLicense', hospitalLicense);
@@ -165,7 +173,8 @@ const AddHospital = () => {
           averagePatientLoad: '',
           insuranceTies: '',
           accreditations: '',
-          acknowledgement: false
+          acknowledgement: false,
+          password: ''
         });
         setHospitalLogo(null);
         setHospitalLicense(null);
@@ -269,6 +278,7 @@ const AddHospital = () => {
               >
                 <option value="hospital">Hospital</option>
                 <option value="clinic">Clinic</option>
+                <option value="government">Government</option>
                 <option value="rehab">Rehabilitation Center</option>
                 <option value="counseling">Counseling Center</option>
                 <option value="community">Community Mental Health Center</option>
@@ -521,6 +531,31 @@ const AddHospital = () => {
                 placeholder="e.g., ABC Insurance, XYZ Health"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+            </div>
+
+            {/* Password Field */}
+            <div className="md:col-span-2">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                Initial Password *
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  id="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  placeholder="Set initial password (min 8 characters)"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
             </div>
 
             {/* Boolean Fields */}

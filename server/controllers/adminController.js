@@ -94,7 +94,6 @@ const addDoctor = async (req, res) => {
 };
 
 
-
 //API FOR ADMIN LOGIN
 const loginAdmin = async (req,res) => {
     try {
@@ -187,6 +186,8 @@ const adminDashboard = async (req, res) => {
     const users = await userModel.find({});
     const appointments = await appointmentModel.find({});
     const unreadFeedbacks = await feedbackModel.countDocuments({ isRead: false });
+    const patients = await userModel.find({});
+    const hospitals = await hospitalModel.countDocuments({ isReviewed: true });
   
     let adminEarnings = 0;
     // For each paid appointment, admin earns 16% of the base fee.
@@ -202,6 +203,7 @@ const adminDashboard = async (req, res) => {
       patients: users.length,
       earnings: adminEarnings.toFixed(2), // 2 decimal places
       unreadFeedbacks,
+      hospitals: hospitals,
       latestAppointments: appointments.reverse().slice(0, 5)
     };
   
@@ -341,6 +343,8 @@ const deleteDoctorRegistration = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
+
+// Add Hospital functionality
 const addHospital = async (req, res) => {
   try {
     const {
@@ -365,21 +369,74 @@ const addHospital = async (req, res) => {
       averagePatientLoad,
       insuranceTies,
       accreditations,
-      acknowledgement
+      acknowledgement,
+      password
     } = req.body;
 
-    const hospitalLogo = req.files?.hospitalLogo ? `/images/${req.files.hospitalLogo[0].filename}` : null;
-    const hospitalLicense = req.files?.hospitalLicense ? `/images/${req.files.hospitalLicense[0].filename}` : null;
+    // ✅ All field Allowed
+    const allowedTypes = [
+      'hospital', 'clinic', 'government', 'rehab', 'counseling', 'community', 'other'
+    ];
 
-    if (!hospitalLogo || !hospitalLicense) {
+    if (!allowedTypes.includes(type)) {
+      return res.json({
+        success: false,
+        message: `Invalid hospital type.`
+      });
+    }
+
+    // ✅ Validate required uploads
+    if (!req.files?.hospitalLogo || !req.files?.hospitalLicense) {
       return res.json({ success: false, message: 'Hospital logo and license are required' });
     }
 
-    const existingHospital = await hospitalModel.findOne({ emailAddress });
+    // ✅ Validate Password
+    if (!password || password.length < 8) {
+      return res.json({ success: false, message: 'Password must be at least 8 characters' });
+    }
+
+    // ✅ Normalize email
+    const normalizedEmail = emailAddress.trim().toLowerCase();
+
+    // ✅ Check duplicate hospital by email in both possible fields
+    const existingHospital = await hospitalModel.findOne({
+      $or: [{ email: normalizedEmail }, { emailAddress: normalizedEmail }]
+    });
     if (existingHospital) {
       return res.json({ success: false, message: 'Hospital with this email already exists' });
     }
 
+    // ✅ Upload Logo to Cloudinary
+    const hospitalLogoUrl = await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          resource_type: "image",
+          transformation: [{ crop: "fill", aspect_ratio: "1.0", gravity: "auto" }]
+        },
+        (error, result) => {
+          if (error) return reject(error);
+          resolve(result.secure_url);
+        }
+      );
+      uploadStream.end(req.files.hospitalLogo[0].buffer);
+    });
+
+    // ✅ Upload License to Cloudinary
+    const hospitalLicenseUrl = await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          resource_type: "image", // If PDF, change this to 'raw'
+          transformation: [{ crop: "fill", gravity: "auto" }]
+        },
+        (error, result) => {
+          if (error) return reject(error);
+          resolve(result.secure_url);
+        }
+      );
+      uploadStream.end(req.files.hospitalLicense[0].buffer);
+    });
+
+    // ✅ Save new hospital
     const newHospital = new hospitalModel({
       hospitalName,
       type,
@@ -390,7 +447,7 @@ const addHospital = async (req, res) => {
       district,
       pinCode,
       contactNumber,
-      emailAddress,
+      emailAddress: normalizedEmail,
       website,
       keyContact,
       mentalHealthProfessionals,
@@ -402,19 +459,57 @@ const addHospital = async (req, res) => {
       averagePatientLoad,
       insuranceTies,
       accreditations,
-      hospitalLogo,
-      hospitalLicense,
-      acknowledgement: acknowledgement === 'true',
-      isReviewed: true // Mark as reviewed since added by admin
+      hospitalLogo: hospitalLogoUrl,
+      hospitalLicense: hospitalLicenseUrl,
+      acknowledgement: acknowledgement === 'true' || acknowledgement === true,
+      isReviewed: true,
+      password,
+      email: normalizedEmail,
+      name: hospitalName
     });
 
     await newHospital.save();
-    res.json({ success: true, message: 'Hospital added successfully' });
+
+    return res.json({ success: true, message: 'Hospital added successfully' });
+
   } catch (error) {
-    res.json({ success: false, message: error.message });
+    console.error(error);
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
+
+const assignDoctorToHospital = async (req, res) => {
+  try {
+    const { hospitalId } = req.params;
+    const { doctorId } = req.body;
+
+    const hospital = await hospitalModel.findById(hospitalId);
+    if (!hospital) {
+      return res.status(404).json({ success: false, message: 'Hospital not found' });
+    }
+
+    const doctor = await doctorModel.findById(doctorId);
+    if (!doctor) {
+      return res.status(404).json({ success: false, message: 'Doctor not found' });
+    }
+
+    // Add doctor to hospital's list if not already present
+    if (!hospital.doctors.includes(doctorId)) {
+      hospital.doctors.push(doctorId);
+      await hospital.save();
+    }
+
+    // Assign hospital to doctor
+    doctor.hospitalId = hospitalId;
+    await doctor.save();
+
+    res.json({ success: true, message: 'Doctor assigned to hospital successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
 // Updated export statement - add addHospital to the list
 export {
   addDoctor, 
@@ -432,5 +527,6 @@ export {
   markDoctorRegistrationAsReviewed, 
   deleteHospital, 
   deleteDoctorRegistration,
-  addHospital  // Add this to the export list
+  addHospital,  // Add this to the export list
+  assignDoctorToHospital
 };
