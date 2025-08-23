@@ -28,7 +28,6 @@ const Appointment = () => {
   const [activeTab, setActiveTab] = useState('booking'); // 'booking', 'reviews', 'rate'
   const [recordedAudio, setRecordedAudio] = useState(null);
   const [consultationMode, setConsultationMode] = useState('online');
-  const [image, setImage] = useState(null);
 
   const fetchDocInfo = async () => {
     if (doctors?.length > 0 && docId) {
@@ -259,9 +258,6 @@ const getAvailableSlot = () => {
       formData.append('consultationMode', consultationMode);
       if (recordedAudio) {
         formData.append('audioMessage', recordedAudio, 'audioMessage.webm');
-      }
-      if (image) {
-        formData.append('image', image);
       }
 
       const { data } = await axios.post(
@@ -634,20 +630,7 @@ const getAvailableSlot = () => {
               placeholder="Describe your symptoms or reason for booking this appointment..."
               className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none text-gray-700"
               rows="4"
-              required
             />
-            <div className="mt-4">
-              <label htmlFor="image" className="block text-sm font-medium text-gray-700">
-                Upload Image
-              </label>
-              <input
-                type="file"
-                id="image"
-                onChange={(e) => setImage(e.target.files[0])}
-                className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary-dark"
-                required
-              />
-            </div>
             {/* Added AudioRecorder for voice description */}
             <AudioRecorder onAudioRecorded={setRecordedAudio} />
             

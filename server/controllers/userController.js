@@ -202,12 +202,7 @@ const uploadProfileImage = async (req, res) => {
 const bookAppointment = async (req, res) => {
   try {
     const { userId, docId, slotDate, slotTime, patientDescription, consultationMode } = req.body;
-    const imageFile = req.files?.image;
     const audioFile = req.files?.audioMessage;
-
-    if (!patientDescription || !imageFile) {
-      return res.json({ success: false, message: 'Please provide all required information.' });
-    }
 
     const docData = await doctorModel.findById(docId).select('-password');
     if (!docData || !docData.available) {
@@ -242,24 +237,6 @@ const bookAppointment = async (req, res) => {
         date: Date.now(),
         patientDescription
     };
-
-    // Upload image to Cloudinary
-    try {
-      const result = await new Promise((resolve, reject) => {
-        const uploadStream = cloudinary.uploader.upload_stream(
-          { resource_type: 'image' },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
-          }
-        );
-        uploadStream.end(imageFile.data);
-      });
-      appointmentData.image = result.secure_url;
-    } catch (cloudinaryError) {
-      console.error('Cloudinary Image Upload Error:', cloudinaryError);
-      return res.json({ success: false, message: 'Image upload failed.' });
-    }
 
     // If an audio file is provided, upload it to Cloudinary and add the URL
     if (audioFile) {
