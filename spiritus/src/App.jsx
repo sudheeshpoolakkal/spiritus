@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
 import Home from './pages/Home'
 import Doctors from './pages/Doctors'
@@ -24,9 +24,15 @@ import UniversityPartnerships from './pages/UniversityPartnerships'
 import Plans from './pages/Plans'
 import Hospitals from './pages/Hospitals'
 import HospitalDetails from './pages/HospitalDetails'
-const App = () => {
 
-  const location = useLocation()
+const App = () => {
+  const location = useLocation();
+
+  // Scroll to top on route change
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
   // Hide layout for /login, /my-profile, and /upload-profile routes
   const hideLayout = ['/login', '/my-profile', '/upload-profile'].includes(location.pathname);
 
@@ -76,7 +82,4 @@ const App = () => {
   )
 }
 
-
 export default App;
-
-

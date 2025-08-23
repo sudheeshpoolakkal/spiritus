@@ -412,7 +412,7 @@ const Application = () => {
   return (
     <div className="min-h-screen bg-white" style={{ zoom: '0.75' }}>
       {/* Enhanced Hero Section */}
-      <section className="relative bg-gradient-to-br from-green-600 via-green-700 to-green-800 text-white">
+      <section className="relative bg-gradient-to-br from-green-600 via-green-700 to-green-800 text-white -mt-1 sm:-mt-1 md:-mt-2 lg:-mt-3">
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-black opacity-10"></div>
           <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-green-900 to-transparent"></div>
@@ -444,11 +444,9 @@ const Application = () => {
                           setFormData({ ...formData, licenseType: option.id });
                           setStep(1);
                         }}
-                        className={`w-full p-4 rounded-2xl text-left transition-all transform hover:scale-105 ${
-                          selectedOption === option.id
+                        className={`w-full p-4 rounded-2xl text-left transition-all transform hover:scale-105 ${selectedOption === option.id
                             ? 'bg-white text-green-800 shadow-2xl ring-4 ring-green-300 ring-opacity-50'
-                            : 'bg-green-500 bg-opacity-30 text-white hover:bg-green-500 hover:bg-opacity-40 backdrop-blur-sm'
-                        }`}
+                            : 'bg-green-500 bg-opacity-30 text-white hover:bg-green-500 hover:bg-opacity-40 backdrop-blur-sm'}`}
                       >
                         <div className="font-semibold text-base">{option.label}</div>
                         <div className="text-sm opacity-80">{option.subtitle}</div>
@@ -514,11 +512,9 @@ const Application = () => {
                         setWorkType(type);
                         setHoursPerWeek(type === 'full-time' ? 40 : 21); // 3 hours × 7 days = 21 hours max for part-time
                       }}
-                      className={`p-4 rounded-xl border-2 font-semibold transition-all ${
-                        workType === type
+                      className={`p-4 rounded-xl border-2 font-semibold transition-all ${workType === type
                           ? 'bg-green-50 border-green-500 text-green-700'
-                          : 'bg-gray-50 border-gray-200 text-gray-600 hover:border-gray-300'
-                      }`}
+                          : 'bg-gray-50 border-gray-200 text-gray-600 hover:border-gray-300'}`}
                     >
                       {type === 'full-time' ? 'Full-time' : 'Part-time (Max 3 hrs/day)'}
                     </button>
@@ -610,7 +606,7 @@ const Application = () => {
               <div className="text-gray-600">Features</div>
               <span
             
-            style={{
+            style={{ 
               fontFamily: '"Cormorant Garamond", serif',
               color: "black",
               fontWeight: 600,
@@ -623,7 +619,7 @@ const Application = () => {
           </span>
               <span
             
-            style={{
+            style={{ 
               fontFamily: '"Cormorant Garamond", serif',
               color: "black",
               fontWeight: 600,

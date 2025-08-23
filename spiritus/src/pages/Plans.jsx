@@ -280,7 +280,7 @@ const Plans = () => {
       `}</style>
 
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-blue-900 text-white overflow-hidden">
+      <section className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-blue-900 text-white overflow-hidden -mt-1 sm:-mt-1 md:-mt-2 lg:-mt-3">
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-black opacity-10"></div>
           <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-blue-900 to-transparent"></div>
@@ -290,7 +290,7 @@ const Plans = () => {
           <div className="absolute bottom-20 left-1/3 w-64 h-64 bg-blue-300/5 rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}}></div>
         </div>
         
-        <div className={`relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 ${isVisible ? 'animate-fade-in-up' : 'opacity-0'}`}>
+        <div className={`relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 ${isVisible ? 'animate-fade-in-up' : 'opacity-0'}`}>
           <div className="text-center">
             <div className="inline-flex items-center bg-blue-500 bg-opacity-20 rounded-full px-6 py-3 mb-6 hover:bg-opacity-30 transition-all duration-300 backdrop-blur-sm border border-blue-400/30">
               <span className="text-blue-200 text-sm font-medium animate-pulse-subtle">✨ Supporting 15,000+ organizations worldwide</span>
