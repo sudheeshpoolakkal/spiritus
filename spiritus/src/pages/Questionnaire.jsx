@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 
 const Questionnaire = () => {
-  const { backendUrl, token } = useContext(AppContext);
+  const { backendUrl, token, loadUserProfileData } = useContext(AppContext);
   const navigate = useNavigate();
   const [answers, setAnswers] = useState({
     question1: '',
@@ -30,6 +30,7 @@ const Questionnaire = () => {
       );
       if (data.success) {
         toast.success('Thank you for your answers!');
+        await loadUserProfileData();
         navigate('/');
       } else {
         toast.error(data.message);
