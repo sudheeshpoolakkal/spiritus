@@ -661,8 +661,19 @@ const submitQuestionnaire = async (req, res) => {
   try {
     const { userId, answers } = req.body;
 
-    if (!answers || !answers.question1 || !answers.question2 || !answers.question3) {
-      return res.json({ success: false, message: 'Please answer all questions' });
+    // Validate that all questions have been answered
+    const requiredQuestions = [
+      'country', 'age', 'relationshipStatus', 'mainConcern',
+      'drug', 'suicideIdeation', 'medication'
+    ];
+
+    for (const question of requiredQuestions) {
+      if (!answers[question]) {
+        return res.json({
+          success: false,
+          message: `Missing answer for question: ${question}`
+        });
+      }
     }
 
     await userModel.findByIdAndUpdate(userId, { questionnaire: answers });
