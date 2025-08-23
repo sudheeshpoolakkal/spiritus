@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 
 const Questionnaire = () => {
-  const { backendUrl, token } = useContext(AppContext);
+  const { backendUrl, token, loadUserProfileData } = useContext(AppContext);
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState({
@@ -102,6 +102,7 @@ const Questionnaire = () => {
       );
       if (data.success) {
         toast.success('Thank you for your answers!');
+        await loadUserProfileData();
         navigate('/');
       } else {
         toast.error(data.message);
@@ -121,7 +122,7 @@ const Questionnaire = () => {
         {/* Progress Bar */}
         <div className="mb-8">
           <div className="bg-gray-200 rounded-full h-2">
-            <div 
+            <div
               className="bg-green-500 h-2 rounded-full transition-all duration-300"
               style={{ width: `${((currentStep + 1) / questions.length) * 100}%` }}
             ></div>
@@ -171,14 +172,14 @@ const Questionnaire = () => {
               onClick={handlePrevious}
               disabled={currentStep === 0}
               className={`px-6 py-2 rounded-md font-medium transition-colors ${
-                currentStep === 0 
-                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
+                currentStep === 0
+                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                   : 'bg-gray-300 text-gray-700 hover:bg-gray-400'
               }`}
             >
               Previous
             </button>
-            
+
             <button
               type="button"
               onClick={handleNext}
