@@ -55,6 +55,7 @@ const Questionnaire = () => {
               onChange={handleChange}
               rows="3"
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+              required
             ></textarea>
           </div>
           <div>
@@ -68,6 +69,7 @@ const Questionnaire = () => {
               value={answers.question2}
               onChange={handleChange}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+              required
             />
           </div>
           <div>
@@ -81,6 +83,7 @@ const Questionnaire = () => {
               onChange={handleChange}
               rows="3"
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+              required
             ></textarea>
           </div>
           <div>
