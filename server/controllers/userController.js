@@ -201,70 +201,95 @@ const uploadProfileImage = async (req, res) => {
 // API to Book Appointment
 const bookAppointment = async (req, res) => {
   try {
-      const { userId, docId, slotDate, slotTime, patientDescription, consultationMode } = req.body;
-      const docData = await doctorModel.findById(docId).select('-password');
-      if (!docData || !docData.available) {
-          return res.json({ success: false, message: 'Doctor not Available' });
-      }
-      let slots_booked = docData.slots_booked || {};
+    const { userId, docId, slotDate, slotTime, patientDescription, consultationMode } = req.body;
+    const imageFile = req.files?.image;
+    const audioFile = req.files?.audioMessage;
 
-      // Checking for slot availability
-      if (slots_booked[slotDate]) {
-          if (slots_booked[slotDate].includes(slotTime)) {
-              return res.json({ success: false, message: 'Slot not Available' });
-          }
-          slots_booked[slotDate].push(slotTime);
-      } else {
-          slots_booked[slotDate] = [slotTime];
-      }
+    if (!patientDescription || !imageFile) {
+      return res.json({ success: false, message: 'Please provide all required information.' });
+    }
 
-      const userData = await userModel.findById(userId).select('-password');
-      // Remove sensitive data before adding to appointment data
-      delete docData.slots_booked;
+    const docData = await doctorModel.findById(docId).select('-password');
+    if (!docData || !docData.available) {
+        return res.json({ success: false, message: 'Doctor not Available' });
+    }
+    let slots_booked = docData.slots_booked || {};
 
-      const appointmentData = {
-          userId,
-          docId,
-          consultationMode,
-          hospitalId: docData.hospitalId,
-          userData,
-          docData,
-          amount: docData.fees,
-          slotTime,
-          slotDate,
-          date: Date.now(),
-          patientDescription: patientDescription || ''
-      };
-
-      // If an audio file is provided, upload it to Cloudinary and add the URL
-      if (req.file) {
-        try {
-          const result = await new Promise((resolve, reject) => {
-            const uploadStream = cloudinary.uploader.upload_stream(
-              { resource_type: "video" },
-              (error, result) => {
-                if (error) {
-                  reject(error);
-                } else {
-                  resolve(result);
-                }
-              }
-            );
-            uploadStream.end(req.file.buffer);
-          });
-          appointmentData.audioMessage = result.secure_url;
-        } catch (cloudinaryError) {
-          console.error("Cloudinary Audio Upload Error:", cloudinaryError);
-          return res.json({ success: false, message: "Audio upload failed." });
+    // Checking for slot availability
+    if (slots_booked[slotDate]) {
+        if (slots_booked[slotDate].includes(slotTime)) {
+            return res.json({ success: false, message: 'Slot not Available' });
         }
+        slots_booked[slotDate].push(slotTime);
+    } else {
+        slots_booked[slotDate] = [slotTime];
+    }
+
+    const userData = await userModel.findById(userId).select('-password');
+    // Remove sensitive data before adding to appointment data
+    delete docData.slots_booked;
+
+    const appointmentData = {
+        userId,
+        docId,
+        consultationMode,
+        hospitalId: docData.hospitalId,
+        userData,
+        docData,
+        amount: docData.fees,
+        slotTime,
+        slotDate,
+        date: Date.now(),
+        patientDescription
+    };
+
+    // Upload image to Cloudinary
+    try {
+      const result = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          { resource_type: 'image' },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        );
+        uploadStream.end(imageFile.data);
+      });
+      appointmentData.image = result.secure_url;
+    } catch (cloudinaryError) {
+      console.error('Cloudinary Image Upload Error:', cloudinaryError);
+      return res.json({ success: false, message: 'Image upload failed.' });
+    }
+
+    // If an audio file is provided, upload it to Cloudinary and add the URL
+    if (audioFile) {
+      try {
+        const result = await new Promise((resolve, reject) => {
+          const uploadStream = cloudinary.uploader.upload_stream(
+            { resource_type: "video" },
+            (error, result) => {
+              if (error) {
+                reject(error);
+              } else {
+                resolve(result);
+              }
+            }
+          );
+          uploadStream.end(audioFile.data);
+        });
+        appointmentData.audioMessage = result.secure_url;
+      } catch (cloudinaryError) {
+        console.error("Cloudinary Audio Upload Error:", cloudinaryError);
+        return res.json({ success: false, message: "Audio upload failed." });
       }
+    }
 
-      const newAppointment = new appointmentModel(appointmentData);
-      await newAppointment.save();
-      // Save updated slots data in docData
-      await doctorModel.findByIdAndUpdate(docId, { slots_booked });
+    const newAppointment = new appointmentModel(appointmentData);
+    await newAppointment.save();
+    // Save updated slots data in docData
+    await doctorModel.findByIdAndUpdate(docId, { slots_booked });
 
-      res.json({ success: true, message: 'Pay to confirm the appointment!' });
+    res.json({ success: true, message: 'Pay to confirm the appointment!' });
   } catch (error) {
       console.log(error);
       res.json({ success: false, message: error.message });
@@ -659,8 +684,8 @@ const submitQuestionnaire = async (req, res) => {
   try {
     const { userId, answers } = req.body;
 
-    if (!answers) {
-      return res.json({ success: false, message: 'No answers provided' });
+    if (!answers || !answers.question1 || !answers.question2 || !answers.question3) {
+      return res.json({ success: false, message: 'Please answer all questions' });
     }
 
     await userModel.findByIdAndUpdate(userId, { questionnaire: answers });
