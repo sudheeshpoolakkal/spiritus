@@ -7,21 +7,93 @@ import axios from 'axios';
 const Questionnaire = () => {
   const { backendUrl, token } = useContext(AppContext);
   const navigate = useNavigate();
+  const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState({
-    question1: '',
-    question2: '',
-    question3: '',
+    country: '',
+    age: '',
+    relationshipStatus: '',
+    mainConcern: '',
+    drug: '',
+    suicideIdeation: '',
+    medication: ''
   });
 
-  const handleChange = (e) => {
+  const questions = [
+    {
+      id: 'country',
+      question: 'Which country are you in?',
+      type: 'dropdown',
+      options: ['India', 'United States', 'Canada', 'United Kingdom', 'Australia', 'Germany', 'France', 'Other']
+    },
+    {
+      id: 'age',
+      question: 'What is your age range?',
+      type: 'radio',
+      options: ['Below 18', '18-25', '26-35', '36-45', '46-55', '56-65', '65+']
+    },
+    {
+      id: 'relationshipStatus',
+      question: 'What is your relationship status?',
+      type: 'radio',
+      options: ['Single', 'In a relationship', 'Married', 'Divorced', 'Widowed']
+    },
+    {
+      id: 'mainConcern',
+      question: 'What brings you to therapy today?',
+      type: 'radio',
+      options: [
+        'Anxiety or stress',
+        'Depression or low mood',
+        'Relationship issues',
+        'Work or school stress',
+        'Life transitions',
+        'Grief or loss',
+        'Self-improvement',
+        'Other'
+      ]
+    },
+    {
+      id: 'drug',
+      question: 'Do you consume drugs?',
+      type: 'radio',
+      options: ['No', 'Occasionally', "Monthly", 'Weekly','Daily']
+    },
+    {
+      id: 'suicideIdeation',
+      question: 'When was the last time you thought about suicide?',
+      type: 'radio',
+      options: ['Never', 'Recently', 'In the last month', 'Over a month ago', 'Over 6 months ago', 'Over a year ago']
+    },
+    {
+      id: 'medication',
+      question: 'Are you currently taking any medication?',
+      type: 'radio',
+      options: ['No', 'Yes, for mental health', 'Yes, for physical health', 'Yes, for both']
+    }
+  ];
+
+  const handleChange = (value) => {
     setAnswers({
       ...answers,
-      [e.target.name]: e.target.value,
+      [questions[currentStep].id]: value,
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleNext = () => {
+    if (currentStep < questions.length - 1) {
+      setCurrentStep(currentStep + 1);
+    } else {
+      handleSubmit();
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const handleSubmit = async () => {
     try {
       const { data } = await axios.post(
         `${backendUrl}/api/user/submit-questionnaire`,
@@ -39,59 +111,88 @@ const Questionnaire = () => {
     }
   };
 
+  const currentQuestion = questions[currentStep];
+  const isLastStep = currentStep === questions.length - 1;
+  const currentAnswer = answers[currentQuestion.id];
+
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-center">Tell us more about yourself</h2>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label htmlFor="question1" className="block text-sm font-medium text-gray-700">
-              What are you looking for in a therapist?
-            </label>
-            <textarea
-              id="question1"
-              name="question1"
-              value={answers.question1}
-              onChange={handleChange}
-              rows="3"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
-            ></textarea>
+    <div className="min-h-screen bg-gray-50 py-8 px-4">
+      <div className="max-w-2xl mx-auto">
+        {/* Progress Bar */}
+        <div className="mb-8">
+          <div className="bg-gray-200 rounded-full h-2">
+            <div 
+              className="bg-green-500 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${((currentStep + 1) / questions.length) * 100}%` }}
+            ></div>
           </div>
-          <div>
-            <label htmlFor="question2" className="block text-sm font-medium text-gray-700">
-              What are your preferred therapy approaches?
-            </label>
-            <input
-              type="text"
-              id="question2"
-              name="question2"
-              value={answers.question2}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
-            />
+          <p className="text-sm text-gray-600 mt-2 text-center">
+            Question {currentStep + 1} of {questions.length}
+          </p>
+        </div>
+
+        <div className="bg-white p-8 rounded-lg shadow-sm">
+          <h2 className="text-xl font-semibold mb-6 text-gray-900">
+            {currentQuestion.question}
+          </h2>
+
+          <div className="space-y-3 mb-8">
+            {currentQuestion.type === 'dropdown' ? (
+              <select
+                value={currentAnswer}
+                onChange={(e) => handleChange(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-green-500"
+              >
+                <option value="">Select an option</option>
+                {currentQuestion.options.map((option, index) => (
+                  <option key={index} value={option}>{option}</option>
+                ))}
+              </select>
+            ) : (
+              currentQuestion.options.map((option, index) => (
+                <label key={index} className="flex items-center p-3 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer">
+                  <input
+                    type="radio"
+                    name={currentQuestion.id}
+                    value={option}
+                    checked={currentAnswer === option}
+                    onChange={(e) => handleChange(e.target.value)}
+                    className="mr-3 text-green-500 focus:ring-green-500"
+                  />
+                  <span className="text-gray-700">{option}</span>
+                </label>
+              ))
+            )}
           </div>
-          <div>
-            <label htmlFor="question3" className="block text-sm font-medium text-gray-700">
-              Is there anything else you would like to share?
-            </label>
-            <textarea
-              id="question3"
-              name="question3"
-              value={answers.question3}
-              onChange={handleChange}
-              rows="3"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
-            ></textarea>
-          </div>
-          <div>
+
+          <div className="flex justify-between">
             <button
-              type="submit"
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+              type="button"
+              onClick={handlePrevious}
+              disabled={currentStep === 0}
+              className={`px-6 py-2 rounded-md font-medium transition-colors ${
+                currentStep === 0 
+                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
+                  : 'bg-gray-300 text-gray-700 hover:bg-gray-400'
+              }`}
             >
-              Submit
+              Previous
+            </button>
+            
+            <button
+              type="button"
+              onClick={handleNext}
+              disabled={!currentAnswer}
+              className={`px-6 py-2 rounded-md font-medium transition-colors ${
+                !currentAnswer
+                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                  : 'bg-green-500 text-white hover:bg-green-600'
+              }`}
+            >
+              {isLastStep ? 'Submit' : 'Next'}
             </button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );
