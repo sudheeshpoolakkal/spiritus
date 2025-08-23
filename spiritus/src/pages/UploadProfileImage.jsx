@@ -42,7 +42,7 @@ const UploadProfileImage = () => {
       if (data.success) {
         toast.success(data.message);
         await loadUserProfileData();
-        navigate('/');
+        navigate('/questionnaire');
       } else {
         toast.error(data.message);
       }
@@ -80,7 +80,7 @@ const UploadProfileImage = () => {
                 </div>
               </div>
             </div>
-            <input type="file" id="profile-img" onChange={handleFileChange} className="hidden" />
+            <input type="file" id="profile-img" onChange={handleFileChange} className="hidden" required />
           </label>
           <button
             onClick={uploadUserImage}
