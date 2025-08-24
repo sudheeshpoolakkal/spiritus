@@ -7,6 +7,7 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 import RelatedDoctors from '@/components/RelatedDoctors';
 
+
 const Appointment = () => {
   const { docId } = useParams();
   const { doctors, currencySymbol, backendUrl, token, getDoctorsData, appointments } = useContext(AppContext);

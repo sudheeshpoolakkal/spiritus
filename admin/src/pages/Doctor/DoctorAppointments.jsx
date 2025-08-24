@@ -13,6 +13,8 @@ import {
   FileText as LucideDescription,
   PlusCircle as LucideAddCircle,
   Video as LucideVideoCamera,
+  MapPin as LucideMapPin,
+  Monitor as LucideMonitor,
 } from "lucide-react";
 
 const DoctorAppointments = () => {
@@ -102,6 +104,13 @@ const DoctorAppointments = () => {
     });
   };
 
+  // Helper function to check if appointment is offline
+  const isOfflineAppointment = (appointment) => {
+    return appointment.bookingType === 'offline' || 
+           appointment.consultationType === 'offline' || 
+           appointment.isOffline === true;
+  };
+
   const panelVariants = {
     hidden: { opacity: 0, x: 20 },
     visible: { opacity: 1, x: 0 },
@@ -189,6 +198,19 @@ const DoctorAppointments = () => {
                               <p className="text-xs text-gray-500">
                                 {slotDateFormat(item.slotDate)}, {item.slotTime}
                               </p>
+                              <div className="flex items-center gap-1 mt-1">
+                                {isOfflineAppointment(item) ? (
+                                  <span className="flex items-center gap-1 text-xs text-orange-600">
+                                    <LucideMapPin size={12} />
+                                    Offline
+                                  </span>
+                                ) : (
+                                  <span className="flex items-center gap-1 text-xs text-blue-600">
+                                    <LucideMonitor size={12} />
+                                    Online
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           </div>
                           <StatusBadge item={item} />
@@ -200,10 +222,11 @@ const DoctorAppointments = () => {
 
               {/* Desktop List */}
               <div className="max-sm:hidden">
-                <div className="grid grid-cols-[40px_1fr_1fr_100px] gap-3 px-4 py-2 bg-gray-50 text-xs font-medium text-gray-600">
+                <div className="grid grid-cols-[40px_1fr_1fr_80px_100px] gap-3 px-4 py-2 bg-gray-50 text-xs font-medium text-gray-600">
                   <span>#</span>
                   <span>Patient</span>
                   <span>Date & Time</span>
+                  <span>Type</span>
                   <span>Status</span>
                 </div>
                 {appointments.length === 0 ? (
@@ -219,7 +242,7 @@ const DoctorAppointments = () => {
                         key={item._id}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className={`grid grid-cols-[40px_1fr_1fr_100px] gap-3 items-center px-4 py-3 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors ${
+                        className={`grid grid-cols-[40px_1fr_1fr_80px_100px] gap-3 items-center px-4 py-3 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors ${
                           selectedAppointment?._id === item._id
                             ? "bg-blue-50"
                             : ""
@@ -246,6 +269,19 @@ const DoctorAppointments = () => {
                           <p className="text-xs text-gray-500">
                             {item.slotTime}
                           </p>
+                        </div>
+                        <div className="flex items-center justify-center">
+                          {isOfflineAppointment(item) ? (
+                            <span className="flex items-center gap-1 px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs">
+                              <LucideMapPin size={12} />
+                              Offline
+                            </span>
+                          ) : (
+                            <span className="flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">
+                              <LucideMonitor size={12} />
+                              Online
+                            </span>
+                          )}
                         </div>
                         <StatusBadge item={item} />
                       </motion.div>
@@ -377,6 +413,29 @@ const DoctorAppointments = () => {
                       value={`${currency}${selectedAppointment.amount}`}
                     />
                     <InfoCard
+                      icon={
+                        isOfflineAppointment(selectedAppointment) ? (
+                          <LucideMapPin size={20} />
+                        ) : (
+                          <LucideMonitor size={20} />
+                        )
+                      }
+                      title="Consultation Type"
+                      value={
+                        isOfflineAppointment(selectedAppointment) ? (
+                          <span className="flex items-center gap-1 text-orange-700">
+                            <LucideMapPin size={16} />
+                            Offline Visit
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-1 text-blue-700">
+                            <LucideMonitor size={16} />
+                            Online Call
+                          </span>
+                        )
+                      }
+                    />
+                    <InfoCard
                       icon={<LucideBadge size={20} />}
                       title="Status"
                       value={<StatusBadge item={selectedAppointment} />}
@@ -411,7 +470,7 @@ const DoctorAppointments = () => {
                           />
                         </div>
                       ) : (
-                        <VideoCallSection
+                        <CompletedAppointmentSection
                           appointment={selectedAppointment}
                           videoCallLinks={videoCallLinks}
                           handleSetVideoCallLink={handleSetVideoCallLink}
@@ -420,6 +479,7 @@ const DoctorAppointments = () => {
                           handleCreatePrescription={handleCreatePrescription}
                           handleViewPrescription={handleViewPrescription}
                           prescription={selectedPrescription}
+                          isOffline={isOfflineAppointment(selectedAppointment)}
                         />
                       )}
                     </div>
@@ -521,9 +581,8 @@ const ActionButton = ({ icon, label, color, onClick, confirm }) => {
   );
 };
 
-// Updated VideoCallSection component - shows "Create Prescription" if no prescription exists,
-// otherwise it shows "View Prescription" immediately.
-const VideoCallSection = ({
+// Updated CompletedAppointmentSection - handles both online and offline appointments
+const CompletedAppointmentSection = ({
   appointment,
   videoCallLinks,
   handleSetVideoCallLink,
@@ -532,68 +591,90 @@ const VideoCallSection = ({
   handleCreatePrescription,
   handleViewPrescription,
   prescription,
+  isOffline,
 }) => (
   <div className="space-y-3">
-    {videoCallLinks[appointment._id] ? (
+    {/* Only show video call section for online appointments */}
+    {!isOffline && (
       <>
-        <div className="bg-blue-50 rounded-lg p-3 shadow-sm">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex-1">
-              <h4 className="text-xs font-medium text-blue-800 mb-1">
-                Video Call Link
-              </h4>
-              <a
-                href={videoCallLinks[appointment._id]}
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleJoinMeetingClick(
-                    appointment._id,
-                    videoCallLinks[appointment._id]
-                  );
-                }}
-                className="text-blue-500 hover:underline break-all text-sm"
+        {videoCallLinks[appointment._id] ? (
+          <div className="bg-blue-50 rounded-lg p-3 shadow-sm">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex-1">
+                <h4 className="text-xs font-medium text-blue-800 mb-1">
+                  Video Call Link
+                </h4>
+                <a
+                  href={videoCallLinks[appointment._id]}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleJoinMeetingClick(
+                      appointment._id,
+                      videoCallLinks[appointment._id]
+                    );
+                  }}
+                  className="text-blue-500 hover:underline break-all text-sm"
+                >
+                  {videoCallLinks[appointment._id]}
+                </a>
+              </div>
+              <button
+                onClick={() => handleSetVideoCallLink(appointment._id)}
+                className="text-blue-500 hover:text-blue-600 text-sm font-medium"
               >
-                {videoCallLinks[appointment._id]}
-              </a>
+                Edit
+              </button>
             </div>
-            <button
-              onClick={() => handleSetVideoCallLink(appointment._id)}
-              className="text-blue-500 hover:text-blue-600 text-sm font-medium"
-            >
-              Edit
-            </button>
+          </div>
+        ) : (
+          <button
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm"
+            onClick={() => handleSetVideoCallLink(appointment._id)}
+          >
+            <LucideVideoCamera size={16} />
+            Add Video Call Link
+          </button>
+        )}
+      </>
+    )}
+
+    {/* Show offline consultation message for offline appointments */}
+    {isOffline && (
+      <div className="bg-orange-50 rounded-lg p-3 shadow-sm">
+        <div className="flex items-center gap-2">
+          <LucideMapPin className="text-orange-600" size={20} />
+          <div>
+            <h4 className="text-sm font-medium text-orange-800">
+              Offline Consultation
+            </h4>
+            <p className="text-xs text-orange-600">
+              This appointment will be conducted in person at the clinic.
+            </p>
           </div>
         </div>
-
-        <div className="flex flex-col sm:flex-row gap-3">
-          {prescription ? (
-            <button
-              className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 text-sm"
-              onClick={() => handleViewPrescription(appointment)}
-            >
-              <LucideDescription size={16} />
-              View Prescription
-            </button>
-          ) : (
-            <button
-              className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 text-sm"
-              onClick={() => handleCreatePrescription(appointment)}
-            >
-              <LucideAddCircle size={16} />
-              Create Prescription
-            </button>
-          )}
-        </div>
-      </>
-    ) : (
-      <button
-        className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm"
-        onClick={() => handleSetVideoCallLink(appointment._id)}
-      >
-        <LucideVideoCamera size={16} />
-        Add Video Call Link
-      </button>
+      </div>
     )}
+
+    {/* Prescription section - available for both online and offline */}
+    <div className="flex flex-col sm:flex-row gap-3">
+      {prescription ? (
+        <button
+          className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 text-sm"
+          onClick={() => handleViewPrescription(appointment)}
+        >
+          <LucideDescription size={16} />
+          View Prescription
+        </button>
+      ) : (
+        <button
+          className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 text-sm"
+          onClick={() => handleCreatePrescription(appointment)}
+        >
+          <LucideAddCircle size={16} />
+          Create Prescription
+        </button>
+      )}
+    </div>
   </div>
 );
 

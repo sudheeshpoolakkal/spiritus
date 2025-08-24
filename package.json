@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "dotenv": "^16.4.7",
+    "nodemon": "^3.1.10",
     "stripe": "^17.6.0"
   }
 }

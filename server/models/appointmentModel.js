@@ -14,12 +14,12 @@ const appointmentSchema = new mongoose.Schema({
     cancelled: { type: Boolean, default: false },
     payment: { type: Boolean, default: false },
     isCompleted: { type: Boolean, default: false },
-    videoCallLink: String, // Store the video call link
-    rating: { type: Number, min: 1, max: 5 }, // Rating given by the user
-    review: { type: String, default: '' }, // Optional review
-    patientDescription: { type: String, default: '' }, // Text description
+    videoCallLink: String, 
+    rating: { type: Number, min: 1, max: 5 }, 
+    review: { type: String, default: '' }, 
+    patientDescription: { type: String, default: '' }, 
     meetingCompleted: { type: Boolean, default: false },
-    audioMessage: { type: String, default: '' } // New field for audio message URL
+    audioMessage: { type: String, default: '' } 
 });
 
 const appointmentModel = mongoose.models.appointment || mongoose.model('appointment', appointmentSchema);

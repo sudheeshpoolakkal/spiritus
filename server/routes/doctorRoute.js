@@ -17,7 +17,7 @@ doctorRouter.post('/update-profile',authDoctor,updateDoctorProfile)
 doctorRouter.post("/set-video-call", authDoctor, setVideoCallLink);
 doctorRouter.post('/submit-rating', submitRating); // New route for submitting ratings
 doctorRouter.get('/reviews/:docId', getReviews);
-doctorRouter.get('/slots', authDoctor, getDoctorSlots); // Get doctor slots
+doctorRouter.post('/slots', authDoctor, getDoctorSlots); // Get doctor slots
 doctorRouter.post('/update-slots', authDoctor, updateDoctorSlots); // Update doctor slots
 doctorRouter.post('/delete-slots', authDoctor, deleteDoctorSlots); // Delete doctor slots
 doctorRouter.get('/:docId', getDoctorById);
