@@ -312,3 +312,51 @@ export const getHospitalDoctors = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+export const getDashboardData = async (req, res) => {
+  try {
+    const hospitalId = req.hospital._id;
+
+    // 1. Get doctor IDs for the hospital
+    const doctors = await Doctor.find({ hospitalId: hospitalId }).select('_id');
+    const doctorIds = doctors.map(doc => doc._id);
+
+    // 2. Get all appointments for these doctors
+    const appointments = await appointmentModel.find({ docId: { $in: doctorIds } });
+
+    // 3. Calculate stats
+    const totalDoctors = doctorIds.length;
+    const totalAppointments = appointments.length;
+
+    const uniquePatientIds = new Set(appointments.map(app => app.userId));
+    const totalPatients = uniquePatientIds.size;
+
+    const totalEarnings = appointments
+      .filter(app => app.isCompleted)
+      .reduce((sum, app) => sum + (app.amount || 0), 0);
+
+    const totalSpecializations = req.hospital.specializations ? req.hospital.specializations.length : 0;
+
+    // 4. Get latest 5 appointments
+    const latestAppointments = await appointmentModel.find({ docId: { $in: doctorIds } })
+      .sort({ date: -1 })
+      .limit(5)
+      .populate('docData', 'name image');
+
+    res.json({
+      success: true,
+      data: {
+        doctors: totalDoctors,
+        appointments: totalAppointments,
+        patients: totalPatients,
+        earnings: totalEarnings,
+        specializations: totalSpecializations,
+        latestAppointments: latestAppointments
+      }
+    });
+
+  } catch (error) {
+    console.error('Error fetching dashboard data:', error);
+    res.status(500).json({ success: false, message: 'Server Error: Could not fetch dashboard data.' });
+  }
+};
