@@ -256,6 +256,9 @@ const getAvailableSlot = () => {
       formData.append('slotTime', slotTime);
       formData.append('patientDescription', patientDescription);
       formData.append('consultationMode', consultationMode);
+      if (userData && userData._id) {
+        formData.append('userId', userData._id);
+      }
       if (recordedAudio) {
         formData.append('audioMessage', recordedAudio, 'audioMessage.webm');
       }

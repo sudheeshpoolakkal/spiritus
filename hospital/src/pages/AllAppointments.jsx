@@ -10,7 +10,7 @@ const AllAppointments = () => {
   const fetchAppointments = async () => {
     try {
       const { data } = await axios.get(backendUrl + '/api/hospital/appointments', {
-        headers: { Authorization: `Bearer ${hToken}` },
+        headers: { hToken },
       });
       if (data.success) {
         setAppointments(data.appointments);
