@@ -47,6 +47,11 @@ const HospitalContextProvider = (props) => {
     } catch (error) {
       setDashData(false);
       toast.error(error.message);
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem('hToken');
+        setHToken('');
+        toast.error('Session expired. Please login again.');
+      }
     }
   };
 
@@ -63,6 +68,11 @@ const HospitalContextProvider = (props) => {
       }
     } catch (error) {
       toast.error(error.message);
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem('hToken');
+        setHToken('');
+        toast.error('Session expired. Please login again.');
+      }
     }
   };
 
