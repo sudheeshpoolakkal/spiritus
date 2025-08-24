@@ -201,7 +201,7 @@ const uploadProfileImage = async (req, res) => {
 // API to Book Appointment
 const bookAppointment = async (req, res) => {
   try {
-    const { userId, docId, slotDate, slotTime, patientDescription, consultationMode } = req.body;
+    const { docId, slotDate, slotTime, patientDescription, consultationMode } = req.body;
     const audioFile = req.files?.audioMessage;
 
     const docData = await doctorModel.findById(docId).select('-password');
@@ -220,12 +220,12 @@ const bookAppointment = async (req, res) => {
         slots_booked[slotDate] = [slotTime];
     }
 
-    const userData = await userModel.findById(userId).select('-password');
+    const userData = await userModel.findById(req.body.userId).select('-password');
     // Remove sensitive data before adding to appointment data
     delete docData.slots_booked;
 
     const appointmentData = {
-        userId,
+        userId: req.body.userId,
         docId,
         consultationMode,
         hospitalId: docData.hospitalId,

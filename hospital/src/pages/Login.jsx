@@ -95,7 +95,7 @@ function Login() {
             required
             disabled={isLoading}
             className="w-full p-2 rounded-lg border border-zinc-300 bg-[#333335] text-zinc-200 disabled:opacity-50"
-            placeholder="Enter your hospital email"
+            
           />
         </div>
 
@@ -108,7 +108,7 @@ function Login() {
             required
             disabled={isLoading}
             className="w-full p-2 rounded-lg border border-zinc-300 bg-[#333335] text-zinc-200 disabled:opacity-50"
-            placeholder="Enter your password"
+            
           />
         </div>
 

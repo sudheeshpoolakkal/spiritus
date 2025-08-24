@@ -10,7 +10,7 @@ import RelatedDoctors from '@/components/RelatedDoctors';
 
 const Appointment = () => {
   const { docId } = useParams();
-  const { doctors, currencySymbol, backendUrl, token, getDoctorsData, appointments } = useContext(AppContext);
+  const { doctors, currencySymbol, backendUrl, token, getDoctorsData, appointments, userData } = useContext(AppContext);
   const daysOfWeek = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
   const navigate = useNavigate();
 
@@ -257,6 +257,9 @@ const getAvailableSlot = () => {
       formData.append('slotTime', slotTime);
       formData.append('patientDescription', patientDescription);
       formData.append('consultationMode', consultationMode);
+      if (userData && userData._id) {
+        formData.append('userId', userData._id);
+      }
       if (recordedAudio) {
         formData.append('audioMessage', recordedAudio, 'audioMessage.webm');
       }
