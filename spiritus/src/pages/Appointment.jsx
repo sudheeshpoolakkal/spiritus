@@ -9,7 +9,7 @@ import RelatedDoctors from '@/components/RelatedDoctors';
 
 const Appointment = () => {
   const { docId } = useParams();
-  const { doctors, currencySymbol, backendUrl, token, getDoctorsData, appointments } = useContext(AppContext);
+  const { doctors, currencySymbol, backendUrl, token, getDoctorsData, appointments, userData } = useContext(AppContext);
   const daysOfWeek = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
   const navigate = useNavigate();
 
