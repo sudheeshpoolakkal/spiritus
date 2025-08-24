@@ -9,6 +9,7 @@ import {
   listHospitals,
   addDoctorToHospital,
   getHospitalDoctors,
+  getDashboardData,
 } from '../controllers/hospitalController.js';
 import authHospital from '../middlewares/authHospital.js';
 import upload from '../middlewares/multer.js';
@@ -25,6 +26,9 @@ router.post('/login', loginHospital);
 // Profile routes
 router.get('/profile', authHospital, getHospitalProfile);
 router.put('/profile', authHospital, updateHospitalProfile);
+
+// Dashboard route
+router.get('/dashboard', authHospital, getDashboardData);
 
 // Appointment
 router.get('/appointments', authHospital, getHospitalAppointments);
