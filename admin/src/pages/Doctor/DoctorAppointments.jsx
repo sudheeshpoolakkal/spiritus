@@ -104,11 +104,30 @@ const DoctorAppointments = () => {
     });
   };
 
-  // Helper function to check if appointment is offline
+  // Updated helper function to check if appointment is offline
   const isOfflineAppointment = (appointment) => {
-    return appointment.bookingType === 'offline' || 
+    return appointment.consultationMode === 'offline' || 
+           appointment.bookingType === 'offline' || 
            appointment.consultationType === 'offline' || 
            appointment.isOffline === true;
+  };
+
+  // Helper function to get consultation mode display
+  const getConsultationMode = (appointment) => {
+    if (isOfflineAppointment(appointment)) {
+      return {
+        type: 'offline',
+        label: 'Offline',
+        icon: LucideMapPin,
+        color: 'orange'
+      };
+    }
+    return {
+      type: 'online',
+      label: 'Online',
+      icon: LucideMonitor,
+      color: 'blue'
+    };
   };
 
   const panelVariants = {
@@ -172,51 +191,47 @@ const DoctorAppointments = () => {
                   appointments
                     .slice()
                     .reverse()
-                    .map((item) => (
-                      <motion.div
-                        key={item._id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className={`p-3 border-b border-gray-100 last:border-0 hover:bg-gray-50 cursor-pointer transition-colors ${
-                          selectedAppointment?._id === item._id
-                            ? "bg-blue-50"
-                            : ""
-                        }`}
-                        onClick={() => setSelectedAppointment(item)}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <img
-                              className="w-10 h-10 rounded-full object-cover shadow-sm"
-                              src={item.userData?.image || assets.defaultImage}
-                              alt={item.userData?.name || "Patient"}
-                            />
-                            <div>
-                              <h3 className="text-sm font-medium text-gray-800">
-                                {item.userData?.name || "Unknown"}
-                              </h3>
-                              <p className="text-xs text-gray-500">
-                                {slotDateFormat(item.slotDate)}, {item.slotTime}
-                              </p>
-                              <div className="flex items-center gap-1 mt-1">
-                                {isOfflineAppointment(item) ? (
-                                  <span className="flex items-center gap-1 text-xs text-orange-600">
-                                    <LucideMapPin size={12} />
-                                    Offline
+                    .map((item) => {
+                      const consultationMode = getConsultationMode(item);
+                      return (
+                        <motion.div
+                          key={item._id}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className={`p-3 border-b border-gray-100 last:border-0 hover:bg-gray-50 cursor-pointer transition-colors ${
+                            selectedAppointment?._id === item._id
+                              ? "bg-blue-50"
+                              : ""
+                          }`}
+                          onClick={() => setSelectedAppointment(item)}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <img
+                                className="w-10 h-10 rounded-full object-cover shadow-sm"
+                                src={item.userData?.image || assets.defaultImage}
+                                alt={item.userData?.name || "Patient"}
+                              />
+                              <div>
+                                <h3 className="text-sm font-medium text-gray-800">
+                                  {item.userData?.name || "Unknown"}
+                                </h3>
+                                <p className="text-xs text-gray-500">
+                                  {slotDateFormat(item.slotDate)}, {item.slotTime}
+                                </p>
+                                <div className="flex items-center gap-1 mt-1">
+                                  <span className={`flex items-center gap-1 text-xs text-${consultationMode.color}-600`}>
+                                    <consultationMode.icon size={12} />
+                                    {consultationMode.label}
                                   </span>
-                                ) : (
-                                  <span className="flex items-center gap-1 text-xs text-blue-600">
-                                    <LucideMonitor size={12} />
-                                    Online
-                                  </span>
-                                )}
+                                </div>
                               </div>
                             </div>
+                            <StatusBadge item={item} />
                           </div>
-                          <StatusBadge item={item} />
-                        </div>
-                      </motion.div>
-                    ))
+                        </motion.div>
+                      );
+                    })
                 )}
               </div>
 
@@ -226,7 +241,7 @@ const DoctorAppointments = () => {
                   <span>#</span>
                   <span>Patient</span>
                   <span>Date & Time</span>
-                  <span>Type</span>
+                  <span>Mode</span>
                   <span>Status</span>
                 </div>
                 {appointments.length === 0 ? (
@@ -237,55 +252,51 @@ const DoctorAppointments = () => {
                   appointments
                     .slice()
                     .reverse()
-                    .map((item, index) => (
-                      <motion.div
-                        key={item._id}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className={`grid grid-cols-[40px_1fr_1fr_80px_100px] gap-3 items-center px-4 py-3 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors ${
-                          selectedAppointment?._id === item._id
-                            ? "bg-blue-50"
-                            : ""
-                        }`}
-                        onClick={() => setSelectedAppointment(item)}
-                      >
-                        <span className="text-gray-500 text-sm">
-                          {index + 1}
-                        </span>
-                        <div className="flex items-center gap-2">
-                          <img
-                            className="w-8 h-8 rounded-full object-cover shadow-sm"
-                            src={item.userData?.image || assets.defaultImage}
-                            alt={item.userData?.name || "Patient"}
-                          />
-                          <span className="text-sm font-medium text-gray-800 truncate">
-                            {item.userData?.name || "Unknown"}
+                    .map((item, index) => {
+                      const consultationMode = getConsultationMode(item);
+                      return (
+                        <motion.div
+                          key={item._id}
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          className={`grid grid-cols-[40px_1fr_1fr_80px_100px] gap-3 items-center px-4 py-3 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors ${
+                            selectedAppointment?._id === item._id
+                              ? "bg-blue-50"
+                              : ""
+                          }`}
+                          onClick={() => setSelectedAppointment(item)}
+                        >
+                          <span className="text-gray-500 text-sm">
+                            {index + 1}
                           </span>
-                        </div>
-                        <div>
-                          <p className="text-gray-800 text-sm">
-                            {slotDateFormat(item.slotDate)}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {item.slotTime}
-                          </p>
-                        </div>
-                        <div className="flex items-center justify-center">
-                          {isOfflineAppointment(item) ? (
-                            <span className="flex items-center gap-1 px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs">
-                              <LucideMapPin size={12} />
-                              Offline
+                          <div className="flex items-center gap-2">
+                            <img
+                              className="w-8 h-8 rounded-full object-cover shadow-sm"
+                              src={item.userData?.image || assets.defaultImage}
+                              alt={item.userData?.name || "Patient"}
+                            />
+                            <span className="text-sm font-medium text-gray-800 truncate">
+                              {item.userData?.name || "Unknown"}
                             </span>
-                          ) : (
-                            <span className="flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">
-                              <LucideMonitor size={12} />
-                              Online
+                          </div>
+                          <div>
+                            <p className="text-gray-800 text-sm">
+                              {slotDateFormat(item.slotDate)}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {item.slotTime}
+                            </p>
+                          </div>
+                          <div className="flex items-center justify-center">
+                            <span className={`flex items-center gap-1 px-2 py-1 bg-${consultationMode.color}-100 text-${consultationMode.color}-700 rounded-full text-xs`}>
+                              <consultationMode.icon size={12} />
+                              {consultationMode.label}
                             </span>
-                          )}
-                        </div>
-                        <StatusBadge item={item} />
-                      </motion.div>
-                    ))
+                          </div>
+                          <StatusBadge item={item} />
+                        </motion.div>
+                      );
+                    })
                 )}
               </div>
             </div>
@@ -420,17 +431,17 @@ const DoctorAppointments = () => {
                           <LucideMonitor size={20} />
                         )
                       }
-                      title="Consultation Type"
+                      title="Consultation Mode"
                       value={
                         isOfflineAppointment(selectedAppointment) ? (
-                          <span className="flex items-center gap-1 text-orange-700">
+                          <span className="flex items-center gap-1 text-orange-700 font-medium">
                             <LucideMapPin size={16} />
-                            Offline Visit
+                            Offline
                           </span>
                         ) : (
-                          <span className="flex items-center gap-1 text-blue-700">
+                          <span className="flex items-center gap-1 text-blue-700 font-medium">
                             <LucideMonitor size={16} />
-                            Online Call
+                            Online
                           </span>
                         )
                       }
@@ -450,32 +461,18 @@ const DoctorAppointments = () => {
                   ) : (
                     <div className="space-y-4">
                       {!selectedAppointment.isCompleted ? (
-                        <div className="flex flex-col sm:flex-row gap-3">
-                          <ActionButton
-                            icon={assets.cancel_icon}
-                            label="Cancel Appointment"
-                            color="red"
-                            onClick={() =>
-                              cancelAppointment(selectedAppointment._id)
-                            }
-                            confirm
-                          />
-                          <ActionButton
-                            icon={assets.tick_icon}
-                            label="Mark Completed"
-                            color="green"
-                            onClick={() =>
-                              completeAppointment(selectedAppointment._id)
-                            }
-                          />
-                        </div>
-                      ) : (
-                        <CompletedAppointmentSection
+                        <AppointmentActions
                           appointment={selectedAppointment}
                           videoCallLinks={videoCallLinks}
                           handleSetVideoCallLink={handleSetVideoCallLink}
                           handleJoinMeetingClick={handleJoinMeetingClick}
-                          joinedMeetings={joinedMeetings}
+                          cancelAppointment={cancelAppointment}
+                          completeAppointment={completeAppointment}
+                          isOffline={isOfflineAppointment(selectedAppointment)}
+                        />
+                      ) : (
+                        <CompletedAppointmentSection
+                          appointment={selectedAppointment}
                           handleCreatePrescription={handleCreatePrescription}
                           handleViewPrescription={handleViewPrescription}
                           prescription={selectedPrescription}
@@ -581,79 +578,143 @@ const ActionButton = ({ icon, label, color, onClick, confirm }) => {
   );
 };
 
-// Updated CompletedAppointmentSection - handles both online and offline appointments
-const CompletedAppointmentSection = ({
+// New component for handling appointment actions based on status
+const AppointmentActions = ({
   appointment,
   videoCallLinks,
   handleSetVideoCallLink,
   handleJoinMeetingClick,
-  joinedMeetings,
+  cancelAppointment,
+  completeAppointment,
+  isOffline,
+}) => {
+  const hasVideoLink = videoCallLinks[appointment._id];
+
+  return (
+    <div className="space-y-3">
+      {/* For online appointments, show video call section first */}
+      {!isOffline && (
+        <>
+          {hasVideoLink ? (
+            <div className="bg-blue-50 rounded-lg p-3 shadow-sm">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex-1">
+                  <h4 className="text-xs font-medium text-blue-800 mb-1">
+                    Video Call Link
+                  </h4>
+                  <a
+                    href={videoCallLinks[appointment._id]}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleJoinMeetingClick(
+                        appointment._id,
+                        videoCallLinks[appointment._id]
+                      );
+                    }}
+                    className="text-blue-500 hover:underline break-all text-sm"
+                  >
+                    {videoCallLinks[appointment._id]}
+                  </a>
+                </div>
+                <button
+                  onClick={() => handleSetVideoCallLink(appointment._id)}
+                  className="text-blue-500 hover:text-blue-600 text-sm font-medium"
+                >
+                  Edit
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm"
+              onClick={() => handleSetVideoCallLink(appointment._id)}
+            >
+              <LucideVideoCamera size={16} />
+              Add Video Call Link
+            </button>
+          )}
+        </>
+      )}
+
+      {/* For offline appointments, show offline message */}
+      {isOffline && (
+        <div className="bg-orange-50 rounded-lg p-3 shadow-sm border border-orange-200">
+          <div className="flex items-center gap-2">
+            <LucideMapPin className="text-orange-600" size={20} />
+            <div>
+              <h4 className="text-sm font-medium text-orange-800">
+                Offline Consultation
+              </h4>
+              <p className="text-xs text-orange-600 mt-1">
+                This appointment will be conducted in person at the clinic.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Action buttons - Cancel is always available, Complete only shows when conditions are met */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <ActionButton
+          icon={assets.cancel_icon}
+          label="Cancel Appointment"
+          color="red"
+          onClick={() => cancelAppointment(appointment._id)}
+          confirm
+        />
+        
+        {/* For online appointments: Only show "Mark Completed" if video link exists */}
+        {/* For offline appointments: Always show "Mark Completed" */}
+        {(isOffline || hasVideoLink) && (
+          <ActionButton
+            icon={assets.tick_icon}
+            label="Mark Completed"
+            color="green"
+            onClick={() => completeAppointment(appointment._id)}
+          />
+        )}
+      </div>
+
+      {/* Show message for online appointments without video link */}
+      {!isOffline && !hasVideoLink && (
+        <div className="text-center text-sm text-gray-500 mt-2">
+          Add a video call link to enable marking this appointment as completed
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Updated CompletedAppointmentSection - only shows prescription options
+const CompletedAppointmentSection = ({
+  appointment,
   handleCreatePrescription,
   handleViewPrescription,
   prescription,
   isOffline,
 }) => (
   <div className="space-y-3">
-    {/* Only show video call section for online appointments */}
-    {!isOffline && (
-      <>
-        {videoCallLinks[appointment._id] ? (
-          <div className="bg-blue-50 rounded-lg p-3 shadow-sm">
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex-1">
-                <h4 className="text-xs font-medium text-blue-800 mb-1">
-                  Video Call Link
-                </h4>
-                <a
-                  href={videoCallLinks[appointment._id]}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleJoinMeetingClick(
-                      appointment._id,
-                      videoCallLinks[appointment._id]
-                    );
-                  }}
-                  className="text-blue-500 hover:underline break-all text-sm"
-                >
-                  {videoCallLinks[appointment._id]}
-                </a>
-              </div>
-              <button
-                onClick={() => handleSetVideoCallLink(appointment._id)}
-                className="text-blue-500 hover:text-blue-600 text-sm font-medium"
-              >
-                Edit
-              </button>
-            </div>
-          </div>
-        ) : (
-          <button
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm"
-            onClick={() => handleSetVideoCallLink(appointment._id)}
-          >
-            <LucideVideoCamera size={16} />
-            Add Video Call Link
-          </button>
-        )}
-      </>
-    )}
-
-    {/* Show offline consultation message for offline appointments */}
-    {isOffline && (
-      <div className="bg-orange-50 rounded-lg p-3 shadow-sm">
-        <div className="flex items-center gap-2">
+    {/* Show completion message */}
+    <div className={`${isOffline ? 'bg-orange-50 border-orange-200' : 'bg-green-50 border-green-200'} rounded-lg p-3 shadow-sm border`}>
+      <div className="flex items-center gap-2">
+        {isOffline ? (
           <LucideMapPin className="text-orange-600" size={20} />
-          <div>
-            <h4 className="text-sm font-medium text-orange-800">
-              Offline Consultation
-            </h4>
-            <p className="text-xs text-orange-600">
-              This appointment will be conducted in person at the clinic.
-            </p>
-          </div>
+        ) : (
+          <LucideMonitor className="text-green-600" size={20} />
+        )}
+        <div>
+          <h4 className={`text-sm font-medium ${isOffline ? 'text-orange-800' : 'text-green-800'}`}>
+            {isOffline ? 'Offline Consultation Completed' : 'Online Consultation Completed'}
+          </h4>
+          <p className={`text-xs ${isOffline ? 'text-orange-600' : 'text-green-600'} mt-1`}>
+            {isOffline 
+              ? 'This appointment was conducted in person at the clinic.' 
+              : 'This appointment was conducted via video call.'
+            }
+          </p>
         </div>
       </div>
-    )}
+    </div>
 
     {/* Prescription section - available for both online and offline */}
     <div className="flex flex-col sm:flex-row gap-3">
