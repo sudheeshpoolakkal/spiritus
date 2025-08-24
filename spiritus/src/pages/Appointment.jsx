@@ -9,7 +9,7 @@ import RelatedDoctors from '@/components/RelatedDoctors';
 
 const Appointment = () => {
   const { docId } = useParams();
-  const { doctors, currencySymbol, backendUrl, token, getDoctorsData, appointments } = useContext(AppContext);
+  const { doctors, currencySymbol, backendUrl, token, getDoctorsData, appointments, userData } = useContext(AppContext);
   const daysOfWeek = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
   const navigate = useNavigate();
 
@@ -27,6 +27,7 @@ const Appointment = () => {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('booking'); // 'booking', 'reviews', 'rate'
   const [recordedAudio, setRecordedAudio] = useState(null);
+  const [consultationMode, setConsultationMode] = useState('online');
 
   const fetchDocInfo = async () => {
     if (doctors?.length > 0 && docId) {
@@ -249,45 +250,29 @@ const getAvailableSlot = () => {
         return;
       }
 
+      const formData = new FormData();
+      formData.append('docId', docId);
+      formData.append('slotDate', slotDate);
+      formData.append('slotTime', slotTime);
+      formData.append('patientDescription', patientDescription);
+      formData.append('consultationMode', consultationMode);
       if (recordedAudio) {
-        const formData = new FormData();
-        formData.append('docId', docId);
-        formData.append('slotDate', slotDate);
-        formData.append('slotTime', slotTime);
-        formData.append('patientDescription', patientDescription);
         formData.append('audioMessage', recordedAudio, 'audioMessage.webm');
+      }
 
-        const { data } = await axios.post(
-          backendUrl + '/api/user/book-appointment',
-          formData,
-          { headers: { token, 'Content-Type': 'multipart/form-data' } }
-        );
+      const { data } = await axios.post(
+        backendUrl + '/api/user/book-appointment',
+        formData,
+        { headers: { token, 'Content-Type': 'multipart/form-data' } }
+      );
 
-        if (data.success) {
-          toast.success(data.message);
-          await getDoctorsData();
-          getAvailableSlot();
-          navigate('/my-appointments');
-        } else {
-          toast.error(data.message);
-        }
+      if (data.success) {
+        toast.success(data.message);
+        await getDoctorsData();
+        getAvailableSlot();
+        navigate('/my-appointments');
       } else {
-        const { data } = await axios.post(
-          backendUrl + '/api/user/book-appointment',
-          { docId, slotDate, slotTime, patientDescription },
-          { headers: { token } }
-        );
-
-        if (data.success) {
-          toast.success(data.message);
-          // Update the local appointments to reflect the new booking
-          await getDoctorsData();
-          // Refresh available slots to immediately reflect the booking
-          getAvailableSlot();
-          navigate('/my-appointments');
-        } else {
-          toast.error(data.message);
-        }
+        toast.error(data.message);
       }
     } catch (error) {
       toast.error(error.message);
@@ -604,6 +589,41 @@ const getAvailableSlot = () => {
           
           <div className="p-6">
             <h2 className="text-lg font-semibold text-gray-800 mb-4">Appointment Details</h2>
+            <div className="mb-4">
+              <h3 className="text-md font-semibold text-gray-700 mb-2">Consultation Mode</h3>
+              <div className="flex gap-4">
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    value="online"
+                    checked={consultationMode === 'online'}
+                    onChange={(e) => setConsultationMode(e.target.value)}
+                    className="form-radio text-primary"
+                  />
+                  <span className="ml-2">Online</span>
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    value="offline"
+                    checked={consultationMode === 'offline'}
+                    onChange={(e) => setConsultationMode(e.target.value)}
+                    className="form-radio text-primary"
+                  />
+                  <span className="ml-2">Offline</span>
+                </label>
+              </div>
+            </div>
+            {consultationMode === 'offline' && docInfo && docInfo.address && (
+              <div className="mb-4 p-4 border rounded-lg bg-gray-50">
+                <h3 className="text-md font-semibold text-gray-700 mb-2">Doctor's Address</h3>
+                <p>{docInfo.address.line1}</p>
+                <p>{docInfo.address.line2}</p>
+                <div className="mt-4 h-64 bg-gray-200 rounded-lg flex items-center justify-center">
+                  <p className="text-gray-500">Map placeholder - Add Google Maps API key</p>
+                </div>
+              </div>
+            )}
             <textarea
               value={patientDescription}
               onChange={(e) => setPatientDescription(e.target.value)}

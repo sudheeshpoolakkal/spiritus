@@ -3,12 +3,26 @@ import { Check, X, Play, ChevronDown, Star, Users, Clock, Shield, Globe, Info } 
 
 // Import your video and poster image
 import testimonialVideo from '@/assets/video/betterhelp.mp4';
+import AIvideo1 from '@/assets/video/Malayali_Psychologist_Promotes_Online_Therapy.mp4';
 //import testimonialPoster from '/assets/images/testimonial-poster.jpg';
 
 const Application = () => {
   const [selectedOption, setSelectedOption] = useState('');
   const [workType, setWorkType] = useState('part-time');
   const [hoursPerWeek, setHoursPerWeek] = useState(21); // Changed default to 21 for part-time (3 hrs/day × 7 days)
+  const [step, setStep] = useState(0);
+  const [formData, setFormData] = useState({
+    licenseType: '',
+    firstName: '',
+    lastName: '',
+    email: '',
+    licensedState: '',
+    hearAbout: '',
+    timeWithClients: '',
+    interestedIn: '',
+    adminTime: '',
+    currentTimeSpend: ''
+  });
 
   // Define video path as variable
   const videoPath = "/videos/betterhelp.mp4";
@@ -22,14 +36,54 @@ const Application = () => {
     { id: 'psychologist', label: 'Psychologist', subtitle: 'License type: PhD, PsyD' }
   ];
 
+  const indianStates = [
+    "Andaman and Nicobar Islands",
+    "Andhra Pradesh",
+    "Arunachal Pradesh",
+    "Assam",
+    "Bihar",
+    "Chandigarh",
+    "Chhattisgarh",
+    "Dadra and Nagar Haveli and Daman and Diu",
+    "Delhi",
+    "Goa",
+    "Gujarat",
+    "Haryana",
+    "Himachal Pradesh",
+    "Jammu and Kashmir",
+    "Jharkhand",
+    "Karnataka",
+    "Kerala",
+    "Ladakh",
+    "Lakshadweep",
+    "Madhya Pradesh",
+    "Maharashtra",
+    "Manipur",
+    "Meghalaya",
+    "Mizoram",
+    "Nagaland",
+    "Odisha",
+    "Puducherry",
+    "Punjab",
+    "Rajasthan",
+    "Sikkim",
+    "Tamil Nadu",
+    "Telangana",
+    "Tripura",
+    "Uttar Pradesh",
+    "Uttarakhand",
+    "West Bengal"
+  ];
+
   const comparisonData = [
-    { feature: 'Work from anywhere', spiritus: true, traditional: false },
+    { feature: 'Work online from anywhere', spiritus: true, traditional: false },
     { feature: 'Set your own hours', spiritus: true, traditional: 'partial' },
-    { feature: 'See clients in-person', spiritus: false, traditional: true },
+    { feature: 'See clients in-person (offline mode)', spiritus: true, traditional: true },
+    { feature: 'Client referrals', spiritus: true, traditional: false },
     { feature: 'Clinical autonomy', spiritus: true, traditional: false },
-    { feature: 'Free platform membership', spiritus: true, traditional: false },
+    { feature: 'Zero overhead expense', spiritus: true, traditional: false },
     { feature: 'Compensation for phone calls, messages, emails, and video sessions', spiritus: true, traditional: false },
-    { feature: 'Access to the world\'s largest therapy network', spiritus: true, traditional: false }
+    { feature: 'Clients from across the globe', spiritus: true, traditional: false }
   ];
 
   const benefits = [
@@ -85,11 +139,11 @@ const Application = () => {
 
   const requirements = [
     'Valid license to provide mental therapy issued by a state board (e.g., LCSW, LMFT, LPC, PSYD, or similar credential)',
-    'Active malpractice/liability insurance coverage',
-    'Minimum 2+ years of post-licensure experience in therapy for adults, couples, and/or adolescents',
+    //'Active malpractice/liability insurance coverage',
+    'Minimum 3+ years of post-licensure experience in therapy for adults, couples, and/or adolescents',
+    'Desktop or laptop computer with a reliable internet connection and a webcam',
     'Resident of and licensed in a state where you intend to practice',
-    'Experience with telehealth platforms and comfort with technology',
-    'Currently residing in the United States'
+    'Currently residing in India'
   ];
 
   // Calculate estimated annual earnings in rupees
@@ -124,10 +178,241 @@ const Application = () => {
     return colors[color] || colors.green;
   };
 
+  const isStepValid = (currentStep) => {
+    switch (currentStep) {
+      case 1:
+        return formData.currentTimeSpend !== '';
+      case 2:
+        return formData.adminTime !== '';
+      case 3:
+        return formData.interestedIn !== '';
+      case 4:
+        return formData.timeWithClients !== '';
+      case 5:
+        return formData.hearAbout !== '';
+      case 6:
+        return formData.firstName !== '' && formData.lastName !== '' && formData.email !== '' && formData.licensedState !== '';
+      default:
+        return false;
+    }
+  };
+
+  const renderStep = (currentStep) => {
+    switch (currentStep) {
+      case 1:
+        const spendOptions = ['Clinic or hospital', 'Private practice', 'Community mental health agency', 'Teaching or counseling in an academic setting', 'Other clinical setting', 'Not currently practicing'];
+        return (
+          <div className="bg-white p-6 rounded-xl shadow-md space-y-4">
+            <h3 className="text-lg font-bold text-gray-900">Where do you currently spend most of your time?</h3>
+            {spendOptions.map((opt) => (
+              <div key={opt} className="flex items-center">
+                <input
+                  type="radio"
+                  id={`spend-${opt}`}
+                  name="currentTimeSpend"
+                  value={opt}
+                  checked={formData.currentTimeSpend === opt}
+                  onChange={(e) => setFormData({ ...formData, currentTimeSpend: e.target.value })}
+                  className="mr-3 w-5 h-5 text-green-500 focus:ring-green-500"
+                />
+                <label htmlFor={`spend-${opt}`} className="text-gray-700">
+                  {opt}
+                </label>
+              </div>
+            ))}
+            <button
+              onClick={() => setStep(2)}
+              disabled={!isStepValid(1)}
+              className={`w-full py-3 rounded-md font-semibold transition ${isStepValid(1) ? 'bg-green-500 text-white hover:bg-green-600' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
+            >
+              Next
+            </button>
+          </div>
+        );
+      case 2:
+        const adminOptions = ['0% of my time','Up to 10% of my time', '10 to 30% of my time', 'More than 30% of my time'];
+        return (
+          <div className="bg-white p-6 rounded-xl shadow-md space-y-4">
+            <h3 className="text-lg font-bold text-gray-900">How much of your time is currently spent on administrative and/or billing related tasks?</h3>
+            {adminOptions.map((opt) => (
+              <div key={opt} className="flex items-center">
+                <input
+                  type="radio"
+                  id={`admin-${opt}`}
+                  name="adminTime"
+                  value={opt}
+                  checked={formData.adminTime === opt}
+                  onChange={(e) => setFormData({ ...formData, adminTime: e.target.value })}
+                  className="mr-3 w-5 h-5 text-green-500 focus:ring-green-500"
+                />
+                <label htmlFor={`admin-${opt}`} className="text-gray-700">
+                  {opt}
+                </label>
+              </div>
+            ))}
+            <button
+              onClick={() => setStep(3)}
+              disabled={!isStepValid(2)}
+              className={`w-full py-3 rounded-md font-semibold transition ${isStepValid(2) ? 'bg-green-500 text-white hover:bg-green-600' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
+            >
+              Next
+            </button>
+          </div>
+        );
+      case 3:
+        const interestedOptions = ['To build my own private practice', 'To supplement my private practice', 'To supplement my full-time job', 'To supplement my part-time job', 'Other'];
+        return (
+          <div className="bg-white p-6 rounded-xl shadow-md space-y-4">
+            <h3 className="text-lg font-bold text-gray-900">What makes you most interested in Spiritus?</h3>
+            {interestedOptions.map((opt) => (
+              <div key={opt} className="flex items-center">
+                <input
+                  type="radio"
+                  id={`interested-${opt}`}
+                  name="interestedIn"
+                  value={opt}
+                  checked={formData.interestedIn === opt}
+                  onChange={(e) => setFormData({ ...formData, interestedIn: e.target.value })}
+                  className="mr-3 w-5 h-5 text-green-500 focus:ring-green-500"
+                />
+                <label htmlFor={`interested-${opt}`} className="text-gray-700">
+                  {opt}
+                </label>
+              </div>
+            ))}
+            <button
+              onClick={() => setStep(4)}
+              disabled={!isStepValid(3)}
+              className={`w-full py-3 rounded-md font-semibold transition ${isStepValid(3) ? 'bg-green-500 text-white hover:bg-green-600' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
+            >
+              Next
+            </button>
+          </div>
+        );
+      case 4:
+        const timeOptions = ['Up to 5 hours a week', '5 to 10 hours a week', '10 to 20 hours a week', '20 to 30 hours a week', 'More than 30 hours a week', 'Not sure'];
+        return (
+          <div className="bg-white p-6 rounded-xl shadow-md space-y-4">
+            <h3 className="text-lg font-bold text-gray-900">How much time do you intend to spend with Spiritus clients?</h3>
+            {timeOptions.map((opt) => (
+              <div key={opt} className="flex items-center">
+                <input
+                  type="radio"
+                  id={`time-${opt}`}
+                  name="timeWithClients"
+                  value={opt}
+                  checked={formData.timeWithClients === opt}
+                  onChange={(e) => setFormData({ ...formData, timeWithClients: e.target.value })}
+                  className="mr-3 w-5 h-5 text-green-500 focus:ring-green-500"
+                />
+                <label htmlFor={`time-${opt}`} className="text-gray-700">
+                  {opt}
+                </label>
+              </div>
+            ))}
+            <button
+              onClick={() => setStep(5)}
+              disabled={!isStepValid(4)}
+              className={`w-full py-3 rounded-md font-semibold transition ${isStepValid(4) ? 'bg-green-500 text-white hover:bg-green-600' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
+            >
+              Next
+            </button>
+          </div>
+        );
+      case 5:
+        const hearOptions = ['Friend or colleague','Podcast', 'Internet Research', 'Email Outreach',  'Social Media', 'Other', ];
+        return (
+          <div className="bg-white p-6 rounded-xl shadow-md space-y-4">
+            <h3 className="text-lg font-bold text-gray-900">How did you first hear about Spiritus?</h3>
+            {hearOptions.map((opt) => (
+              <div key={opt} className="flex items-center">
+                <input
+                  type="radio"
+                  id={`hear-${opt}`}
+                  name="hearAbout"
+                  value={opt}
+                  checked={formData.hearAbout === opt}
+                  onChange={(e) => setFormData({ ...formData, hearAbout: e.target.value })}
+                  className="mr-3 w-5 h-5 text-green-500 focus:ring-green-500"
+                />
+                <label htmlFor={`hear-${opt}`} className="text-gray-700">
+                  {opt}
+                </label>
+              </div>
+            ))}
+            <button
+              onClick={() => setStep(6)}
+              disabled={!isStepValid(5)}
+              className={`w-full py-3 rounded-md font-semibold transition ${isStepValid(5) ? 'bg-green-500 text-white hover:bg-green-600' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
+            >
+              Next
+            </button>
+          </div>
+        );
+      case 6:
+        return (
+          <div className="bg-white text-black p-6 rounded-xl shadow-md space-y-4">
+            <h3 className="text-lg font-bold text-gray-900">Finally, provide your name, email, and the primary state you're licensed in.</h3>
+            <input
+              placeholder="First name"
+              value={formData.firstName}
+              onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
+            />
+            <input
+              placeholder="Last name"
+              value={formData.lastName}
+              onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
+            />
+            <input
+              placeholder="Email address"
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
+            />
+            <select
+              value={formData.licensedState}
+              onChange={(e) => setFormData({ ...formData, licensedState: e.target.value })}
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
+            >
+              <option value="">State where you're licensed</option>
+              {indianStates.map((state) => (
+                <option key={state} value={state}>
+                  {state}
+                </option>
+              ))}
+            </select>
+            <p className="text-sm text-gray-500">You can add more states later</p>
+            <button
+              onClick={() => {
+                // Handle submission here, e.g., console.log(formData);
+                setStep(7);
+              }}
+              disabled={!isStepValid(6)}
+              className={`w-full py-3 rounded-md font-semibold transition ${isStepValid(6) ? 'bg-green-500 text-white hover:bg-green-600' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
+            >
+              Submit
+            </button>
+          </div>
+        );
+      case 7:
+        return (
+          <div className="bg-white p-6 rounded-xl shadow-md space-y-4 text-center">
+            <h3 className="text-lg font-bold text-gray-900">Thank you for your application!</h3>
+            <p className="text-gray-700">We'll review it and get back to you soon.</p>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white" style={{ zoom: '0.75' }}>
       {/* Enhanced Hero Section */}
-      <section className="relative bg-gradient-to-br from-green-600 via-green-700 to-green-800 text-white">
+      <section className="relative bg-gradient-to-br from-green-600 via-green-700 to-green-800 text-white -mt-1 sm:-mt-1 md:-mt-2 lg:-mt-3">
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-black opacity-10"></div>
           <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-green-900 to-transparent"></div>
@@ -146,22 +431,32 @@ const Application = () => {
               Join the leading platform for mental health professionals. Flexible schedules, competitive earnings, and comprehensive support.
             </p>
             
-            <div className="max-w-lg mx-auto space-y-3">
-              <p className="text-green-200 text-sm font-medium mb-4">Select your license type to get started:</p>
-              {therapyOptions.map((option) => (
-                <button
-                  key={option.id}
-                  onClick={() => setSelectedOption(option.id)}
-                  className={`w-full p-4 rounded-2xl text-left transition-all transform hover:scale-105 ${
-                    selectedOption === option.id
-                      ? 'bg-white text-green-800 shadow-2xl ring-4 ring-green-300 ring-opacity-50'
-                      : 'bg-green-500 bg-opacity-30 text-white hover:bg-green-500 hover:bg-opacity-40 backdrop-blur-sm'
-                  }`}
-                >
-                  <div className="font-semibold text-base">{option.label}</div>
-                  <div className="text-sm opacity-80">{option.subtitle}</div>
-                </button>
-              ))}
+            <div className="max-w-lg mx-auto">
+              {step === 0 ? (
+                <>
+                  <p className="text-green-200 text-sm font-medium mb-4">Select your license type to get started:</p>
+                  <div className="space-y-3">
+                    {therapyOptions.map((option) => (
+                      <button
+                        key={option.id}
+                        onClick={() => {
+                          setSelectedOption(option.id);
+                          setFormData({ ...formData, licenseType: option.id });
+                          setStep(1);
+                        }}
+                        className={`w-full p-4 rounded-2xl text-left transition-all transform hover:scale-105 ${selectedOption === option.id
+                            ? 'bg-white text-green-800 shadow-2xl ring-4 ring-green-300 ring-opacity-50'
+                            : 'bg-green-500 bg-opacity-30 text-white hover:bg-green-500 hover:bg-opacity-40 backdrop-blur-sm'}`}
+                      >
+                        <div className="font-semibold text-base">{option.label}</div>
+                        <div className="text-sm opacity-80">{option.subtitle}</div>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                renderStep(step)
+              )}
             </div>
           </div>
         </div>
@@ -217,11 +512,9 @@ const Application = () => {
                         setWorkType(type);
                         setHoursPerWeek(type === 'full-time' ? 40 : 21); // 3 hours × 7 days = 21 hours max for part-time
                       }}
-                      className={`p-4 rounded-xl border-2 font-semibold transition-all ${
-                        workType === type
+                      className={`p-4 rounded-xl border-2 font-semibold transition-all ${workType === type
                           ? 'bg-green-50 border-green-500 text-green-700'
-                          : 'bg-gray-50 border-gray-200 text-gray-600 hover:border-gray-300'
-                      }`}
+                          : 'bg-gray-50 border-gray-200 text-gray-600 hover:border-gray-300'}`}
                     >
                       {type === 'full-time' ? 'Full-time' : 'Part-time (Max 3 hrs/day)'}
                     </button>
@@ -311,8 +604,32 @@ const Application = () => {
           <div className="bg-white text-gray-900 rounded-3xl overflow-hidden shadow-2xl">
             <div className="grid grid-cols-3 bg-gradient-to-r from-gray-50 to-gray-100 p-6 font-bold text-lg">
               <div className="text-gray-600">Features</div>
-              <div className="text-center text-green-700">🌿 Spiritus</div>
-              <div className="text-center text-gray-600">Traditional Practice</div>
+              <span
+            
+            style={{ 
+              fontFamily: '"Cormorant Garamond", serif',
+              color: "black",
+              fontWeight: 600,
+              fontSize: "1.5rem",
+              transform: "translateY(-2.4px) translateX(145px)", // moves upward by 2px
+            }}
+            className="tracking-wide ml-3 cursor-pointer transition-all duration-300 hover:scale-105"
+          >
+            Spiritus
+          </span>
+              <span
+            
+            style={{ 
+              fontFamily: '"Cormorant Garamond", serif',
+              color: "black",
+              fontWeight: 600,
+              fontSize: "1.5rem",
+              transform: "translateY(-2.4px) translateX(95px)", // moves upward by 2px
+            }}
+            className="tracking-wide ml-3 cursor-pointer transition-all duration-300 hover:scale-105"
+          >
+            Traditional practice
+          </span>
             </div>
             
             {comparisonData.map((item, index) => (
@@ -363,7 +680,7 @@ const Application = () => {
               className="w-full aspect-video"
               poster={posterPath}
             >
-              <source src={testimonialVideo} type="video/mp4" />
+              <source src={AIvideo1} type="video/mp4" />
               Your browser does not support the video tag.
             </video>
           </div>

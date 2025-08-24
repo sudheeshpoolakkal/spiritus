@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { HospitalContext } from '../context/HospitalContext';
-import bgImage from '../assets/aurora.webp';
+import bgImage from '../assets/assets_admin/aurora.webp';
 
 function Login() {
   const [email, setEmail] = useState('');

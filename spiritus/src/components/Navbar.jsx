@@ -42,32 +42,30 @@ const Navbar = () => {
         </div>
 
         {/* Desktop Menu - Spiritus style + active green */}
-<ul className="hidden md:flex items-center gap-8 font-medium absolute left-1/2 transform -translate-x-1/2">
-  {["/", "/Doctors", "/Hospitals", "/Awards", "/Application","/About", "/Contact"].map((path, index) => (
-    <li key={index} className="relative group">
-      <NavLink
-        to={path}
-        className={({ isActive }) =>
-          `py-1 hover:scale-105 transition-all duration-300 ${
-            isActive ? "text-primary" : "text-gray-800"
-          }`
-        }
-        style={{
-          fontFamily: '"Cormorant Garamond", serif',
-          fontWeight: 900,
-          fontSize: "1.1rem",
-          transform: "translateY(-2.4px)",
-          letterSpacing: "0.03em",
-        }}
-      >
-        {path === "/" ? "Home" : path.slice(1).replace("-", " ")}
-      </NavLink>
-      <hr className="absolute left-0 bottom-0 w-0 group-hover:w-3/5 transition-all duration-300 h-0.5 bg-primary" />
-    </li>
-  ))}
-</ul>
-
-
+        <ul className="hidden md:flex items-center gap-8 font-medium absolute left-1/2 transform -translate-x-1/2">
+          {["/", "/Doctors",  "/Awards", "/Application", "/Plans", "/Hospitals", "/About", "/Contact"].map((path, index) => (
+            <li key={index} className="relative group">
+              <NavLink
+                to={path}
+                className={({ isActive }) =>
+                  `py-1 hover:scale-105 transition-all duration-300 ${
+                    isActive ? "text-primary" : "text-gray-800"
+                  }`
+                }
+                style={{
+                  fontFamily: '"Cormorant Garamond", serif',
+                  fontWeight: 900,
+                  fontSize: "1.1rem",
+                  transform: "translateY(-2.4px)",
+                  letterSpacing: "0.03em",
+                }}
+              >
+                {path === "/" ? "Home" : path.slice(1).replace("-", " ")}
+              </NavLink>
+              <hr className="absolute left-0 bottom-0 w-0 group-hover:w-3/5 transition-all duration-300 h-0.5 bg-primary" />
+            </li>
+          ))}
+        </ul>
 
         {/* Right Side Container with slight negative right margin */}
         <div className="flex items-center gap-4 -mr-32">
@@ -136,7 +134,7 @@ const Navbar = () => {
               alt="Logo"
             />
             <span
-              style={{ fontFamily: '"Computer Modern", serif' }}
+              style={{ fontFamily: '"Cormorant Garamond", serif' }}
               className="text-xl font-medium ml-2 text-gray-800"
             >
               Spiritus
@@ -153,7 +151,7 @@ const Navbar = () => {
         {/* Navigation Links */}
         <div className="py-6">
           <ul className="flex flex-col gap-1 px-4">
-            {["/", "/Doctors",  "/Hospitals", "/Awards", "/Application", "/About", "/Contact"].map(
+            {["/", "/Doctors", "/Awards", "/Application","/Plans", "/Hospitals", "/About", "/Contact"].map(
               (path, index) => (
                 <li key={index} className="w-full">
                   <NavLink

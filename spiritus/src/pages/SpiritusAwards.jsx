@@ -134,7 +134,7 @@ const SpiritusAwards = () => {
 
 
 
-      <section className="relative bg-gradient-to-br from-[#0d8845] via-green-600 to-green-700 text-white py-24 font-['Cormorant_Garamond']">
+      <section className="relative bg-gradient-to-br from-[#0d8845] via-green-600 to-green-700 text-white py-24 font-['Cormorant_Garamond'] -mt-1 sm:-mt-1 md:-mt-2 lg:-mt-3">
   <div className="absolute inset-0 bg-black bg-opacity-20 backdrop-blur-sm"></div>
   <div className="relative max-w-7xl mx-auto px-6 text-center">
     <div className="flex justify-center items-center gap-5 mb-8">

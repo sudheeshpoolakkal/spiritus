@@ -3,7 +3,7 @@ import {
   registerUser, loginUser, getProfile, updateProfile, uploadProfileImage,
   bookAppointment, listAppointment, cancelAppointment, getVideoCallLink,
   processPayment, rateDoctor, submitFeedback, submitHospitalRegistration,
-  submitDoctorRegistration,
+  submitDoctorRegistration, submitQuestionnaire,
   getHospitalDetails,
   getHospitalDoctors,
 } from '../controllers/userController.js';
@@ -16,7 +16,7 @@ userRouter.post('/register', registerUser);
 userRouter.post('/login', loginUser);
 userRouter.post('/book-appointment', authUser, upload.single('audioMessage'), bookAppointment);
 userRouter.get('/get-profile', authUser, getProfile);
-userRouter.post('/update-profile', upload.single('image'), authUser, updateProfile);
+userRouter.put('/update-profile', upload.single('image'), authUser, updateProfile);
 userRouter.get('/appointments', authUser, listAppointment);
 userRouter.post('/cancel-appointment', authUser, cancelAppointment);
 userRouter.get('/video-call/:appointmentId', getVideoCallLink);
@@ -32,6 +32,7 @@ userRouter.post('/submit-doctor-registration', upload.fields([
   { name: 'profilePhoto', maxCount: 1 },
   { name: 'licenseCertificate', maxCount: 1 },
 ]), submitDoctorRegistration);
+userRouter.post('/submit-questionnaire', authUser, submitQuestionnaire);
 
 userRouter.get('/hospital/:hospitalId', getHospitalDetails);
 userRouter.get('/hospital/:hospitalId/doctors', getHospitalDoctors);

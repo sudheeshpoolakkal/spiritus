@@ -23,10 +23,11 @@ const AboutUs = () => {
     <div className="about-us-container">
       {/* Hero Section */}
       <section
-  className="relative h-[80vh] md:h-screen bg-cover bg-center rounded-xl overflow-hidden"
+  className="relative h-[80vh] md:h-screen bg-cover bg-center rounded-xl overflow-hidden -mt-1 sm:-mt-1 md:-mt-2 lg:-mt-3"
   style={{
     backgroundImage: `url(${angel})`,
   }}
+  
 >
   {/* Dark overlay */}
   <div className="absolute inset-0 bg-black bg-opacity-40"></div>

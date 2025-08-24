@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 const appointmentSchema = new mongoose.Schema({
     userId: { type: String, required: true },
     docId: { type: String, required: true },
+    consultationMode: { type: String, enum: ['online', 'offline'], required: true },
     hospitalId: { type: String, required: false },
     slotDate: { type: String, required: true },
     slotTime: { type: String, required: true },
