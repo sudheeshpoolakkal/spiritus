@@ -292,37 +292,41 @@ const getReviews = async (req, res) => {
     }
 };
 
-// API to get doctor slots - FIXED: Changed to handle POST request with body
 const getDoctorSlots = async (req, res) => {
     try {
-        const { docId } = req.body; // Changed from req.params to req.body
+        const { docId } = req.body;
         
         if (!docId) {
             return res.status(400).json({ success: false, message: "Doctor ID is required." });
         }
 
-        const doctor = await doctorModel.findById(docId).select('custom_slots');
+        const doctor = await doctorModel.findById(docId);
         if (!doctor) {
             return res.status(404).json({ success: false, message: "Doctor not found." });
         }
 
+        // Initialize custom_slots if it doesn't exist
+        const customSlots = doctor.custom_slots || {};
+
         res.json({ 
             success: true, 
-            slots: doctor.custom_slots || {} 
+            slots: customSlots
         });
     } catch (error) {
-        console.error(error);
+        console.error("Error in getDoctorSlots:", error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
-
-// API to update doctor slots
 const updateDoctorSlots = async (req, res) => {
     try {
         const { docId, date, timeSlots } = req.body;
         
-        if (!docId || !date) {
-            return res.status(400).json({ success: false, message: "Doctor ID and date are required." });
+        if (!docId) {
+            return res.status(400).json({ success: false, message: "Doctor ID is required." });
+        }
+        
+        if (!date) {
+            return res.status(400).json({ success: false, message: "Date is required." });
         }
 
         const doctor = await doctorModel.findById(docId);
@@ -349,18 +353,21 @@ const updateDoctorSlots = async (req, res) => {
             slots: doctor.custom_slots
         });
     } catch (error) {
-        console.error(error);
+        console.error("Error in updateDoctorSlots:", error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
 
-// API to delete slots for a specific date
 const deleteDoctorSlots = async (req, res) => {
     try {
         const { docId, date } = req.body;
         
-        if (!docId || !date) {
-            return res.status(400).json({ success: false, message: "Doctor ID and date are required." });
+        if (!docId) {
+            return res.status(400).json({ success: false, message: "Doctor ID is required." });
+        }
+        
+        if (!date) {
+            return res.status(400).json({ success: false, message: "Date is required." });
         }
 
         const doctor = await doctorModel.findById(docId);
@@ -368,8 +375,13 @@ const deleteDoctorSlots = async (req, res) => {
             return res.status(404).json({ success: false, message: "Doctor not found." });
         }
 
+        // Initialize custom_slots if it doesn't exist
+        if (!doctor.custom_slots) {
+            doctor.custom_slots = {};
+        }
+
         // Remove slots for the specific date
-        if (doctor.custom_slots && doctor.custom_slots[date]) {
+        if (doctor.custom_slots[date]) {
             delete doctor.custom_slots[date];
             doctor.markModified('custom_slots');
             await doctor.save();
@@ -381,7 +393,7 @@ const deleteDoctorSlots = async (req, res) => {
             slots: doctor.custom_slots
         });
     } catch (error) {
-        console.error(error);
+        console.error("Error in deleteDoctorSlots:", error);
         res.status(500).json({ success: false, message: error.message });
     }
 };

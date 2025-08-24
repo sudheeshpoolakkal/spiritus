@@ -10,7 +10,21 @@ const doctorSchema = new mongoose.Schema({
   about: { type: String, required: true },
   available: { type: Boolean, required: true, default: true },
   fees: { type: Number, required: true },
-  address: { type: Object, required: true },
+   address: { 
+    type: Object, 
+    required: true,
+    default: {
+      line1: { type: String },           // Traditional address line 1
+      line2: { type: String },           // Traditional address line 2
+      plusCode: { type: String },        // Google Plus Code (e.g., "GWW4+8G Thiruvananthapuram, Kerala")
+      coordinates: {                     // Optional: store lat/lng for faster access
+        lat: { type: Number },
+        lng: { type: Number }
+      },
+      formatted: { type: String },       // Full formatted address from Google
+      placeId: { type: String }         // Google Place ID for more accurate identification
+    }
+  },
   languages: { type: [String], default: [] },
   degree: { type: String, required: true },
   date: { type: Number, required: true },
