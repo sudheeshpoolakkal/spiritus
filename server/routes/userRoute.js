@@ -16,7 +16,7 @@ userRouter.post('/register', registerUser);
 userRouter.post('/login', loginUser);
 userRouter.post('/book-appointment', authUser, upload.single('audioMessage'), bookAppointment);
 userRouter.get('/get-profile', authUser, getProfile);
-userRouter.post('/update-profile', upload.single('image'), authUser, updateProfile);
+userRouter.put('/update-profile', upload.single('image'), authUser, updateProfile);
 userRouter.get('/appointments', authUser, listAppointment);
 userRouter.post('/cancel-appointment', authUser, cancelAppointment);
 userRouter.get('/video-call/:appointmentId', getVideoCallLink);

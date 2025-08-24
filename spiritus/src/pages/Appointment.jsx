@@ -251,46 +251,29 @@ const getAvailableSlot = () => {
         return;
       }
 
+      const formData = new FormData();
+      formData.append('docId', docId);
+      formData.append('slotDate', slotDate);
+      formData.append('slotTime', slotTime);
+      formData.append('patientDescription', patientDescription);
+      formData.append('consultationMode', consultationMode);
       if (recordedAudio) {
-        const formData = new FormData();
-        formData.append('docId', docId);
-        formData.append('slotDate', slotDate);
-        formData.append('slotTime', slotTime);
-        formData.append('patientDescription', patientDescription);
-        formData.append('consultationMode', consultationMode);
         formData.append('audioMessage', recordedAudio, 'audioMessage.webm');
+      }
 
-        const { data } = await axios.post(
-          backendUrl + '/api/user/book-appointment',
-          formData,
-          { headers: { token, 'Content-Type': 'multipart/form-data' } }
-        );
+      const { data } = await axios.post(
+        backendUrl + '/api/user/book-appointment',
+        formData,
+        { headers: { token, 'Content-Type': 'multipart/form-data' } }
+      );
 
-        if (data.success) {
-          toast.success(data.message);
-          await getDoctorsData();
-          getAvailableSlot();
-          navigate('/my-appointments');
-        } else {
-          toast.error(data.message);
-        }
+      if (data.success) {
+        toast.success(data.message);
+        await getDoctorsData();
+        getAvailableSlot();
+        navigate('/my-appointments');
       } else {
-        const { data } = await axios.post(
-          backendUrl + '/api/user/book-appointment',
-          { docId, slotDate, slotTime, patientDescription, consultationMode },
-          { headers: { token } }
-        );
-
-        if (data.success) {
-          toast.success(data.message);
-          // Update the local appointments to reflect the new booking
-          await getDoctorsData();
-          // Refresh available slots to immediately reflect the booking
-          getAvailableSlot();
-          navigate('/my-appointments');
-        } else {
-          toast.error(data.message);
-        }
+        toast.error(data.message);
       }
     } catch (error) {
       toast.error(error.message);

@@ -1,111 +1,86 @@
-import { AppContext } from '@/context/AppContext'; // Adjust import path if needed (e.g., '../context/AppContext')
+import { AppContext } from '@/context/AppContext';
 import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaStar, FaAmbulance } from 'react-icons/fa'; // Added FaAmbulance for emergency icon
+import { FaStar } from 'react-icons/fa';
 
 function TopHospitals() {
   const navigate = useNavigate();
   const { hospitals } = useContext(AppContext);
   
-  // Sort hospitals by mentalHealthProfessionals from highest to lowest (proxy for "top")
-  const sortedHospitals = [...hospitals].sort((a, b) => (b.mentalHealthProfessionals || 0) - (a.mentalHealthProfessionals || 0));
+  // Sort hospitals by rating from highest to lowest
+  const sortedHospitals = [...hospitals].sort((a, b) => (b.rating || 0) - (a.rating || 0));
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-      {/* Header Section - Perfectly Centered */}
-      <div className="flex flex-col items-center justify-center text-center mb-8 sm:mb-12">
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-semibold mb-3 sm:mb-4 text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-green-400">
-          Top Hospitals to Book
-        </h1>
-        <p className="text-sm sm:text-base lg:text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
-          Explore our premium selection of trusted hospitals for your care.
+    <div className="flex flex-col items-center gap-6 sm:gap-8 my-12 sm:my-16 text-gray-900 mx-4 sm:mx-6 md:mx-10">
+      <div className="text-center">
+        <h1 className="text-2xl sm:text-3xl font-semibold mb-3">Top Hospitals to Book</h1>
+        <p className="text-center text-sm sm:text-base text-gray-600 max-w-md mx-auto">
+          Simply browse through our extensive list of trusted hospitals.
         </p>
       </div>
       
-      {/* Hospitals Grid - Centered with proper spacing */}
-      <div className="flex justify-center mb-8 sm:mb-12">
-        <div className="w-full max-w-6xl grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6 justify-items-center">
-          {sortedHospitals.slice(0, 10).map((item, index) => (
-            <div 
-              key={index}
-              onClick={() => { navigate(`/hospital/${item._id}`); window.scrollTo(0, 0); }}
-              className="w-full max-w-[200px] bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer transition-all duration-300 ease-in-out hover:-translate-y-2 hover:shadow-2xl hover:scale-105"
-            >
-              {/* Image Container */}
-              <div className="w-full aspect-square overflow-hidden relative">
-                <img 
-                  className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
-                  src={item.hospitalLogo || 'placeholder-hospital.jpg'} 
-                  alt={item.hospitalName}
-                  loading="lazy"
-                />
-                {/* Overlay gradient for premium feel */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+      {/* Fixed grid with consistent card sizing */}
+      <div className="w-full max-w-6xl grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+        {sortedHospitals.slice(0, 10).map((item, index) => (
+          <div 
+            key={index}
+            onClick={() => { navigate(`/hospital/${item._id}`); window.scrollTo(0, 0); }}
+            className="bg-white shadow-md overflow-hidden cursor-pointer transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-lg max-w-xs mx-auto w-full"
+          >
+            {/* Fixed aspect ratio image container */}
+            <div className="w-full aspect-square overflow-hidden bg-gray-100">
+              <img 
+                className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                src={item.hospitalLogo || 'placeholder-hospital.jpg'} 
+                alt={item.hospitalName}
+                loading="lazy"
+              />
+            </div>
+            
+            {/* Card Details with fixed height */}
+            <div className="p-2 sm:p-3 h-20 sm:h-24 flex flex-col justify-between">
+              <div className="flex items-start justify-between mb-1">
+                {/* Emergency Support Badge */}
+                <span className={`flex items-center gap-1 text-xs font-medium flex-shrink-0 ${
+                  item.emergencySupport === 'yes' ? 'text-green-600' : 'text-red-600'
+                }`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${
+                    item.emergencySupport === 'yes' ? 'bg-green-600' : 'bg-red-600'
+                  }`}></span>
+                  <span className="hidden sm:inline">
+                    {item.emergencySupport === 'yes' ? 'Emergency' : 'No Emergency'}
+                  </span>
+                </span>
+                
+                {/* Rating */}
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  <FaStar className="text-yellow-400 text-xs" />
+                  <span className="text-xs text-gray-600">
+                    {item.rating ? item.rating.toFixed(1) : 'N/A'}
+                  </span>
+                </div>
               </div>
               
-              {/* Card Details */}
-              <div className="p-3 sm:p-4">
-                {/* Emergency Badge and Rating Row */}
-                <div className="flex items-center justify-between mb-2 gap-1">
-                  {/* Emergency Badge with Icon */}
-                  <div className={`flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full flex-shrink-0 ${
-                    item.emergencySupport === 'yes' 
-                      ? 'bg-green-100 text-green-700' 
-                      : 'bg-red-100 text-red-700'
-                  }`}>
-                    <FaAmbulance className="text-xs flex-shrink-0" />
-                    <span className="hidden sm:inline">
-                      {item.emergencySupport === 'yes' ? 'Emergency' : 'No Emergency'}
-                    </span>
-                  </div>
-                  
-                  {/* Rating */}
-                  <div className="flex items-center gap-1 text-yellow-400 flex-shrink-0">
-                    <FaStar className="text-xs sm:text-sm" />
-                    <span className="text-xs text-gray-700">
-                      {item.rating ? item.rating.toFixed(1) : 'N/A'}
-                    </span>
-                  </div>
-                </div>
-                
-                {/* Hospital Name - Centered */}
-                <div className="text-center mb-2">
-                  <h3 className="text-sm sm:text-base font-semibold text-gray-900 truncate" title={item.hospitalName}>
-                    {item.hospitalName}
-                  </h3>
-                </div>
-                
-                {/* Type - Centered */}
-                <div className="text-center mb-2">
-                  <p className="text-xs text-gray-500 uppercase tracking-wide truncate" title={item.type}>
-                    {item.type}
-                  </p>
-                </div>
-                
-                {/* Specializations - Centered */}
-                <div className="text-center">
-                  <p className="text-xs text-gray-600 truncate" title={item.specializations?.join(', ') || 'General'}>
-                    {item.specializations && item.specializations.length > 0
-                      ? `${item.specializations.slice(0, 2).join(', ')}${item.specializations.length > 2 ? '...' : ''}`
-                      : 'General Hospital'
-                    }
-                  </p>
-                </div>
+              {/* Hospital Info */}
+              <div className="min-h-0 flex-1">
+                <h3 className="text-xs sm:text-sm font-semibold text-gray-900 mb-1 line-clamp-1" title={item.hospitalName}>
+                  {item.hospitalName}
+                </h3>
+                <p className="text-xs text-gray-500 uppercase tracking-wide line-clamp-1" title={item.type}>
+                  {item.type}
+                </p>
               </div>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
       
-      {/* Button - Perfectly Centered */}
-      <div className="flex justify-center">
-        <button 
-          onClick={() => { navigate('/hospitals'); window.scrollTo(0, 0); }} 
-          className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-full transition-all duration-300 text-sm sm:text-base shadow-md hover:shadow-lg font-medium"
-        >
-          More Hospitals
-        </button>
-      </div>
+      <button 
+        onClick={() => { navigate('/hospitals'); window.scrollTo(0, 0); }} 
+        className="bg-green-500 hover:bg-green-600 text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-full transition-colors mt-4 sm:mt-8 text-sm sm:text-base font-medium"
+      >
+        More Hospitals
+      </button>
     </div>
   );
 }
