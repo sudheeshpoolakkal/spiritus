@@ -42,9 +42,10 @@ const Navbar = () => {
               >
                 Spiritus
               </span>
-              <span className="ml-2 px-1.5 py-0.5 bg-gradient-to-r from-blue-600  to-green-500 text-white text-xs font-bold rounded-full uppercase tracking-wide transform translate-y-[-2px] hover:scale-90 transition-transform duration-200">
-                Beta
-              </span>
+              <span className="ml-2 px-2 py-0.5 text-white text-xs font-bold rounded-full uppercase tracking-wide transform translate-y-[-2px] hover:scale-90 transition-transform duration-200"
+      style={{background: 'linear-gradient(89.58deg, #3186FF 0.28%, #346BF0 44.45%, #4EA0FF 99.55%)'}}>
+    Beta
+</span>
             </div>
           </div>
 
