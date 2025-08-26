@@ -420,15 +420,15 @@ const Contact = () => {
     <div className="space-y-8">
       <div> <br />
         <h3 className="text-lg font-medium">Email Us</h3>
-        <p className="mt-1 text-sm text-gray-600">spiritu476@gmail.com</p>
+        <p className="mt-1 text-sm text-gray-600">sudheesh@duck.com</p>
       </div>
       <div>
         <h3 className="text-lg font-medium">Call Us</h3>
-        <p className="mt-1 text-sm text-gray-600">+918129645054</p>
+        <p className="mt-1 text-sm text-gray-600">+91 9744819606</p>
       </div>
       <div>
         <h3 className="text-lg font-medium">Visit Us</h3>
-        <p className="mt-1 text-sm text-gray-600">IPT & GPTC SHORANUR</p>
+        <p className="mt-1 text-sm text-gray-600">College of Engineering, Trivandrum</p>
 
         {/* Light Blue Quote Box */}
         <div className="bg-blue-50 rounded-md p-4 mt-4">

@@ -26,6 +26,7 @@ import UniversityPartnerships from './pages/UniversityPartnerships'
 import Plans from './pages/Plans'
 import Hospitals from './pages/Hospitals'
 import HospitalDetails from './pages/HospitalDetails'
+import GetHelpNow from './pages/GetHelpNow'
 
 const App = () => {
   const location = useLocation();
@@ -77,6 +78,7 @@ const App = () => {
           <Route path='/hospitals' element={<Hospitals />}/>
           <Route path='/hospitals/:speciality' element={<Hospitals />}/>
           <Route path='/hospital/:hospitalId' element={<HospitalDetails />}/>
+          <Route path="/gethelpnow" element={<GetHelpNow />} />
 
           {/* Add more routes as needed */}
         </Routes>

@@ -17,9 +17,10 @@ const Navbar = () => {
   return (
     <>
       <nav className="fixed top-0 left-0 w-full z-40 bg-white/90 backdrop-blur-sm shadow-[0_4px_8px_rgba(0,0,0,0.1)] h-[3.25rem] px-4 md:px-8 flex items-center">
-        <div className="max-w-[1200px] w-full mx-auto flex items-center justify-between">
-          {/* Logo + Text Container */}
-          <div className="flex items-center h-12">
+        {/* Changed from max-w-[1200px] w-full mx-auto to full width for more control */}
+        <div className="w-full flex items-center justify-between">
+          {/* Logo + Text Container - moved slightly left with negative margin */}
+          <div className="flex items-center h-12 md:-ml-1">
             <img
               onClick={() => navigate("/")}
               style={{ transform: "scale(1.3)" }}
@@ -27,22 +28,27 @@ const Navbar = () => {
               src={assets.logo}
               alt="Logo"
             />
-            <span
-              onClick={() => navigate("/")}
-              style={{
-                fontFamily: '"Cormorant Garamond", serif',
-                color: "black",
-                fontWeight: 600,
-                fontSize: "1.6rem",
-                transform: "translateY(-2.4px) translateX(-8px)",
-              }}
-              className="tracking-wide ml-3 cursor-pointer transition-all duration-300 hover:scale-105"
-            >
-              Spiritus
-            </span>
+            <div className="flex items-center">
+              <span
+                onClick={() => navigate("/")}
+                style={{
+                  fontFamily: '"Cormorant Garamond", serif',
+                  color: "black",
+                  fontWeight: 600,
+                  fontSize: "1.6rem",
+                  transform: "translateY(-2.4px) translateX(-8px)",
+                }}
+                className="tracking-wide ml-3 cursor-pointer transition-all duration-300 hover:scale-105"
+              >
+                Spiritus
+              </span>
+              <span className="ml-2 px-1.5 py-0.5 bg-gradient-to-r from-blue-500  to-red-500 text-white text-xs font-bold rounded-full uppercase tracking-wide transform translate-y-[-2px] hover:scale-90 transition-transform duration-200">
+                Beta
+              </span>
+            </div>
           </div>
 
-          {/* Desktop Menu */}
+          {/* Desktop Menu - centered */}
           <ul className="hidden md:flex items-center gap-8 font-medium absolute left-1/2 transform -translate-x-1/2">
             {["/", "/Doctors", "/Awards", "/Application", "/Plans", "/Hospitals", "/About", "/Contact"].map((path, index) => (
               <li key={index} className="relative group">
@@ -68,8 +74,8 @@ const Navbar = () => {
             ))}
           </ul>
 
-          {/* Right Side Container */}
-          <div className="flex items-center gap-4">
+          {/* Right Side Container - moved slightly right with positive margin */}
+          <div className="flex items-center gap-4 mr-4 md:mr-1">
             {token && userData ? (
               <div className="relative group flex items-center gap-1 md:gap-2 cursor-pointer">
                 <img
@@ -122,7 +128,7 @@ const Navbar = () => {
           showMenu ? "translate-x-0" : "translate-x-full"
         } transition-transform duration-300 ease-in-out z-50 md:hidden border-l border-gray-200`}
       >
-        {/* ... (mobile menu content remains the same) */}
+        {/* Mobile Menu Header */}
         <div className="flex items-center justify-between px-6 py-6 border-b border-gray-200 bg-gray-50">
           <div className="flex items-center h-12">
             <img
@@ -130,12 +136,17 @@ const Navbar = () => {
               src={assets.logo}
               alt="Logo"
             />
-            <span
-              style={{ fontFamily: '"Cormorant Garamond", serif' }}
-              className="text-xl font-medium ml-2 text-gray-800"
-            >
-              Spiritus
-            </span>
+            <div className="flex items-center">
+              <span
+                style={{ fontFamily: '"Cormorant Garamond", serif' }}
+                className="text-xl font-medium ml-2 text-gray-800"
+              >
+                Spiritus
+              </span>
+              <span className="ml-2 px-1.5 py-0.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-xs font-bold rounded-full uppercase tracking-wide shadow-sm">
+                Beta
+              </span>
+            </div>
           </div>
           <button
             onClick={() => setShowMenu(false)}

@@ -23,6 +23,18 @@ function Home() {
       
 
       {/* Add the More Details */}
+
+      {/* Crisis Warning Section */}
+      <section className="pb-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <p className="text-gray-700 mb-2">
+            <strong>If you are in a crisis or any other person may be in danger - don't use this site.</strong>
+          </p>
+          <p className="text-gray-600">
+            <a href="/gethelpnow" className="text-blue-600 hover:underline font-medium">These resources</a> can provide you with immediate help.
+          </p>
+        </div>
+      </section>
     </>
   );
 }
