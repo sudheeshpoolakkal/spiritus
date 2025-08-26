@@ -41,7 +41,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-gray-200 pt-8">
-          <p className="text-xs text-[#86868b] text-center">
+          <p className="text-xs text-[#100101] text-center">
             Copyright © {new Date().getFullYear()} Spiritus. All rights reserved.
           </p>
         </div>
