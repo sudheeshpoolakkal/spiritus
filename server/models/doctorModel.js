@@ -29,7 +29,11 @@ const doctorSchema = new mongoose.Schema({
   degree: { type: String, required: true },
   date: { type: Number, required: true },
   slots_booked: { type: Object, default: {} },
-  custom_slots: { type: Object, default: {} }, // New field for custom slots
+  custom_slots: {
+    type: Map,
+    of: [String],
+    default: {}
+  },
   rating: { type: Number, default: 0 }, // Average rating
   ratingCount: { type: Number, default: 0 }, // Number of ratings
   reviews: [

@@ -340,10 +340,7 @@ const updateDoctorSlots = async (req, res) => {
         }
 
         // Update slots for the specific date
-        doctor.custom_slots[date] = timeSlots || [];
-        
-        // Mark the field as modified for nested objects
-        doctor.markModified('custom_slots');
+        doctor.custom_slots.set(date, timeSlots || []);
         
         await doctor.save();
 
@@ -381,9 +378,8 @@ const deleteDoctorSlots = async (req, res) => {
         }
 
         // Remove slots for the specific date
-        if (doctor.custom_slots[date]) {
-            delete doctor.custom_slots[date];
-            doctor.markModified('custom_slots');
+        if (doctor.custom_slots.has(date)) {
+            doctor.custom_slots.delete(date);
             await doctor.save();
         }
 
