@@ -1,23 +1,21 @@
-import React, { useRef, useContext, useState, useEffect } from 'react';
-import { AppContext } from '@/context/AppContext';
+import React, { useRef, useState, useEffect } from 'react';
 import { FaVolumeUp, FaVolumeMute } from 'react-icons/fa';
 
 const BackgroundMusic = () => {
   const audioRef = useRef(null);
-  const { token } = useContext(AppContext);
   const [isMuted, setIsMuted] = useState(true);
   const [hasInteracted, setHasInteracted] = useState(false);
 
   // Attempt muted autoplay on initial load
   useEffect(() => {
-    if (token && audioRef.current) {
+    if (audioRef.current) {
       audioRef.current.muted = true;
       audioRef.current.play().catch(() => {
         // Muted autoplay blocked - wait for user interaction
         setIsMuted(true);
       });
     }
-  }, [token]);
+  }, []);
 
   const toggleMute = async () => {
     if (!audioRef.current) return;
@@ -40,8 +38,6 @@ const BackgroundMusic = () => {
     audioRef.current.muted = newMuted;
     setIsMuted(newMuted);
   };
-
-  if (!token) return null;
 
   return (
     <div className="fixed bottom-4 right-4 z-50 flex items-center">
