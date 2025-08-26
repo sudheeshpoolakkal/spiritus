@@ -21,7 +21,7 @@ const Doctors = () => {
     'SocialWorker',
   ];
 
-  const languages = ['English', 'Spanish', 'French', 'German', 'Mandarin', 'Hindi', 'Bengali', 'Telugu', 'Marathi', 'Tamil'];
+  const languages = ['English', 'Malayalam','Tamil','Hindi', 'Telugu', 'Bengali',  'Marathi', 'Spanish', 'French', 'German', 'Mandarin'];
 
   // Apply filter based on selected speciality
   const applyFilter = () => {
