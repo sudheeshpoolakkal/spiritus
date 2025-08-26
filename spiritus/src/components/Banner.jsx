@@ -9,10 +9,17 @@ function Banner() {
 
   return (
     <>
-    <div className="w-full flex justify-center items-center my-8 px-4">
-  <p className="text-3xl md:text-4xl font-['Cormorant_Garamond'] italic text-gray-700 tracking-wider leading-relaxed text-center">
-    “Clean your mind and spirit with us.”
-  </p>
+<div className="w-full flex justify-center items-center my-8 px-4">
+  <div className="text-center space-y-4">
+    <p className="text-3xl md:text-4xl italic text-black tracking-wider leading-relaxed" 
+       style={{fontFamily: 'Playfair Display, serif'}}>
+      "Cleanse your mind and spirit with us, an Abyss is no place to Be."
+    </p>
+    {/* <p className="text-xl md:text-2xl  text-black tracking-wide leading-relaxed" 
+       style={{fontFamily: 'Playfair Display, serif'}} >
+      An Abyss is no place to Be
+    </p> */}
+  </div>
 </div>
 
     <div 
