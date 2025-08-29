@@ -484,7 +484,8 @@ The core of Human Advancement
                             <Link to="/neha" className="hover:text-white transition-colors">Intelligence Module</Link>
                             <a href="#" className="hover:text-white transition-colors">Research</a>
                             <a href="#" className="hover:text-white transition-colors">Media</a>
-                            <a href="#" className="hover:text-white transition-colors">Contact</a>
+                            <Link to="/About" className="hover:text-white transition-colors">About</Link>
+                            <Link to="/Contact" className="hover:text-white transition-colors">Contact</Link>
                         </div>
                         <p className="text-sm">&copy; {new Date().getFullYear()} Vespera Systems. Building the future of conscious technology.</p>
                     </div>
