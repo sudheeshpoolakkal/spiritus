@@ -462,7 +462,7 @@ The core of Human Advancement
                     <motion.div initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.5 }} transition={{ duration: 0.8, ease: "easeOut" }}>
                         <TiltCard className="text-center card-glow p-10 md:p-16 rounded-xl border border-blue-500/20">
                           <h2 className="text-4xl md:text-5xl font-bold mb-4">Contribute to the Architecture</h2>
-                          <p className="text-lg text-gray-400 mb-8 max-w-2xl mx-auto">We're looking for partners in fields like AI ethics, neuroscience, and secure technology. If our vision resonates with you, we'd love to talk.</p>
+                          <p className="text-lg text-gray-400 mb-8 max-w-2xl mx-auto">We're looking for partners in fields like AI, neuroscience, psychiatry and secure technology. If our vision resonates with you, we'd love to talk.</p>
                           <form className="flex flex-col sm:flex-row max-w-md mx-auto gap-4">
                             <input type="email" className="w-full px-5 py-3 rounded-lg bg-gray-900/50 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-500 transition-colors" placeholder="your.email@organization.com" required />
                             <button type="submit" className="px-8 py-3 rounded-lg font-bold text-white bg-blue-600 hover:bg-blue-500 transition duration-300 whitespace-nowrap">
