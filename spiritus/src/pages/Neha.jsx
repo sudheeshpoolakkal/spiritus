@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, useScroll, useTransform, useSpring, useMotionValue } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 // --- Icon Components (Enhanced & New) ---
 const BrainCircuit = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 2a2.5 2.5 0 0 0-2.5 2.5v.7a2.5 2.5 0 0 1-5 .3v-1a2.5 2.5 0 0 0-5 0v1.5a2.5 2.5 0 0 0 2.5 2.5h1a2.5 2.5 0 0 1 5 .3v.6a2.5 2.5 0 0 0 5 0v-.7a2.5 2.5 0 0 1-5-.2v1a2.5 2.5 0 0 0 5 0V8a2.5 2.5 0 0 0-2.5-2.5h-1a2.5 2.5 0 0 1-5-.2V5.5A2.5 2.5 0 0 0 12 2Z" /><path d="M12 13a2.5 2.5 0 0 0-2.5 2.5v.7a2.5 2.5 0 0 1-5 .3v-1a2.5 2.5 0 0 0-5 0v1.5a2.5 2.5 0 0 0 2.5 2.5h1a2.5 2.5 0 0 1 5 .3v.6a2.5 2.5 0 0 0 5 0v-.7a2.5 2.5 0 0 1-5-.2v1a2.5 2.5 0 0 0 5 0v-1.5a2.5 2.5 0 0 0-2.5-2.5h-1a2.5 2.5 0 0 1-5-.2v-.5a2.5 2.5 0 0 0-2.5-2.5Z" /><path d="M4.5 11.5a2.5 2.5 0 0 0 0 5" /><path d="M19.5 11.5a2.5 2.5 0 0 1 0 5" /><path d="M12 2v2" /><path d="M12 11v2" /><path d="M12 20v2" /></svg>);
@@ -139,7 +140,11 @@ export default function App() {
         setIsGettingPerspective(true);
         setError(null);
         const systemPrompt = "You are NEHA, an AI with a Triadic Core: Intelligence (data analysis, logic), Empathy (emotional understanding, nuance), and Wisdom ( discernment, long-term flourishing). A user has been presented with an  dilemma and has provided their perspective. Analyze their response through the lens of your Triadic Core. Do not judge. Instead, offer a balanced, insightful analysis that explores the implications of their viewpoint from each of your core pillars. Be concise and profound.";
-        const userPrompt = `The Dilemma: "${scenario}"\n\nThe User's Perspective: "${userInput}"\n\nYour Analysis:`;
+        const userPrompt = `The Dilemma: "${scenario}"
+
+The User's Perspective: "${userInput}"
+
+Your Analysis:`
         const newPerspective = await callGemini(systemPrompt, userPrompt);
         if (newPerspective) {
             setPerspective(newPerspective);
@@ -229,6 +234,7 @@ export default function App() {
                         <a href="#dilemmas" className="hover:text-white transition-colors duration-300"> Dilemmas</a>
                         <a href="#capabilities" className="hover:text-white transition-colors duration-300">Ecosystem</a>
                         <a href="#vision" className="hover:text-white transition-colors duration-300">Vision</a>
+                        <Link to="/" className="hover:text-white transition-colors duration-300">Spiritus</Link>
                     </nav>
                 </header>
 
@@ -296,7 +302,7 @@ The core of Human Advancement
 
 </motion.div>
                         <div className="grid md:grid-cols-3 gap-8">
-                            {[
+                            {[ 
                                 { icon: BrainCircuit, title: 'Intelligent Core', description: 'Using powerful AI to understand complex data from many sources, providing clear, predictive insights that are tailored to you.' },
                                 { icon: HeartHandshake, title: 'Emotional Core', description: 'Understanding the unspoken—the emotions and nuances in human interaction—to communicate with genuine empathy.' },
                                 { icon: Scale, title: 'Wisdom Core', description: 'Going beyond data to cultivate inner stillness and help you reach absolute serenity.' }
@@ -323,7 +329,7 @@ The core of Human Advancement
                             <p className="mt-4 text-gray-400 max-w-2xl mx-auto text-lg">Our system is built on core principles that always protect and empower you.</p>
                         </motion.div>
                         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-                            {[
+                            {[ 
                                 { icon: KeyRound, title: 'Cognitive Sovereignty', description: 'You own and control your personal and biological data. Always.' },
                                 { icon: Dna, title: 'Principled Beneficence', description: 'Every recommendation is designed to support your long-term health and well-being.' },
                                 { icon: ShieldCheck, title: 'Explainable AI', description: 'We believe in transparency. You can always understand how and why the system makes its decisions.' },
@@ -403,7 +409,7 @@ The core of Human Advancement
                             <p className="mt-4 text-gray-400 max-w-2xl mx-auto text-lg">N.E.H.A. helps Vespera connect all aspects of your well-being into one seamless, proactive system of care.</p>
                         </motion.div>
                         <div className="grid md:grid-cols-2 gap-x-12 gap-y-16">
-                            {[
+                            {[ 
                                 { icon: Network, title: 'The Unified Health Continuum', description: 'Connects your entire health journey, from doctor visits to home care, into one simple, coordinated experience.' },
                                 { icon: Car, title: 'Mobility as a Health Determinant', description: 'Treats transportation as part of your health, arranging rides for everything from routine check-ups to emergencies.' },
                                 { icon: ShieldCheck, title: 'Proactive Risk Stratification', description: 'Uses your health and lifestyle data to predict risks and prevent problems before they start, moving beyond reactive care.' },
@@ -429,7 +435,7 @@ The core of Human Advancement
                         <motion.div initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true, amount: 0.8 }} transition={{ duration: 0.8, ease: "easeOut" }}>
                             <svg className="mx-auto h-12 w-12 text-blue-500/50 mb-6" fill="currentColor" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M6 14.813V24h8.313c0-5.36-4.187-8.75-8.313-9.187zM20 14.813V24h8.313c0-5.36-4.187-8.75-8.313-9.187zM4 8h10.813c2.25 2.375 3.187 4.984 3.187 7.813V26H2V8h2zm18 0h10.813c2.25 2.375 3.187 4.984 3.187 7.813V26H18V8h4z"/></svg>
                             <blockquote className="font-serif text-2xl md:text-3xl lg:text-4xl text-gray-200 leading-relaxed italic">
-                               “Progress is measured not by intelligence alone, but by wisdom. With N.E.H.A., we are shaping a system that unites knowledge with conscience.”
+                                “Progress is measured not by intelligence alone, but by wisdom. With N.E.H.A., we are shaping a system that unites knowledge with conscience.”
                             </blockquote>
                             <footer className="mt-8">
                                 <p className="text-lg font-semibold text-white">Sudheesh P</p>
@@ -474,7 +480,7 @@ The core of Human Advancement
                     <div className="container mx-auto max-w-6xl text-center text-gray-500">
                         <div className="text-2xl font-black tracking-widest mb-6">NEHA</div>
                         <div className="flex justify-center space-x-6 md:space-x-8 mb-6 text-sm">
-                            <a href="#" className="hover:text-white transition-colors">Whitepaper</a>
+                            <Link to="/" className="hover:text-white transition-colors">Spiritus</Link>
                             <a href="#" className="hover:text-white transition-colors">Research</a>
                             <a href="#" className="hover:text-white transition-colors">Media</a>
                             <a href="#" className="hover:text-white transition-colors">Contact</a>
@@ -486,4 +492,3 @@ The core of Human Advancement
         </>
     );
 }
-
