@@ -21,12 +21,11 @@ import UserPrescription from './pages/UserPrescription'
 import SpiritusAwards from './pages/SpiritusAwards'
 import Application from './pages/Application'
 import Questionnaire from './pages/Questionnaire'
-import CorporateWellness from './pages/CorporateWellness'
-import UniversityPartnerships from './pages/UniversityPartnerships'
 import Plans from './pages/Plans'
 import Hospitals from './pages/Hospitals'
 import HospitalDetails from './pages/HospitalDetails'
 import GetHelpNow from './pages/GetHelpNow'
+import Neha from './pages/Neha' 
 
 const App = () => {
   const location = useLocation();
@@ -36,22 +35,37 @@ const App = () => {
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
-  // Hide layout for registration flow and other specific routes
-  const hideLayout = [
+  // Paths where navbar and footer should be hidden
+  const hideNavbarFooter = [
     '/login',
     '/upload-profile-image',
     '/complete-profile',
     '/questionnaire',
-    '/my-profile'
+    '/my-profile',
+    '/neha'
   ].includes(location.pathname);
+
+  // Paths that should be full-width (no side margins)
+  const isFullWidth = hideNavbarFooter || [
+    '/neha'
+  ].includes(location.pathname);
+
+  // Dynamically build the main content class
+  let mainClass = '';
+  if (!hideNavbarFooter) {
+    mainClass += 'pt-20 ';
+  }
+  if (!isFullWidth) {
+    mainClass += 'mx-4 sm:mx-[1%] ';
+  }
 
   return (
     <>
       {/* Fixed Navbar */}
-      {!hideLayout && <Navbar />}
+      {!hideNavbarFooter && <Navbar />}
       
-      {/* Main Content with Top Padding to Offset Fixed Navbar */}
-      <div className={`${hideLayout ? 'p-0' : 'mx-4 sm:mx-[1%] pt-20'}`}>
+      {/* Main Content */}
+      <div className={mainClass.trim()}>
         <ToastContainer />
         <BackgroundMusic />
         <ProfileCompletionGuard>
@@ -70,23 +84,21 @@ const App = () => {
             <Route path="/complete-profile" element={<CompleteProfile />} />
             <Route path="/user-prescription" element={<UserPrescription />} />
             <Route path="/awards" element={<SpiritusAwards />} />
-          <Route path="/application" element={<Application />} />
-          <Route path="/questionnaire" element={<Questionnaire />} />
-          <Route path="/corporate-wellness" element={<CorporateWellness />} />
-          <Route path="/university-partnerships" element={<UniversityPartnerships />} />
-          <Route path="/plans" element={<Plans />} />
-          <Route path='/hospitals' element={<Hospitals />}/>
-          <Route path='/hospitals/:speciality' element={<Hospitals />}/>
-          <Route path='/hospital/:hospitalId' element={<HospitalDetails />}/>
-          <Route path="/gethelpnow" element={<GetHelpNow />} />
-
-          {/* Add more routes as needed */}
-        </Routes>
+            <Route path="/application" element={<Application />} />
+            <Route path="/questionnaire" element={<Questionnaire />} />
+            <Route path="/plans" element={<Plans />} />
+            <Route path='/hospitals' element={<Hospitals />}/>
+            <Route path='/hospitals/:speciality' element={<Hospitals />}/>
+            <Route path='/hospital/:hospitalId' element={<HospitalDetails />}/>
+            <Route path="/gethelpnow" element={<GetHelpNow />} />
+            <Route path="/neha" element={<Neha/>}/>
+            {/* Add more routes as needed */}
+          </Routes>
         </ProfileCompletionGuard>
       </div>
       
       {/* Footer (full-width, no margin) */}
-      {!hideLayout && (
+      {!hideNavbarFooter && (
         <div className="mx-0">
           <Footer noBorder={location.pathname === '/about'} />
         </div>
