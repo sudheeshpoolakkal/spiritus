@@ -234,7 +234,7 @@ Your Analysis:`
                         <a href="#dilemmas" className="hover:text-white transition-colors duration-300"> Dilemmas</a>
                         <a href="#capabilities" className="hover:text-white transition-colors duration-300">Ecosystem</a>
                         <a href="#vision" className="hover:text-white transition-colors duration-300">Vision</a>
-                        <Link to="/" className="hover:text-white transition-colors duration-300">Spiritus</Link>
+                        <Link to="/" style={{background: 'linear-gradient(89.58deg, #3186FF 0.28%, #346BF0 44.45%, #4EA0FF 99.55%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'}} className="font-bold">Spiritus</Link>
                     </nav>
                 </header>
 
@@ -480,7 +480,8 @@ The core of Human Advancement
                     <div className="container mx-auto max-w-6xl text-center text-gray-500">
                         <div className="text-2xl font-black tracking-widest mb-6">NEHA</div>
                         <div className="flex justify-center space-x-6 md:space-x-8 mb-6 text-sm">
-                            <Link to="/" className="hover:text-white transition-colors">Spiritus</Link>
+                            <Link to="/" style={{background: 'linear-gradient(89.58deg, #3186FF 0.28%, #346BF0 44.45%, #4EA0FF 99.55%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'}} className="font-bold">Spiritus</Link>
+                            <Link to="/neha" className="hover:text-white transition-colors">Intelligence Module</Link>
                             <a href="#" className="hover:text-white transition-colors">Research</a>
                             <a href="#" className="hover:text-white transition-colors">Media</a>
                             <a href="#" className="hover:text-white transition-colors">Contact</a>

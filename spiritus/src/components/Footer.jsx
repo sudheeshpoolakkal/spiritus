@@ -16,9 +16,9 @@ const Footer = () => {
           <div>
             <h4 className="text-xs text-gray-900 font-semibold mb-4">Services</h4>
             <ul className="space-y-2">
+              <li><Link to="/neha" style={{background: 'linear-gradient(89.58deg, #3186FF 0.28%, #346BF0 44.45%, #4EA0FF 99.55%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'}} className="text-xs font-bold">Intelligence Module</Link></li>
               <li><p className="text-xs text-[#86868b] hover:text-gray-900 transition-colors">Online Therapy</p></li>
               <li><p className="text-xs text-[#86868b] hover:text-gray-900 transition-colors">Community</p></li>
-              
             </ul>
           </div>
 
