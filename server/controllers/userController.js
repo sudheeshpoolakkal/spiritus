@@ -79,7 +79,7 @@ const loginUser = async (req, res) => {
 //API TO GET USER PROFILE DATA
 const getProfile = async (req, res) => {
     try {
-        const { userId } = req;
+        const { userId } = req.body;
         const userData = await userModel.findById(userId).select("-password");
         res.json({ success: true, userData });
     } catch (error) {
@@ -91,8 +91,7 @@ const getProfile = async (req, res) => {
 //API TO UPDATE USER PROFILE
 const updateProfile = async (req, res) => {
   try {
-    const { name, phone, address, dob, gender } = req.body;
-    const { userId } = req;
+    const { userId, name, phone, address, dob, gender } = req.body;
     const imageFile = req.file; // using multer's memoryStorage
 
     if (!name || !phone || !dob || !gender) {
@@ -149,9 +148,18 @@ const updateProfile = async (req, res) => {
 // NEW FUNCTION: uploadProfileImage
 const uploadProfileImage = async (req, res) => {
     try {
-      const { userId } = req;
+      // Use the userId from req.body if available; otherwise, decode the token manually.
+      let userId = req.body.userId;
+      if (!userId) {
+        const { token } = req.headers;
+        if (!token) {
+          return res.json({ success: false, message: "Not authorized. Login again" });
+        }
+        const token_decode = jwt.verify(token, process.env.JWT_SECRET);
+        userId = token_decode.id;
+      }
+  
       const imageFile = req.file;
-
       if (!userId) {
         return res.json({ success: false, message: "User ID missing" });
       }
@@ -194,7 +202,11 @@ const uploadProfileImage = async (req, res) => {
 const bookAppointment = async (req, res) => {
   try {
     const { docId, slotDate, slotTime, patientDescription, consultationMode } = req.body;
-    const audioFile = req.files?.audioMessage;
+    const audioFile = req.file;
+
+    if ((!patientDescription || patientDescription.trim() === '') && !audioFile) {
+        return res.json({ success: false, message: 'Please provide a description of your problem in text or audio.' });
+    }
 
     const docData = await doctorModel.findById(docId).select('-password');
     if (!docData || !docData.available) {
@@ -212,12 +224,12 @@ const bookAppointment = async (req, res) => {
         slots_booked[slotDate] = [slotTime];
     }
 
-    const userData = await userModel.findById(req.userId).select('-password');
+    const userData = await userModel.findById(req.body.userId).select('-password');
     // Remove sensitive data before adding to appointment data
     delete docData.slots_booked;
 
     const appointmentData = {
-        userId: req.userId,
+        userId: req.body.userId,
         docId,
         consultationMode,
         hospitalId: docData.hospitalId,
@@ -235,7 +247,12 @@ const bookAppointment = async (req, res) => {
       try {
         const result = await new Promise((resolve, reject) => {
           const uploadStream = cloudinary.uploader.upload_stream(
-            { resource_type: "video" },
+            {
+              resource_type: "video",
+              eager: [
+                { format: 'mp3', audio_codec: 'mp3' }
+              ]
+            },
             (error, result) => {
               if (error) {
                 reject(error);
@@ -244,9 +261,10 @@ const bookAppointment = async (req, res) => {
               }
             }
           );
-          uploadStream.end(audioFile.data);
+          uploadStream.end(audioFile.buffer);
         });
-        appointmentData.audioMessage = result.secure_url;
+        console.log("Cloudinary Upload Result:", result);
+        appointmentData.audioMessage = result.eager[0].secure_url;
       } catch (cloudinaryError) {
         console.error("Cloudinary Audio Upload Error:", cloudinaryError);
         return res.json({ success: false, message: "Audio upload failed." });
@@ -269,7 +287,7 @@ const bookAppointment = async (req, res) => {
 const listAppointment = async (req, res) => {
     try {
 
-        const { userId } = req
+        const { userId } = req.body
         const appointments = await appointmentModel.find({ userId })
 
         res.json({ success: true, appointments })
@@ -286,8 +304,7 @@ const listAppointment = async (req, res) => {
 //  API to cancel appointment
 const cancelAppointment = async (req, res) => {
     try {
-        const { appointmentId } = req.body;
-        const { userId } = req;
+        const { userId, appointmentId } = req.body;
 
         const appointmentData = await appointmentModel.findById(appointmentId);
 
