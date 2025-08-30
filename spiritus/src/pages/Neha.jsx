@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import AIChip from './AIChip'
 import {
     motion,
     useScroll,
@@ -541,6 +542,10 @@ Your Analysis:`;
                             transition={{ duration: 0.8 }}
                             className="text-center mb-20"
                         >
+                            <AIChip/>
+
+                            <br /><br /><br /><br />
+
                             <h2 className="text-4xl md:text-5xl font-bold tracking-tight">
                                 The Triadic Core
                             </h2>
