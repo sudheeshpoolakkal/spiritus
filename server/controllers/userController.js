@@ -79,8 +79,7 @@ const loginUser = async (req, res) => {
 //API TO GET USER PROFILE DATA
 const getProfile = async (req, res) => {
     try {
-        const { userId } = req.body;
-        const userData = await userModel.findById(userId).select("-password");
+        const userData = await userModel.findById(req.userId).select("-password");
         res.json({ success: true, userData });
     } catch (error) {
         console.log(error);
@@ -91,7 +90,7 @@ const getProfile = async (req, res) => {
 //API TO UPDATE USER PROFILE
 const updateProfile = async (req, res) => {
   try {
-    const { userId, name, phone, address, dob, gender } = req.body;
+    const { name, phone, address, dob, gender } = req.body;
     const imageFile = req.file; // using multer's memoryStorage
 
     if (!name || !phone || !dob || !gender) {
@@ -137,7 +136,7 @@ const updateProfile = async (req, res) => {
       }
     }
 
-    await userModel.findByIdAndUpdate(userId, updateData);
+    await userModel.findByIdAndUpdate(req.userId, updateData);
 
     res.json({ success: true, message: "Profile Updated!" });
   } catch (error) {
@@ -148,21 +147,9 @@ const updateProfile = async (req, res) => {
 // NEW FUNCTION: uploadProfileImage
 const uploadProfileImage = async (req, res) => {
     try {
-      // Use the userId from req.body if available; otherwise, decode the token manually.
-      let userId = req.body.userId;
-      if (!userId) {
-        const { token } = req.headers;
-        if (!token) {
-          return res.json({ success: false, message: "Not authorized. Login again" });
-        }
-        const token_decode = jwt.verify(token, process.env.JWT_SECRET);
-        userId = token_decode.id;
-      }
-  
+      const userId = req.userId;
       const imageFile = req.file;
-      if (!userId) {
-        return res.json({ success: false, message: "User ID missing" });
-      }
+
       if (!imageFile) {
         return res.json({ success: false, message: "No image file provided" });
       }
@@ -224,12 +211,12 @@ const bookAppointment = async (req, res) => {
         slots_booked[slotDate] = [slotTime];
     }
 
-    const userData = await userModel.findById(req.body.userId).select('-password');
+    const userData = await userModel.findById(req.userId).select('-password');
     // Remove sensitive data before adding to appointment data
     delete docData.slots_booked;
 
     const appointmentData = {
-        userId: req.body.userId,
+        userId: req.userId,
         docId,
         consultationMode,
         hospitalId: docData.hospitalId,
@@ -287,8 +274,7 @@ const bookAppointment = async (req, res) => {
 const listAppointment = async (req, res) => {
     try {
 
-        const { userId } = req.body
-        const appointments = await appointmentModel.find({ userId })
+        const appointments = await appointmentModel.find({ userId: req.userId })
 
         res.json({ success: true, appointments })
 
@@ -304,7 +290,7 @@ const listAppointment = async (req, res) => {
 //  API to cancel appointment
 const cancelAppointment = async (req, res) => {
     try {
-        const { userId, appointmentId } = req.body;
+        const { appointmentId } = req.body;
 
         const appointmentData = await appointmentModel.findById(appointmentId);
 
@@ -314,7 +300,7 @@ const cancelAppointment = async (req, res) => {
 
 
 
-        if (appointmentData.userId.toString() !== userId) {
+        if (appointmentData.userId.toString() !== req.userId) {
             return res.json({ success: false, message: "Unauthorized action.." });
         }
 
@@ -380,9 +366,9 @@ const processPayment = async (req, res) => {
 
   const rateDoctor = async (req, res) => {
     try {
-        const { appointmentId, rating, review, docId, userId } = req.body;
+        const { appointmentId, rating, review, docId } = req.body;
 
-        if (!appointmentId || !rating || !docId || !userId) {
+        if (!appointmentId || !rating || !docId || !req.userId) {
             return res.status(400).json({
                 success: false,
                 message: 'Missing required fields: appointmentId, rating, docId, or userId'
@@ -407,7 +393,7 @@ const processPayment = async (req, res) => {
         }
 
         // Verify that the appointment belongs to the user
-        if (appointment.userId !== userId) {
+        if (appointment.userId !== req.userId) {
             return res.status(403).json({
                 success: false,
                 message: 'You are not authorized to rate this appointment'
@@ -458,7 +444,7 @@ const processPayment = async (req, res) => {
 
         // Add the review to the doctor's review array if provided
         if (review) {
-            doctor.reviews.push({ userId, rating, review });
+            doctor.reviews.push({ userId: req.userId, rating, review });
         }
 
         await doctor.save();
@@ -669,7 +655,7 @@ const submitDoctorRegistration = async (req, res) => {
 
 const submitQuestionnaire = async (req, res) => {
   try {
-    const { userId, answers } = req.body;
+    const { answers } = req.body;
 
     // Validate that all questions have been answered
     const requiredQuestions = [
@@ -686,7 +672,7 @@ const submitQuestionnaire = async (req, res) => {
       }
     }
 
-    await userModel.findByIdAndUpdate(userId, { questionnaire: answers });
+    await userModel.findByIdAndUpdate(req.userId, { questionnaire: answers });
 
     res.json({ success: true, message: 'Questionnaire submitted successfully' });
   } catch (error) {
