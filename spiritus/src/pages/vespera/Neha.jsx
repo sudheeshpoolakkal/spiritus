@@ -969,9 +969,9 @@ Your Analysis:`;
                                 className="font-bold">
                                 Vespera
                             </Link>
-                            <a href="#" className="hover:text-white transition-colors">
-                                Research
-                            </a>
+                            <a href="#" className="font-bold hover:text-white transition-colors">
+    Research
+</a>
                             <Link to="/about" style={{
                                     background:
                                         "linear-gradient(89.58deg, #3186FF 0.28%, #346BF0 44.45%, #4EA0FF 99.55%)",
