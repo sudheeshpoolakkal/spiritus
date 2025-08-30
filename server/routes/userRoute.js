@@ -14,14 +14,14 @@ const userRouter = express.Router();
 
 userRouter.post('/register', registerUser);
 userRouter.post('/login', loginUser);
-userRouter.post('/book-appointment', authUser, upload.single('audioMessage'), bookAppointment);
+userRouter.post('/book-appointment', upload.single('audioMessage'), authUser, bookAppointment);
 userRouter.get('/get-profile', authUser, getProfile);
 userRouter.put('/update-profile', upload.single('image'), authUser, updateProfile);
 userRouter.get('/appointments', authUser, listAppointment);
 userRouter.post('/cancel-appointment', authUser, cancelAppointment);
 userRouter.get('/video-call/:appointmentId', getVideoCallLink);
 userRouter.post('/process-payment', authUser, processPayment);
-userRouter.post('/upload-profile-image', authUser, upload.single('image'), uploadProfileImage);
+userRouter.post('/upload-profile-image', upload.single('image'), authUser, uploadProfileImage);
 userRouter.post('/rate-doctor', authUser, rateDoctor);
 userRouter.post('/submit-feedback', submitFeedback);
 userRouter.post('/submit-hospital-registration', upload.fields([
