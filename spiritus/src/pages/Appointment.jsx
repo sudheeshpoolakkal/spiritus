@@ -232,6 +232,11 @@ const getAvailableSlot = () => {
       return navigate('/login');
     }
 
+    if ((!patientDescription || patientDescription.trim() === '') && !recordedAudio) {
+      toast.error('Please provide a description of your problem in text or audio.');
+      return;
+    }
+
     try {
       if (!docSlots[slotIndex] || docSlots[slotIndex].length === 0) {
         toast.error('No available slots for selected date');
@@ -625,12 +630,17 @@ const getAvailableSlot = () => {
                 </div>
               </div>
             )}
+            <label htmlFor="patientDescription" className="text-md font-semibold text-gray-700 mb-2">
+              Problem Description <span className="text-red-500">*</span>
+            </label>
             <textarea
+              id="patientDescription"
               value={patientDescription}
               onChange={(e) => setPatientDescription(e.target.value)}
               placeholder="Describe your symptoms or reason for booking this appointment..."
               className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none text-gray-700"
               rows="4"
+              required
             />
             {/* Added AudioRecorder for voice description */}
             <AudioRecorder onAudioRecorded={setRecordedAudio} />
