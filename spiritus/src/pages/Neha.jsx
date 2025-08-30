@@ -7,7 +7,7 @@ import {
     useMotionValue,
 } from "framer-motion";
 import { Link } from "react-router-dom";
-import sudhi from "@/assets/private/sudhi-1x1.jpg";
+//import sudhi from "@/assets/private/sudhi-1x1.jpg";
 // --- Icon Components (Enhanced & New) ---
 const BrainCircuit = ({ className }) => (
     <svg
