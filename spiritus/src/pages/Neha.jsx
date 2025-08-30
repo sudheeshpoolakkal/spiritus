@@ -860,10 +860,9 @@ Your Analysis:`;
                                 <path d="M6 14.813V24h8.313c0-5.36-4.187-8.75-8.313-9.187zM20 14.813V24h8.313c0-5.36-4.187-8.75-8.313-9.187zM4 8h10.813c2.25 2.375 3.187 4.984 3.187 7.813V26H2V8h2zm18 0h10.813c2.25 2.375 3.187 4.984 3.187 7.813V26H18V8h4z" />
                             </svg>
                             <blockquote className="font-serif text-2xl md:text-3xl lg:text-4xl text-gray-200 leading-relaxed italic">
-                                “When the mind ceases to grab the opposites, the wisdom flows of
-                                itself, clear as the still water and vast as the boundless sky.”
+                             “N.E.H.A. is engineered as a system which is free from the noise of the world and the illusions of the mind. In its heart lies the Absolute Silence.”
                             </blockquote>
-                            <footer className="mt-8">
+                            {/* <footer className="mt-8">
                                 <img
                                     src={sudhi}
                                     alt="Portrait of Sudheesh P"
@@ -874,7 +873,7 @@ Your Analysis:`;
                                 <p className="text-gray-500">
                                     One without any identity, Vespera Project
                                 </p>
-                            </footer>
+                            </footer> */}
                         </motion.div>
                     </div>
                 </section>
