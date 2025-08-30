@@ -9,9 +9,12 @@ const Doctors = () => {
 
   const fetchDoctors = async () => {
     try {
-      const { data } = await axios.get(backendUrl + '/api/hospital/doctors', {
-        headers: { hToken },
-      });
+      const { data } = await axios.get(
+        backendUrl + '/api/hospital/doctors',
+        {
+          headers: { Authorization: `Bearer ${hToken}` },
+        },
+      );
       if (data.success) {
         setDoctors(data.doctors);
       } else {

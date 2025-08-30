@@ -11,7 +11,7 @@ const EarningsIcon = () => (
 
 const AppointmentIcon = () => (
   <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 002 2v12a2 2 0 002 2z" />
   </svg>
 );
 
@@ -27,8 +27,22 @@ const SlotsIcon = () => (
   </svg>
 );
 
+// Consultation Mode Icons
+const OnlineIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+  </svg>
+);
+
+const OfflineIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+  </svg>
+);
+
 const DoctorDashboard = () => {
-  const { dToken, dashData, getDashData, cancelAppointment, completeAppointment, doctorSlots, getDoctorSlots } = useContext(DoctorContext);
+  const { dToken, dashData, getDashData, doctorSlots, getDoctorSlots } = useContext(DoctorContext);
   const { currency, slotDateFormat } = useContext(AppContext);
 
   useEffect(() => {
@@ -40,6 +54,34 @@ const DoctorDashboard = () => {
 
   // Calculate total slots count
   const totalSlots = Object.values(doctorSlots).reduce((total, slots) => total + slots.length, 0);
+
+  // Helper function to check if appointment is offline
+  const isOfflineAppointment = (appointment) => {
+    return appointment.consultationMode === 'offline' || 
+           appointment.bookingType === 'offline' || 
+           appointment.consultationType === 'offline' || 
+           appointment.isOffline === true;
+  };
+
+  // Helper function to get consultation mode display
+  const getConsultationMode = (appointment) => {
+    if (isOfflineAppointment(appointment)) {
+      return {
+        type: 'offline',
+        label: 'Offline',
+        icon: OfflineIcon,
+        bgColor: 'bg-orange-100',
+        textColor: 'text-orange-700'
+      };
+    }
+    return {
+      type: 'online',
+      label: 'Online',
+      icon: OnlineIcon,
+      bgColor: 'bg-blue-100',
+      textColor: 'text-blue-700'
+    };
+  };
 
   return (
     dashData && (
@@ -112,47 +154,53 @@ const DoctorDashboard = () => {
 
           <div className="divide-y">
             {dashData.latestAppointments && dashData.latestAppointments.length > 0 ? (
-              dashData.latestAppointments.map((item, index) => (
-                <div className="flex items-center px-6 py-4 hover:bg-gray-50 transition-colors" key={index}>
-                  <img className="w-10 h-10 rounded-full object-cover" src={item.userData.image} alt={item.userData.name} />
-                  <div className="ml-4 flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">{item.userData.name}</p>
-                    <p className="text-sm text-gray-500 mt-1">{slotDateFormat(item.slotDate)}</p>
-                  </div>
-                  <div className="ml-4 flex items-center gap-4">
-                    {item.cancelled ? (
-                      <span className="px-3 py-1 rounded-full bg-red-100 text-red-800 text-xs font-medium">Cancelled</span>
-                    ) : item.isCompleted ? (
-                      <span className="px-3 py-1 rounded-full bg-green-100 text-green-800 text-xs font-medium">Completed</span>
-                    ) : (
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => cancelAppointment(item._id)}
-                          className="p-2 text-gray-400 hover:text-red-600 rounded-full hover:bg-red-50 transition-colors"
-                          aria-label="Cancel Appointment"
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                        <button
-                          onClick={() => completeAppointment(item._id)}
-                          className="p-2 text-gray-400 hover:text-green-600 rounded-full hover:bg-green-50 transition-colors"
-                          aria-label="Complete Appointment"
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                        </button>
+              dashData.latestAppointments.map((item, index) => {
+                const consultationMode = getConsultationMode(item);
+                return (
+                  <div className="flex items-center px-6 py-4 hover:bg-gray-50 transition-colors" key={index}>
+                    <img 
+                      className="w-10 h-10 rounded-full object-cover" 
+                      src={item.userData.image} 
+                      alt={item.userData.name} 
+                    />
+                    <div className="ml-4 flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">{item.userData.name}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <p className="text-sm text-gray-500">{slotDateFormat(item.slotDate)}</p>
+                        <span className="text-gray-300">•</span>
+                        <span className="text-sm text-gray-500">{item.slotTime}</span>
                       </div>
-                    )}
+                    </div>
+                    
+                    {/* Consultation Mode Badge */}
+                    <div className="ml-4 flex items-center gap-3">
+                      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${consultationMode.bgColor} ${consultationMode.textColor}`}>
+                        <consultationMode.icon />
+                        {consultationMode.label}
+                      </span>
+                      
+                      {/* Status Badge */}
+                      {item.cancelled ? (
+                        <span className="px-3 py-1 rounded-full bg-red-100 text-red-800 text-xs font-medium">
+                          Cancelled
+                        </span>
+                      ) : item.isCompleted ? (
+                        <span className="px-3 py-1 rounded-full bg-green-100 text-green-800 text-xs font-medium">
+                          Completed
+                        </span>
+                      ) : (
+                        <span className="px-3 py-1 rounded-full bg-yellow-100 text-yellow-800 text-xs font-medium">
+                          Pending
+                        </span>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             ) : (
               <div className="px-6 py-8 text-center text-gray-500">
                 <svg className="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 002 2v12a2 2 0 002 2z" />
                 </svg>
                 <p>No appointments yet</p>
                 <p className="text-sm">Your upcoming appointments will appear here</p>

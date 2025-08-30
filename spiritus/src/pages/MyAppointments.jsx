@@ -119,16 +119,19 @@ const MyAppointments = () => {
     return timeDifference <= 15 && timeDifference >= -60;
   };
 
-  // Updated function to show "meeting scheduled" message
-  const shouldShowScheduledMessage = (slotDate, slotTime) => {
-    const appointmentTime = parseAppointmentTime(slotDate, slotTime);
+  // Updated function to show "meeting scheduled" message - only for online appointments and not completed
+  const shouldShowScheduledMessage = (appointment) => {
+    // Don't show for offline appointments or completed appointments
+    if (!appointment.videoCallLink || appointment.isCompleted) return false;
+    
+    const appointmentTime = parseAppointmentTime(appointment.slotDate, appointment.slotTime);
     if (!appointmentTime) return false;
     
     const currentTime = new Date();
     const timeDifference = (appointmentTime - currentTime) / (1000 * 60); // in minutes
     
-    // Show scheduled message when more than 15 minutes before appointment
-    return timeDifference > 15;
+    // Show scheduled message when more than 15 minutes before appointment and not completed
+    return timeDifference > 15 && !isAppointmentCompleted(appointment.slotDate, appointment.slotTime);
   };
 
   // Updated function to check if appointment should be marked as completed
@@ -162,6 +165,11 @@ const MyAppointments = () => {
     if (timeDifference <= 15 && timeDifference >= -60) return "active";
     
     return "upcoming";
+  };
+
+  // Function to determine consultation mode
+  const getConsultationMode = (appointment) => {
+    return appointment.videoCallLink ? "Online" : "Offline";
   };
 
   const filterAppointments = () => {
@@ -356,6 +364,7 @@ const MyAppointments = () => {
               <div className="grid gap-4">
                 {dateAppointments.map((item, index) => {
                   const status = getAppointmentStatus(item);
+                  const consultationMode = getConsultationMode(item);
                   const statusStyles = {
                     active: "bg-green-50 text-green-700 border-green-200",
                     upcoming: "bg-indigo-50 text-indigo-700 border-indigo-200",
@@ -438,41 +447,52 @@ const MyAppointments = () => {
                                     viewBox="0 0 24 24"
                                     stroke="currentColor"
                                   >
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      strokeWidth={2}
-                                      d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                                    />
+                                    {consultationMode === "Online" ? (
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+                                      />
+                                    ) : (
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                                      />
+                                    )}
                                   </svg>
-                                  <span>Online Consultation</span>
+                                  <span>{consultationMode} Consultation</span>
                                 </div>
-                                <div className="flex items-start text-sm text-gray-600 md:col-span-2">
-                                  <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="h-4 w-4 mr-2 text-gray-400 mt-0.5"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                  >
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      strokeWidth={2}
-                                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                                    />
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      strokeWidth={2}
-                                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                                    />
-                                  </svg>
-                                  <span>
-                                    {item.docData.address.line1},{" "}
-                                    {item.docData.address.line2}
-                                  </span>
-                                </div>
+                                {consultationMode === "Offline" && (
+                                  <div className="flex items-start text-sm text-gray-600 md:col-span-2">
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      className="h-4 w-4 mr-2 text-gray-400 mt-0.5"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                      stroke="currentColor"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                                      />
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                                      />
+                                    </svg>
+                                    <span>
+                                      {item.docData.address.line1},{" "}
+                                      {item.docData.address.line2}
+                                    </span>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           </div>
@@ -527,10 +547,10 @@ const MyAppointments = () => {
                           </div>
                         </div>
                         
-                        {/* Show different messages based on appointment status */}
-                        {item.videoCallLink && (
+                        {/* Show different messages based on appointment status - only for online appointments and not completed */}
+                        {consultationMode === "Online" && status !== "completed" && !item.cancelled && (
                           <>
-                            {shouldShowScheduledMessage(item.slotDate, item.slotTime) && (
+                            {shouldShowScheduledMessage(item) && (
                               <div className="mt-4 px-4 py-3 bg-blue-50 border border-blue-200 text-blue-700 rounded-lg text-sm flex items-center">
                                 <svg
                                   xmlns="http://www.w3.org/2000/svg"

@@ -380,7 +380,7 @@ const Plans = () => {
               }`}
             >
               Annual
-              <span className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full animate-bounce-subtle">
+              <span className="absolute -top-2 -right-2  text-white text-xs px-2 py-1 rounded-full animate-bounce-subtle" style={{background: 'linear-gradient(89.58deg, #3186FF 0.28%, #346BF0 44.45%, #4EA0FF 99.55%)'}}>
                 Save 17%
               </span>
             </button>
