@@ -79,7 +79,7 @@ const loginUser = async (req, res) => {
 //API TO GET USER PROFILE DATA
 const getProfile = async (req, res) => {
     try {
-        const { userId } = req.body;
+        const { userId } = req;
         const userData = await userModel.findById(userId).select("-password");
         res.json({ success: true, userData });
     } catch (error) {
@@ -91,7 +91,8 @@ const getProfile = async (req, res) => {
 //API TO UPDATE USER PROFILE
 const updateProfile = async (req, res) => {
   try {
-    const { userId, name, phone, address, dob, gender } = req.body;
+    const { name, phone, address, dob, gender } = req.body;
+    const { userId } = req;
     const imageFile = req.file; // using multer's memoryStorage
 
     if (!name || !phone || !dob || !gender) {
@@ -148,18 +149,9 @@ const updateProfile = async (req, res) => {
 // NEW FUNCTION: uploadProfileImage
 const uploadProfileImage = async (req, res) => {
     try {
-      // Use the userId from req.body if available; otherwise, decode the token manually.
-      let userId = req.body.userId;
-      if (!userId) {
-        const { token } = req.headers;
-        if (!token) {
-          return res.json({ success: false, message: "Not authorized. Login again" });
-        }
-        const token_decode = jwt.verify(token, process.env.JWT_SECRET);
-        userId = token_decode.id;
-      }
-  
+      const { userId } = req;
       const imageFile = req.file;
+
       if (!userId) {
         return res.json({ success: false, message: "User ID missing" });
       }
@@ -220,12 +212,12 @@ const bookAppointment = async (req, res) => {
         slots_booked[slotDate] = [slotTime];
     }
 
-    const userData = await userModel.findById(req.body.userId).select('-password');
+    const userData = await userModel.findById(req.userId).select('-password');
     // Remove sensitive data before adding to appointment data
     delete docData.slots_booked;
 
     const appointmentData = {
-        userId: req.body.userId,
+        userId: req.userId,
         docId,
         consultationMode,
         hospitalId: docData.hospitalId,
@@ -277,7 +269,7 @@ const bookAppointment = async (req, res) => {
 const listAppointment = async (req, res) => {
     try {
 
-        const { userId } = req.body
+        const { userId } = req
         const appointments = await appointmentModel.find({ userId })
 
         res.json({ success: true, appointments })
@@ -294,7 +286,8 @@ const listAppointment = async (req, res) => {
 //  API to cancel appointment
 const cancelAppointment = async (req, res) => {
     try {
-        const { userId, appointmentId } = req.body;
+        const { appointmentId } = req.body;
+        const { userId } = req;
 
         const appointmentData = await appointmentModel.findById(appointmentId);
 
