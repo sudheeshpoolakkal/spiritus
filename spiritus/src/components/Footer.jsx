@@ -1,11 +1,49 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+// Data for footer links, making the component easier to manage.
+const footerSections = [
+  {
+    title: 'Services',
+    links: [
+      { name: 'Intelligence Module', path: '/neha', isHighlighted: true },
+      { name: 'Vespera', path: '/vespera', isHighlighted: true },
+      { name: 'Online Therapy', path: '/therapy' },
+      { name: 'Community', path: '/community' },
+    ],
+  },
+  {
+    title: 'Support',
+    links: [
+      { name: 'Home', path: '/' },
+      { name: 'About Us', path: '/about' },
+      { name: 'Contact Us', path: '/contact' },
+    ],
+  },
+  {
+    title: 'Legal',
+    links: [
+      { name: 'Privacy Policy', path: '/privacy' },
+      { name: 'Terms of Service', path: '/terms' },
+    ],
+  },
+];
+
+// Define styles once to avoid repetition.
+const baseLinkStyle = 'text-xs transition-colors';
+const standardLinkStyle = `${baseLinkStyle} text-[#86868b] hover:text-gray-900`;
+const highlightedLinkStyle = {
+  background: 'linear-gradient(89.58deg, #3186FF 0.28%, #346BF0 44.45%, #4EA0FF 99.55%)',
+  WebkitBackgroundClip: 'text',
+  WebkitTextFillColor: 'transparent',
+};
+
 const Footer = () => {
   return (
     <footer className="bg-[#f5f5f7] py-16">
       <div className="max-w-[980px] mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+          {/* About Section */}
           <div>
             <h3 className="text-xs text-gray-900 font-semibold mb-4">About Spiritus</h3>
             <p className="text-xs text-[#86868b] leading-relaxed">
@@ -13,35 +51,29 @@ const Footer = () => {
             </p>
           </div>
 
-          <div>
-            <h4 className="text-xs text-gray-900 font-semibold mb-4">Services</h4>
-            <ul className="space-y-2">
-              <li><Link to="/neha" style={{background: 'linear-gradient(89.58deg, #3186FF 0.28%, #346BF0 44.45%, #4EA0FF 99.55%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'}} className="text-xs font-bold">Intelligence Module</Link></li>
-              <li><p className="text-xs text-[#86868b] hover:text-gray-900 transition-colors">Online Therapy</p></li>
-              <li><p className="text-xs text-[#86868b] hover:text-gray-900 transition-colors">Community</p></li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-xs text-gray-900 font-semibold mb-4">Support</h4>
-            <ul className="space-y-2">
-              <li><Link to="/" className="text-xs text-[#86868b] hover:text-gray-900 transition-colors">Home</Link></li>
-              <li><Link to="/about" className="text-xs text-[#86868b] hover:text-gray-900 transition-colors">About Us</Link></li>
-              <li><Link to="/contact" className="text-xs text-[#86868b] hover:text-gray-900 transition-colors">Contact Us</Link></li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-xs text-gray-900 font-semibold mb-4">Legal</h4>
-            <ul className="space-y-2">
-              <li><p to="/privacy" className="text-xs text-[#86868b] hover:text-gray-900 transition-colors">Privacy Policy</p></li>
-              <li><p to="/terms" className="text-xs text-[#86868b] hover:text-gray-900 transition-colors">Terms of Service</p></li>
-            </ul>
-          </div>
+          {/* Dynamically Generated Sections */}
+          {footerSections.map((section) => (
+            <div key={section.title}>
+              <h4 className="text-xs text-gray-900 font-semibold mb-4">{section.title}</h4>
+              <ul className="space-y-3"> {/* Increased space-y for better readability */}
+                {section.links.map((link) => (
+                  <li key={link.name}>
+                    <Link
+                      to={link.path}
+                      className={link.isHighlighted ? `${baseLinkStyle} font-bold` : standardLinkStyle}
+                      style={link.isHighlighted ? highlightedLinkStyle : {}}
+                    >
+                      {link.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
 
         <div className="border-t border-gray-200 pt-8">
-          <p className="text-xs text-[#100101] text-center">
+          <p className="text-xs text-center text-[#100101]">
             Copyright © {new Date().getFullYear()} Spiritus. All rights reserved.
           </p>
         </div>

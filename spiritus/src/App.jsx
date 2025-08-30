@@ -25,8 +25,8 @@ import Plans from './pages/Plans'
 import Hospitals from './pages/Hospitals'
 import HospitalDetails from './pages/HospitalDetails'
 import GetHelpNow from './pages/GetHelpNow'
-import Neha from './pages/Neha' 
-
+import Neha from './pages/vespera/Neha' 
+import Vespera from './pages/vespera/Vespera'
 const App = () => {
   const location = useLocation();
 
@@ -42,7 +42,8 @@ const App = () => {
     '/complete-profile',
     '/questionnaire',
     '/my-profile',
-    '/neha'
+    '/neha',
+    '/vespera'
   ].includes(location.pathname);
 
   // Paths that should be full-width (no side margins)
@@ -92,6 +93,7 @@ const App = () => {
             <Route path='/hospital/:hospitalId' element={<HospitalDetails />}/>
             <Route path="/gethelpnow" element={<GetHelpNow />} />
             <Route path="/neha" element={<Neha/>}/>
+            <Route path="/vespera" element={<Vespera/>}/>
             {/* Add more routes as needed */}
           </Routes>
         </ProfileCompletionGuard>

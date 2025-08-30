@@ -945,7 +945,7 @@ Your Analysis:`;
 
                 {/* Footer */}
                 <footer className="pt-12 pb-20 px-4">
-                    <div className="container mx-auto max-w-6xl text-center text-gray-500">
+                    <div className="container mx-auto max-w-6xl text-center text-gray-300">
                         <div className="text-2xl font-black tracking-widest mb-6">NEHA</div>
                         <div className="flex justify-center space-x-6 md:space-x-8 mb-6 text-sm">
                             <Link
@@ -960,18 +960,36 @@ Your Analysis:`;
                             >
                                 Spiritus
                             </Link>
-                            <Link to="/neha" className="hover:text-white transition-colors">
-                                Intelligence Module
+                            <Link to="/vespera" style={{
+                                    background:
+                                        "linear-gradient(89.58deg, #3186FF 0.28%, #346BF0 44.45%, #4EA0FF 99.55%)",
+                                    WebkitBackgroundClip: "text",
+                                    WebkitTextFillColor: "transparent",
+                                }}
+                                className="font-bold">
+                                Vespera
                             </Link>
                             <a href="#" className="hover:text-white transition-colors">
                                 Research
                             </a>
-                            <a href="#" className="hover:text-white transition-colors">
-                                Media
-                            </a>
-                            <a href="#" className="hover:text-white transition-colors">
+                            <Link to="/about" style={{
+                                    background:
+                                        "linear-gradient(89.58deg, #3186FF 0.28%, #346BF0 44.45%, #4EA0FF 99.55%)",
+                                    WebkitBackgroundClip: "text",
+                                    WebkitTextFillColor: "transparent",
+                                }}
+                                className="font-bold">
+                                About
+                            </Link>
+                            <Link to="/contact" style={{
+                                    background:
+                                        "linear-gradient(89.58deg, #3186FF 0.28%, #346BF0 44.45%, #4EA0FF 99.55%)",
+                                    WebkitBackgroundClip: "text",
+                                    WebkitTextFillColor: "transparent",
+                                }}
+                                className="font-bold">
                                 Contact
-                            </a>
+                            </Link>
                         </div>
                         <p className="text-sm">
                             &copy; {new Date().getFullYear()} Vespera Systems. Building the
